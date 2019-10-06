@@ -13,10 +13,10 @@ struct dropout_layer_t
 
 	dropout_layer_t( tdsize in_size, float p_activation )
 		:
+		grads_in( in_size.x, in_size.y, in_size.z ),
 		in( in_size.x, in_size.y, in_size.z ),
 		out( in_size.x, in_size.y, in_size.z ),
 		hitmap( in_size.x, in_size.y, in_size.z ),
-		grads_in( in_size.x, in_size.y, in_size.z ),
 		p_activation( p_activation )
 	{
 		
@@ -28,7 +28,7 @@ struct dropout_layer_t
 		activate();
 	}
 
-	void activate()
+	void __attribute__((noinline)) activate()
 	{
 		for ( int i = 0; i < in.size.x*in.size.y*in.size.z; i++ )
 		{
@@ -44,7 +44,7 @@ struct dropout_layer_t
 		
 	}
 
-	void calc_grads( tensor_t<float>& grad_next_layer )
+	void __attribute__((noinline)) calc_grads( tensor_t<float>& grad_next_layer )
 	{
 		for ( int i = 0; i < in.size.x*in.size.y*in.size.z; i++ )
 			grads_in.data[i] = hitmap.data[i] ? grad_next_layer.data[i] : 0.0f;

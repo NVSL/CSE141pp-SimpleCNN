@@ -17,9 +17,9 @@ struct fc_layer_t
 
 	fc_layer_t( tdsize in_size, int out_size )
 		:
+		grads_in( in_size.x, in_size.y, in_size.z ),
 		in( in_size.x, in_size.y, in_size.z ),
 		out( out_size, 1, 1 ),
-		grads_in( in_size.x, in_size.y, in_size.z ),
 		weights( in_size.x*in_size.y*in_size.z, out_size, 1 )
 	{
 		input = std::vector<float>( out_size );
@@ -49,7 +49,7 @@ struct fc_layer_t
 		return sig * (1 - sig);
 	}
 
-	void activate( tensor_t<float>& in )
+	void __attribute__((noinline)) activate( tensor_t<float>& in )
 	{
 		this->in = in;
 		activate();
@@ -62,7 +62,7 @@ struct fc_layer_t
 			d.x;
 	}
 
-	void activate()
+	void __attribute__((noinline)) activate()
 	{
 		for ( int n = 0; n < out.size.x; n++ )
 		{
@@ -100,7 +100,7 @@ struct fc_layer_t
 		}
 	}
 
-	void calc_grads( tensor_t<float>& grad_next_layer )
+	void __attribute__((noinline)) calc_grads( tensor_t<float>& grad_next_layer )
 	{
 		memset( grads_in.data, 0, grads_in.size.x *grads_in.size.y*grads_in.size.z * sizeof( float ) );
 		for ( int n = 0; n < out.size.x; n++ )

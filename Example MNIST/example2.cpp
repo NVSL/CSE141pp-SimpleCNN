@@ -165,6 +165,7 @@ int main()
 
 
 
+#if(0)
 	while ( true )
 	{
 		uint8_t * data = read_file( "test.ppm" );
@@ -213,5 +214,7 @@ int main()
 		wait.tv_nsec = 0;
 		nanosleep(&wait, nullptr);
 	}
+#endif
+	
 	return 0;
 }

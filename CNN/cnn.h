@@ -1,4 +1,8 @@
 #pragma once
+
+#include <cstdint>
+#include <cstdio>
+
 #include "tensor_t.h"
 #include "optimization_method.h"
 #include "fc_layer.h"
@@ -7,7 +11,8 @@
 #include "conv_layer_t.h"
 #include "dropout_layer_t.h"
 
-static void calc_grads( layer_t* layer, tensor_t<float>& grad_next_layer )
+
+void calc_grads( layer_t* layer, tensor_t<float>& grad_next_layer )
 {
 	switch ( layer->type )
 	{
@@ -31,7 +36,7 @@ static void calc_grads( layer_t* layer, tensor_t<float>& grad_next_layer )
 	}
 }
 
-static void fix_weights( layer_t* layer )
+void fix_weights( layer_t* layer )
 {
 	switch ( layer->type )
 	{
@@ -55,7 +60,7 @@ static void fix_weights( layer_t* layer )
 	}
 }
 
-static void activate( layer_t* layer, tensor_t<float>& in )
+void activate( layer_t* layer, tensor_t<float>& in )
 {
 	switch ( layer->type )
 	{
@@ -78,3 +83,4 @@ static void activate( layer_t* layer, tensor_t<float>& in )
 			assert( false );
 	}
 }
+

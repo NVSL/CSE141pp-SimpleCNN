@@ -8,52 +8,72 @@ struct conv_layer_t
 	tensor_t<float> grads_in;
 	tensor_t<float> in;
 	tensor_t<float> out;
-	std::vector<tensor_t<float>> filters;
-	std::vector<tensor_t<gradient_t>> filter_grads;
+	std::vector<tensor_t<float>> filters;  // convolution filter kernels
+	std::vector<tensor_t<gradient_t> > filter_grads;
 	uint16_t stride;
-	uint16_t extend_filter;
-
-	conv_layer_t( uint16_t stride, uint16_t extend_filter, uint16_t number_filters, tdsize in_size )
+	uint16_t kernel_size;
+	
+	conv_layer_t( uint16_t stride,
+		      uint16_t kernel_size, // Width and height of the kernel.  This much of the lower-right edges of the input will be ignored.
+		      uint16_t kernel_count, // Depth of the output.
+		      tdsize in_size )
 		:
 		grads_in( in_size.x, in_size.y, in_size.z ),
 		in( in_size.x, in_size.y, in_size.z ),
 		out(
-		(in_size.x - extend_filter) / stride + 1,
-			(in_size.y - extend_filter) / stride + 1,
-			number_filters
+		(in_size.x - kernel_size) / stride + 1,
+			(in_size.y - kernel_size) / stride + 1,
+			kernel_count
 		)
 
 	{
 		this->stride = stride;
-		this->extend_filter = extend_filter;
-		assert( (float( in_size.x - extend_filter ) / stride + 1)
+		this->kernel_size = kernel_size;
+		
+		// Ensure that stride evenly defivides image size.
+		throw_assert( (float( in_size.x - kernel_size ) / stride + 1)
 				==
-				((in_size.x - extend_filter) / stride + 1) );
-
-		assert( (float( in_size.y - extend_filter ) / stride + 1)
+			      ((in_size.x - kernel_size) / stride + 1), "Stride does note divide width");
+		
+		throw_assert( (float( in_size.y - kernel_size ) / stride + 1)
 				==
-				((in_size.y - extend_filter) / stride + 1) );
+			      ((in_size.y - kernel_size) / stride + 1), "Stride does not divide height");
 
-		for ( int a = 0; a < number_filters; a++ )
-		{
-			tensor_t<float> t( extend_filter, extend_filter, in_size.z );
+		for ( int a = 0; a < kernel_count; a++ ) {	
+			tensor_t<float> t( kernel_size, kernel_size, in_size.z );
 
-			int maxval = extend_filter * extend_filter * in_size.z;
+			int maxval = kernel_size * kernel_size * in_size.z;
 
-			for ( int i = 0; i < extend_filter; i++ )
-				for ( int j = 0; j < extend_filter; j++ )
+			for ( int i = 0; i < kernel_size; i++ )
+				for ( int j = 0; j < kernel_size; j++ )
 					for ( int z = 0; z < in_size.z; z++ )
 						t( i, j, z ) = 1.0f / maxval * rand() / float( RAND_MAX );
 			filters.push_back( t );
 		}
-		for ( int i = 0; i < number_filters; i++ )
+		for ( int i = 0; i < kernel_count; i++ )
 		{
-			tensor_t<gradient_t> t( extend_filter, extend_filter, in_size.z );
+			tensor_t<gradient_t> t( kernel_size, kernel_size, in_size.z );
 			filter_grads.push_back( t );
 		}
 
 	}
+	
+	bool operator==(const conv_layer_t & o) const {
+		if (o.stride != stride) return false;
+		if (o.kernel_size != kernel_size) return false;
+		if (o.in != in) return false;
+		if (o.grads_in != grads_in) return false;
+		if (o.out != out) return false;
+		if (o.filters != filters) return false;
+		if (o.filter_grads != filter_grads) return false;
+		return true;
+	}
 
+	bool operator!=(const conv_layer_t & o) const {
+		return !(*this == o);
+	}
+
+	
 	point_t map_to_input( point_t out, int z )
 	{
 		out.x *= stride;
@@ -88,8 +108,8 @@ struct conv_layer_t
 		float b = y;
 		return
 		{
-			normalize_range( (a - extend_filter + 1) / stride, out.size.x, true ),
-			normalize_range( (b - extend_filter + 1) / stride, out.size.y, true ),
+			normalize_range( (a - kernel_size + 1) / stride, out.size.x, true ),
+			normalize_range( (b - kernel_size + 1) / stride, out.size.y, true ),
 			0,
 			normalize_range( a / stride, out.size.x, false ),
 			normalize_range( b / stride, out.size.y, false ),
@@ -103,9 +123,9 @@ struct conv_layer_t
 		activate();
 	}
 
-	void activate()
+	void __attribute__((noinline)) activate()
 	{
-		for ( int filter = 0; filter < filters.size(); filter++ )
+		for ( uint filter = 0; filter < filters.size(); filter++ )
 		{
 			tensor_t<float>& filter_data = filters[filter];
 			for ( int x = 0; x < out.size.x; x++ )
@@ -114,8 +134,8 @@ struct conv_layer_t
 				{
 					point_t mapped = map_to_input( { (uint16_t)x, (uint16_t)y, 0 }, 0 );
 					float sum = 0;
-					for ( int i = 0; i < extend_filter; i++ )
-						for ( int j = 0; j < extend_filter; j++ )
+					for ( uint i = 0; i < kernel_size; i++ )
+						for ( uint j = 0; j < kernel_size; j++ )
 							for ( int z = 0; z < in.size.z; z++ )
 							{
 								float f = filter_data( i, j, z );
@@ -130,9 +150,9 @@ struct conv_layer_t
 
 	void fix_weights()
 	{
-		for ( int a = 0; a < filters.size(); a++ )
-			for ( int i = 0; i < extend_filter; i++ )
-				for ( int j = 0; j < extend_filter; j++ )
+		for ( uint a = 0; a < filters.size(); a++ )
+			for ( int i = 0; i < kernel_size; i++ )
+				for ( int j = 0; j < kernel_size; j++ )
 					for ( int z = 0; z < in.size.z; z++ )
 					{
 						float& w = filters[a].get( i, j, z );
@@ -142,13 +162,13 @@ struct conv_layer_t
 					}
 	}
 
-	void calc_grads( tensor_t<float>& grad_next_layer )
-	{
+	void __attribute__((noinline)) calc_grads( tensor_t<float>& grad_next_layer ) {
+		assert (grad_next_layer.size == out.size);
 
-		for ( int k = 0; k < filter_grads.size(); k++ )
+		for ( uint k = 0; k < filter_grads.size(); k++ )
 		{
-			for ( int i = 0; i < extend_filter; i++ )
-				for ( int j = 0; j < extend_filter; j++ )
+			for ( int i = 0; i < kernel_size; i++ )
+				for ( int j = 0; j < kernel_size; j++ )
 					for ( int z = 0; z < in.size.z; z++ )
 						filter_grads[k].get( i, j, z ).grad = 0;
 		}
@@ -181,4 +201,124 @@ struct conv_layer_t
 		}
 	}
 };
+
+std::ostream& operator<<(std::ostream& os, const conv_layer_t & l)
+{
+#define DUMP_FIELD(x) #x " = " << l. x << "\n";
+	os << DUMP_FIELD(in);
+	os << DUMP_FIELD(out);
+	for(uint i = 0; i < l.filters.size(); i++) {
+		os << "filters[" << i << "] = \n" << l.filters[i];
+	}
+	for(uint i = 0; i < l.filter_grads.size(); i++) {
+		os << "filter_grads[" << i << "] = \n" << l.filter_grads[i];
+	}
+	os << DUMP_FIELD(stride);
+	os << DUMP_FIELD(kernel_size);
+	
+	return os;
+}
+
+       
+#ifdef INCLUDE_TESTS
+namespace CNNTest{
+
+	void expect_eq(const conv_layer_t & a, const conv_layer_t & b) {
+		EXPECT_EQ(a.in, b.in);
+		EXPECT_EQ(a.out, b.out);
+		for(uint i = 0; i < a.filters.size(); i++) {
+			EXPECT_EQ(a.filters[i], b.filters[i]);
+		}
+		for(uint i = 0; i < a.filter_grads.size(); i++) {
+			EXPECT_EQ(a.filter_grads[i], b.filter_grads[i]);
+		}
+		EXPECT_EQ(a.stride, b.stride);
+		EXPECT_EQ(a.kernel_size, b.kernel_size);
+	}
+	
+	TEST_F(CNNTest, conv_simple) {
+		
+		tdsize size(10,10,10);
+		conv_layer_t t1(1, 4, 5, size);
+		conv_layer_t t2(1, 4, 5, size);
+		tensor_t<float> in(size);
+		randomize(in);
+		t1.activate(in);
+		EXPECT_EQ(t1,t1);
+		EXPECT_NE(t1,t2);
+
+
+	}
+	
+	TEST_F(CNNTest, conv_util) {
+		srand(42);
+		conv_layer_t t1(1, 4, 5, tdsize(10,10,10));
+		conv_layer_t t2(1, 4, 5, tdsize(11,10,10));
+		conv_layer_t t3(2, 4, 5, tdsize(10,10,10));
+
+		conv_layer_t t4(1, 4, 5, tdsize(10,10,10));
+		srand(42);
+		conv_layer_t t5(1, 4, 5, tdsize(10,10,10));
+
+		srand(42);
+		conv_layer_t t6(1, 1, 1, tdsize(1,1,1));
+		srand(42);
+		conv_layer_t t7(1, 1, 1, tdsize(1,1,1));
+
+		EXPECT_EQ(t6,t7);
+		EXPECT_EQ(t1,t1);
+		EXPECT_NE(t1,t2);
+		EXPECT_NE(t1,t4); // shouldn't be equal because kernels are random.
+		EXPECT_EQ(t1,t5); // should be equal because we set the seed.
+		EXPECT_NE(t1,t3);
+	}
+
+	conv_layer_t conv_sized(int x, int y, int z, int ksize, int kcount, int stride) {
+		tdsize size(x,y,z);
+		
+		tensor_t<float> in(size.x, size.y, size.z);
+		tensor_t<float> next_grads((in.size.x - ksize ) / stride + 1,
+					   (in.size.y - ksize ) / stride + 1,
+					   kcount);
+		
+		randomize(in);
+		randomize(next_grads);
+
+		// Run the optimized version
+		srand(42);
+		conv_layer_t o_layer( stride, ksize, kcount, in.size);
+		o_layer.activate(in);
+		o_layer.calc_grads(next_grads);
+		o_layer.fix_weights();
+
+		// Run the reference version
+		srand(42);
+		conv_layer_t layer(stride, ksize, kcount, in.size);
+		layer.activate(in);
+		layer.calc_grads(next_grads);
+		layer.fix_weights();
+
+		// Check for equality.
+		EXPECT_EQ(layer, o_layer);
+		return layer;
+	}
+
+	TEST_F(CNNTest, conv_sizes) {
+		// Check a range of sizes, especially non-round numbers.
+		conv_sized(4,4,4, 2, 2, 1);
+
+		conv_sized(4,4,4, 2, 2, 1);
+		
+		conv_sized(1,1,1,1,1,1);
+		ASSERT_THROW(conv_sized(1,1,1,7,1,1), AssertionFailureException); // kernel too big
+		conv_sized(1,1,1,1,7,1);
+		conv_sized(1,1,1,1,1,7);
+		ASSERT_THROW(conv_sized(2,1,1,1,1,7), AssertionFailureException); // stride does not divide size
+		
+		
+	}
+
+}  // namespace
+#endif
+
 #pragma pack(pop)

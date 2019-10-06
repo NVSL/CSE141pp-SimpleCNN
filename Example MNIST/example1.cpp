@@ -87,7 +87,7 @@ vector<case_t> read_test_cases()
 
 	for ( int i = 0; i < case_count; i++ )
 	{
-		case_t c {tensor_t<float>( 28, 28, 1 ), tensor_t<float>( 10, 1, 1 )};
+	        case_t c {tensor_t<float>( 28, 28, 1 ), tensor_t<float>( 10, 1, 1 )};
 
 		uint8_t* img = train_image + 16 + i * (28 * 28);
 		uint8_t* label = train_labels + 8 + i;
@@ -152,7 +152,8 @@ int main()
 	// end:
 
 
-
+	return 0;
+#if (0)
 	while ( true )
 	{
 		uint8_t * data = read_file( "test.ppm" );
@@ -202,4 +203,5 @@ int main()
 		nanosleep(&wait, nullptr);
 	}
 	return 0;
+#endif
 }
