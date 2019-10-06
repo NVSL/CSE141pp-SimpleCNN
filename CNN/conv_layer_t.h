@@ -315,7 +315,15 @@ namespace CNNTest{
 		conv_sized(1,1,1,1,1,7);
 		ASSERT_THROW(conv_sized(2,1,1,1,1,7), AssertionFailureException); // stride does not divide size
 		
-		
+		conv_sized(11, 11, 11, 5, 7, 2);
+		conv_sized(11, 13, 37, 5, 3, 1);
+		conv_sized(32, 32, 32, 5, 3, 1);
+
+		conv_sized(32, 32, 32, 8, 3, 1);
+		conv_sized(31, 33, 37, 8, 3, 1);
+		//conv_sized(64, 64, 64, 16, 3, 1);
+		//conv_sized(128, 128, 128, 4, 1, 1);
+
 	}
 
 }  // namespace
