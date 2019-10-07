@@ -1,6 +1,5 @@
 #pragma once
 #include "types.h"
-#include <cassert>
 #include <vector>
 #include <string.h>
 #include <cmath>
@@ -98,8 +97,8 @@ struct tensor_t
 	
 	T& get( int _x, int _y, int _z )
 	{
-		assert( _x >= 0 && _y >= 0 && _z >= 0 );
-		assert( _x < size.x && _y < size.y && _z < size.z );
+		throw_assert( _x >= 0 && _y >= 0 && _z >= 0, "Tried to read tensor at negative coordinates" );
+		throw_assert( _x < size.x && _y < size.y && _z < size.z, "Tried to read tensor out of bounds" );
 
 		return data[
 			_z * (size.x * size.y) +
@@ -109,8 +108,8 @@ struct tensor_t
 	}
 
 	const T & get( int _x, int _y, int _z ) const {
-		assert( _x >= 0 && _y >= 0 && _z >= 0 );
-		assert( _x < size.x && _y < size.y && _z < size.z );
+		throw_assert( _x >= 0 && _y >= 0 && _z >= 0 , "Tried to read tensor at negative coordinates" );
+		throw_assert( _x < size.x && _y < size.y && _z < size.z, "Tried to read tensor out of bounds" );
 
 		return data[
 			_z * (size.x * size.y) +

@@ -9,29 +9,43 @@ struct pool_layer_t
 	tensor_t<float> in;
 	tensor_t<float> out;
 	uint16_t stride;
-	uint16_t extend_filter;
+	uint16_t filter_size;
 
-	pool_layer_t( uint16_t stride, uint16_t extend_filter, tdsize in_size )
+	pool_layer_t( uint16_t stride, uint16_t filter_size, tdsize in_size )
 		:
 		grads_in( in_size.x, in_size.y, in_size.z ),
 		in( in_size.x, in_size.y, in_size.z ),
 		out(
-		(in_size.x - extend_filter) / stride + 1,
-			(in_size.y - extend_filter) / stride + 1,
+		(in_size.x - filter_size) / stride + 1,
+			(in_size.y - filter_size) / stride + 1,
 			in_size.z
 		)
 
 	{
 		this->stride = stride;
-		this->extend_filter = extend_filter;
-		assert( (float( in_size.x - extend_filter ) / stride + 1)
-				==
-				((in_size.x - extend_filter) / stride + 1) );
+		this->filter_size = filter_size;
+		throw_assert( (float( in_size.x - filter_size ) / stride + 1)
+			      ==
+			      ((in_size.x - filter_size) / stride + 1), "Stride doesn't devide input sizez");
 
-		assert( (float( in_size.y - extend_filter ) / stride + 1)
+		throw_assert( (float( in_size.y - filter_size ) / stride + 1)
 				==
-				((in_size.y - extend_filter) / stride + 1) );
+				((in_size.y - filter_size) / stride + 1) , "Stride doesn't devide input sizez");
 	}
+
+	bool operator==(const pool_layer_t & o) const {
+		if (o.stride != stride) return false;
+		if (o.filter_size != filter_size) return false;
+		if (o.in != in) return false;
+		if (o.grads_in != grads_in) return false;
+		if (o.out != out) return false;
+		return true;
+	}
+
+	bool operator!=(const pool_layer_t & o) const {
+		return !(*this == o);
+	}
+
 
 	point_t map_to_input( point_t out, int z )
 	{
@@ -67,8 +81,8 @@ struct pool_layer_t
 		float b = y;
 		return
 		{
-			normalize_range( (a - extend_filter + 1) / stride, out.size.x, true ),
-			normalize_range( (b - extend_filter + 1) / stride, out.size.y, true ),
+			normalize_range( (a - filter_size + 1) / stride, out.size.x, true ),
+			normalize_range( (b - filter_size + 1) / stride, out.size.y, true ),
 			0,
 			normalize_range( a / stride, out.size.x, false ),
 			normalize_range( b / stride, out.size.y, false ),
@@ -92,8 +106,8 @@ struct pool_layer_t
 				{
 					point_t mapped = map_to_input( { (uint16_t)x, (uint16_t)y, 0 }, 0 );
 					float mval = -FLT_MAX;
-					for ( int i = 0; i < extend_filter; i++ )
-						for ( int j = 0; j < extend_filter; j++ )
+					for ( int i = 0; i < filter_size; i++ )
+						for ( int j = 0; j < filter_size; j++ )
 						{
 							float v = in( mapped.x + i, mapped.y + j, z );
 							if ( v > mval )
@@ -137,4 +151,71 @@ struct pool_layer_t
 		}
 	}
 };
+
+#ifdef INCLUDE_TESTS
+namespace CNNTest{
+
+	TEST_F(CNNTest, pool_simple) {
+		
+		tdsize size(10,10,10);
+		pool_layer_t t1(1, 4, size);
+		pool_layer_t t2(1, 4, size);
+		tensor_t<float> in(size);
+		randomize(in);
+		t1.activate(in);
+		EXPECT_EQ(t1,t1);
+		EXPECT_NE(t1,t2);
+
+	}
+
+	pool_layer_t pool_sized(int x, int y, int z, int ksize, int stride) {
+		tdsize size(x,y,z);
+		
+		tensor_t<float> in(size.x, size.y, size.z);
+		tensor_t<float> next_grads((in.size.x - ksize ) / stride + 1,
+					   (in.size.y - ksize ) / stride + 1,
+					   in.size.z);
+		
+		randomize(in);
+		randomize(next_grads);
+
+		// Run the optimized version
+		srand(42);
+		pool_layer_t o_layer( stride, ksize, in.size);
+		o_layer.activate(in);
+		o_layer.calc_grads(next_grads);
+		o_layer.fix_weights();
+		
+		// Run the reference version
+		srand(42);
+		pool_layer_t layer(stride, ksize, in.size);
+		layer.activate(in);
+		layer.calc_grads(next_grads);
+		layer.fix_weights();
+
+		// Check for equality.
+		EXPECT_EQ(layer, o_layer);
+		return layer;
+	}
+
+	TEST_F(CNNTest, pool_sizes) {
+		// Check a range of sizes, especially non-round numbers.
+		pool_sized(4, 4, 4, 2, 1);
+
+		pool_sized(1, 1, 1, 1, 1);
+		ASSERT_THROW(pool_sized(1,1,1,7,1), AssertionFailureException); // kernel too big
+		pool_sized(1,1,1,1,7);
+		ASSERT_THROW(pool_sized(2,1,1,1,7), AssertionFailureException); // stride does not divide size
+		
+		pool_sized(11, 11, 11, 5, 2);
+		pool_sized(11, 13, 37, 5, 1);
+		pool_sized(32, 32, 32, 5, 1);
+
+		pool_sized(32, 32, 32, 8, 1);
+		pool_sized(31, 33, 37, 8, 1);
+	}
+
+}  // namespace
+#endif
+
 #pragma pack(pop)

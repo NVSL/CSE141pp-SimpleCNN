@@ -223,7 +223,7 @@ std::ostream& operator<<(std::ostream& os, const conv_layer_t & l)
 #ifdef INCLUDE_TESTS
 namespace CNNTest{
 
-	void expect_eq(const conv_layer_t & a, const conv_layer_t & b) {
+	void conv_expect_eq(const conv_layer_t & a, const conv_layer_t & b) {
 		EXPECT_EQ(a.in, b.in);
 		EXPECT_EQ(a.out, b.out);
 		for(uint i = 0; i < a.filters.size(); i++) {
@@ -235,7 +235,7 @@ namespace CNNTest{
 		EXPECT_EQ(a.stride, b.stride);
 		EXPECT_EQ(a.kernel_size, b.kernel_size);
 	}
-	
+
 	TEST_F(CNNTest, conv_simple) {
 		
 		tdsize size(10,10,10);
@@ -246,7 +246,6 @@ namespace CNNTest{
 		t1.activate(in);
 		EXPECT_EQ(t1,t1);
 		EXPECT_NE(t1,t2);
-
 
 	}
 	
