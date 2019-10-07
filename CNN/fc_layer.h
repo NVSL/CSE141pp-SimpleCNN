@@ -34,6 +34,19 @@ struct fc_layer_t
 		// 2.19722f = f^-1(0.9) => x where [1 / (1 + exp(-x) ) = 0.9]
 	}
 
+	bool operator==(const fc_layer_t & o) const {
+		if (o.weights != weights) return false;
+		if (o.in != in) return false;
+		if (o.grads_in != grads_in) return false;
+		if (o.out != out) return false;
+		return true;
+	}
+
+	bool operator!=(const fc_layer_t & o) const {
+		return !(*this == o);
+	}
+
+
 	float activator_function( float x )
 	{
 		//return tanhf( x );
@@ -118,4 +131,67 @@ struct fc_layer_t
 		}
 	}
 };
+
+#ifdef INCLUDE_TESTS
+namespace CNNTest{
+
+	TEST_F(CNNTest, fc_simple) {
+		
+		tdsize in_size(10,10,10);
+		int  out_size = 5;
+		fc_layer_t t1(in_size, out_size);
+		fc_layer_t t2(in_size, out_size);
+		tensor_t<float> in(in_size);
+		randomize(in);
+		t1.activate(in);
+		EXPECT_EQ(t1,t1);
+		EXPECT_NE(t1,t2);
+
+	}
+
+	fc_layer_t fc_sized(int in_x, int in_y, int in_z, int out_size) {
+		tdsize in_size(in_x, in_y, in_z);
+		
+		tensor_t<float> in(in_size);
+		tensor_t<float> next_grads(out_size,1,1);
+		
+		randomize(in);
+		randomize(next_grads);
+
+		// Run the optimized version
+		srand(42);
+		fc_layer_t o_layer(in.size, out_size);
+		o_layer.activate(in);
+		o_layer.calc_grads(next_grads);
+		o_layer.fix_weights();
+		
+		// Run the reference version
+		srand(42);
+		fc_layer_t layer(in.size, out_size);
+		layer.activate(in);
+		layer.calc_grads(next_grads);
+		layer.fix_weights();
+
+		// Check for equality.
+		EXPECT_EQ(layer, o_layer);
+		return layer;
+	}
+
+	TEST_F(CNNTest, fc_sizes) {
+		// Check a range of sizes, especially non-round numbers.
+		fc_sized(4, 4, 4, 4);
+
+		fc_sized(1, 1, 1, 1);
+		
+		fc_sized(10, 10, 10, 1000);
+		fc_sized(10, 10, 10, 10); 
+		
+		fc_sized(11, 11, 11, 13);
+		fc_sized(11, 13, 37, 61);
+		fc_sized(32, 32, 32, 91);
+	}
+
+}  // namespace
+#endif
+
 #pragma pack(pop)
