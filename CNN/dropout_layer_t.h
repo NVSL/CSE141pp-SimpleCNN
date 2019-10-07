@@ -1,21 +1,15 @@
 #pragma once
 #include "layer_t.h"
 
-#pragma pack(push, 1)
-struct dropout_layer_t
+class dropout_layer_t : public layer_t
 {
-	layer_type type = layer_type::dropout_layer;
-	tensor_t<float> grads_in;
-	tensor_t<float> in;
-	tensor_t<float> out;
+public:
 	tensor_t<bool> hitmap;
-	float p_activation;
+	const float p_activation;
 
 	dropout_layer_t( tdsize in_size, float p_activation )
 		:
-		grads_in( in_size.x, in_size.y, in_size.z ),
-		in( in_size.x, in_size.y, in_size.z ),
-		out( in_size.x, in_size.y, in_size.z ),
+		layer_t(in_size, in_size),
 		hitmap( in_size.x, in_size.y, in_size.z ),
 		p_activation( p_activation )
 	{
@@ -35,15 +29,8 @@ struct dropout_layer_t
 		return !(*this == o);
 	}
 
-
-	void activate( tensor_t<float>& in )
-	{
-		this->in = in;
-		activate();
-	}
-
-	void __attribute__((noinline)) activate()
-	{
+	void activate(const tensor_t<float>& in ) {
+		copy_input(in);
 		for ( int i = 0; i < in.size.x*in.size.y*in.size.z; i++ )
 		{
 			bool active = (rand() % RAND_MAX) / float( RAND_MAX ) <= p_activation;
@@ -51,7 +38,6 @@ struct dropout_layer_t
 			out.data[i] = active ? in.data[i] : 0.0f;
 		}
 	}
-
 
 	void fix_weights()
 	{
@@ -63,6 +49,12 @@ struct dropout_layer_t
 		for ( int i = 0; i < in.size.x*in.size.y*in.size.z; i++ )
 			grads_in.data[i] = hitmap.data[i] ? grad_next_layer.data[i] : 0.0f;
 	}
+};
+
+class dropout_layer_opt_t : public dropout_layer_t
+{
+public:
+	dropout_layer_opt_t( tdsize in_size, float p_activation ) : dropout_layer_t(in_size, p_activation) {}
 };
 
 #ifdef INCLUDE_TESTS
@@ -92,7 +84,7 @@ namespace CNNTest{
 
 		// Run the optimized version
 		srand(42);
-		dropout_layer_t o_layer(in.size, activation);
+		dropout_layer_opt_t o_layer(in.size, activation);
 		o_layer.activate(in);
 		o_layer.calc_grads(next_grads);
 		o_layer.fix_weights();
@@ -129,4 +121,3 @@ namespace CNNTest{
 #endif
 
 
-#pragma pack(pop)

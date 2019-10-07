@@ -1,13 +1,9 @@
 #pragma once
 #include "layer_t.h"
 
-#pragma pack(push, 1)
-struct conv_layer_t
+class conv_layer_t: public layer_t
 {
-	layer_type type = layer_type::conv;
-	tensor_t<float> grads_in;
-	tensor_t<float> in;
-	tensor_t<float> out;
+public:
 	std::vector<tensor_t<float>> filters;  // convolution filter kernels
 	std::vector<tensor_t<gradient_t> > filter_grads;
 	uint16_t stride;
@@ -18,14 +14,9 @@ struct conv_layer_t
 		      uint16_t kernel_count, // Depth of the output.
 		      tdsize in_size )
 		:
-		grads_in( in_size.x, in_size.y, in_size.z ),
-		in( in_size.x, in_size.y, in_size.z ),
-		out(
-		(in_size.x - kernel_size) / stride + 1,
-			(in_size.y - kernel_size) / stride + 1,
-			kernel_count
-		)
-
+		layer_t(in_size, tdsize((in_size.x - kernel_size) / stride + 1,
+					(in_size.y - kernel_size) / stride + 1,
+					kernel_count))
 	{
 		this->stride = stride;
 		this->kernel_size = kernel_size;
@@ -117,14 +108,8 @@ struct conv_layer_t
 		};
 	}
 
-	void activate( tensor_t<float>& in )
-	{
-		this->in = in;
-		activate();
-	}
-
-	void __attribute__((noinline)) activate()
-	{
+	void activate(const tensor_t<float>& in ) {
+		copy_input(in);
 		for ( uint filter = 0; filter < filters.size(); filter++ )
 		{
 			tensor_t<float>& filter_data = filters[filter];
@@ -202,6 +187,16 @@ struct conv_layer_t
 	}
 };
 
+class conv_layer_opt_t : public conv_layer_t
+{
+public:
+	conv_layer_opt_t( uint16_t stride,
+			  uint16_t kernel_size, 
+			  uint16_t kernel_count,
+			  tdsize in_size) : conv_layer_t(stride, kernel_size, kernel_count, in_size) {}
+			
+};
+
 std::ostream& operator<<(std::ostream& os, const conv_layer_t & l)
 {
 #define DUMP_FIELD(x) #x " = " << l. x << "\n";
@@ -273,6 +268,7 @@ namespace CNNTest{
 	}
 
 	conv_layer_t conv_sized(int x, int y, int z, int ksize, int kcount, int stride) {
+		
 		tdsize size(x,y,z);
 		
 		tensor_t<float> in(size.x, size.y, size.z);
@@ -285,7 +281,7 @@ namespace CNNTest{
 
 		// Run the optimized version
 		srand(42);
-		conv_layer_t o_layer( stride, ksize, kcount, in.size);
+		conv_layer_opt_t o_layer( stride, ksize, kcount, in.size);
 		o_layer.activate(in);
 		o_layer.calc_grads(next_grads);
 		o_layer.fix_weights();
@@ -309,10 +305,10 @@ namespace CNNTest{
 		conv_sized(4,4,4, 2, 2, 1);
 		
 		conv_sized(1,1,1,1,1,1);
-		ASSERT_THROW(conv_sized(1,1,1,7,1,1), AssertionFailureException); // kernel too big
+		EXPECT_THROW(conv_sized(1,1,1,7,1,1), AssertionFailureException); // kernel too big
 		conv_sized(1,1,1,1,7,1);
 		conv_sized(1,1,1,1,1,7);
-		ASSERT_THROW(conv_sized(2,1,1,1,1,7), AssertionFailureException); // stride does not divide size
+		EXPECT_THROW(conv_sized(2,1,1,1,1,7), AssertionFailureException); // stride does not divide size
 		
 		conv_sized(11, 11, 11, 5, 7, 2);
 		conv_sized(11, 13, 37, 5, 3, 1);
@@ -328,4 +324,3 @@ namespace CNNTest{
 }  // namespace
 #endif
 
-#pragma pack(pop)

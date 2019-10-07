@@ -1,5 +1,5 @@
 #pragma once
-#include "gradient_t.h"
+#include "types.h"
 
 #define LEARNING_RATE 0.01
 #define MOMENTUM 0.6

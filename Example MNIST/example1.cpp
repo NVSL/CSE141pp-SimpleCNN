@@ -9,7 +9,7 @@
 
 using namespace std;
 
-float train( vector<layer_t*>& layers, tensor_t<float>& data, tensor_t<float>& expected )
+float train(vector<layer_t*>& layers, tensor_t<float>& data, tensor_t<float>& expected )
 {
 	for ( int i = 0; i < layers.size(); i++ )
 	{

@@ -4,35 +4,30 @@
 #include <string.h>
 #include "layer_t.h"
 
-#pragma pack(push, 1)
-struct fc_layer_t
+class fc_layer_t: public layer_t
 {
-	layer_type type = layer_type::fc;
-	tensor_t<float> grads_in;
-	tensor_t<float> in;
-	tensor_t<float> out;
+public:
 	std::vector<float> input;
 	tensor_t<float> weights;
 	std::vector<gradient_t> gradients;
 
 	fc_layer_t( tdsize in_size, int out_size )
 		:
-		grads_in( in_size.x, in_size.y, in_size.z ),
-		in( in_size.x, in_size.y, in_size.z ),
-		out( out_size, 1, 1 ),
-		weights( in_size.x*in_size.y*in_size.z, out_size, 1 )
-	{
-		input = std::vector<float>( out_size );
-		gradients = std::vector<gradient_t>( out_size );
+		layer_t(in_size, tdsize(out_size, 1, 1)),
+		input(out_size),
+		weights( in_size.x*in_size.y*in_size.z, out_size, 1 ),
+		gradients(out_size)
+		{
+//		input = std::vector<float>( out_size );
+			//gradients = std::vector<gradient_t>( out_size );
 
+			int maxval = in_size.x * in_size.y * in_size.z;
 
-		int maxval = in_size.x * in_size.y * in_size.z;
-
-		for ( int i = 0; i < out_size; i++ )
-			for ( int h = 0; h < in_size.x*in_size.y*in_size.z; h++ )
-				weights( h, i, 0 ) = 2.19722f / maxval * rand() / float( RAND_MAX );
-		// 2.19722f = f^-1(0.9) => x where [1 / (1 + exp(-x) ) = 0.9]
-	}
+			for ( int i = 0; i < out_size; i++ )
+				for ( int h = 0; h < in_size.x*in_size.y*in_size.z; h++ )
+					weights( h, i, 0 ) = 2.19722f / maxval * rand() / float( RAND_MAX );
+			// 2.19722f = f^-1(0.9) => x where [1 / (1 + exp(-x) ) = 0.9]
+		}
 
 	bool operator==(const fc_layer_t & o) const {
 		if (o.weights != weights) return false;
@@ -47,36 +42,27 @@ struct fc_layer_t
 	}
 
 
-	float activator_function( float x )
-	{
+	float activator_function( float x ) {
 		//return tanhf( x );
 		float sig = 1.0f / (1.0f + exp( -x ));
 		return sig;
 	}
 
-	float activator_derivative( float x )
-	{
+	float activator_derivative( float x ) {
 		//float t = tanhf( x );
 		//return 1 - t * t;
 		float sig = 1.0f / (1.0f + exp( -x ));
 		return sig * (1 - sig);
 	}
 
-	void __attribute__((noinline)) activate( tensor_t<float>& in )
-	{
-		this->in = in;
-		activate();
-	}
-
-	int map( point_t d )
-	{
+	int map( point_t d ) {
 		return d.z * (in.size.x * in.size.y) +
 			d.y * (in.size.x) +
 			d.x;
 	}
 
-	void __attribute__((noinline)) activate()
-	{
+	void activate(const tensor_t<float>& in ) {
+		copy_input(in);
 		for ( int n = 0; n < out.size.x; n++ )
 		{
 			float inputv = 0;
@@ -95,8 +81,7 @@ struct fc_layer_t
 		}
 	}
 
-	void fix_weights()
-	{
+	void fix_weights() {
 		for ( int n = 0; n < out.size.x; n++ )
 		{
 			gradient_t& grad = gradients[n];
@@ -113,8 +98,7 @@ struct fc_layer_t
 		}
 	}
 
-	void __attribute__((noinline)) calc_grads( tensor_t<float>& grad_next_layer )
-	{
+	void calc_grads( tensor_t<float>& grad_next_layer ) {
 		memset( grads_in.data, 0, grads_in.size.x *grads_in.size.y*grads_in.size.z * sizeof( float ) );
 		for ( int n = 0; n < out.size.x; n++ )
 		{
@@ -130,6 +114,13 @@ struct fc_layer_t
 					}
 		}
 	}
+};
+
+class fc_layer_opt_t : public fc_layer_t
+{
+public:
+	fc_layer_opt_t( tdsize in_size, int out_size ) : fc_layer_t(in_size, out_size) {}
+			
 };
 
 #ifdef INCLUDE_TESTS
@@ -167,7 +158,7 @@ namespace CNNTest{
 		
 		// Run the reference version
 		srand(42);
-		fc_layer_t layer(in.size, out_size);
+		fc_layer_opt_t layer(in.size, out_size);
 		layer.activate(in);
 		layer.calc_grads(next_grads);
 		layer.fix_weights();
@@ -194,4 +185,5 @@ namespace CNNTest{
 }  // namespace
 #endif
 
-#pragma pack(pop)
+
+	

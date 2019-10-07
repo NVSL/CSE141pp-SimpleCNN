@@ -3,16 +3,6 @@
 #include <iomanip>
 #include "throw_assert.h"
 
-enum class layer_type
-{
-	conv,
-	fc,
-	relu,
-	pool,
-	dropout_layer
-};
-
-
 struct gradient_t
 {
 	float grad;
@@ -47,6 +37,13 @@ struct point_t
 		return !(*this == o);
 	}
 };
+
+std::ostream& operator<<(std::ostream& os, const point_t & g)
+{
+	os << std::setw(2) << std::setprecision(2);
+	os << "(" << g.x << ", " << g.y << ", " << g.z << ")";
+	return os;
+}
 
 using tdsize = point_t;
 

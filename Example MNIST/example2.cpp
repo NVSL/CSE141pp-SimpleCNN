@@ -8,53 +8,6 @@
 
 using namespace std;
 
-float train( vector<layer_t*>& layers, tensor_t<float>& data, tensor_t<float>& expected )
-{
-	for ( int i = 0; i < layers.size(); i++ )
-	{
-		if ( i == 0 )
-			activate( layers[i], data );
-		else
-			activate( layers[i], layers[i - 1]->out );
-	}
-
-	tensor_t<float> grads = layers.back()->out - expected;
-
-	for ( int i = layers.size() - 1; i >= 0; i-- )
-	{
-		if ( i == layers.size() - 1 )
-			calc_grads( layers[i], grads );
-		else
-			calc_grads( layers[i], layers[i + 1]->grads_in );
-	}
-
-	for ( int i = 0; i < layers.size(); i++ )
-	{
-		fix_weights( layers[i] );
-	}
-
-	float err = 0;
-	for ( int i = 0; i < grads.size.x * grads.size.y * grads.size.z; i++ )
-	{
-		float f = expected.data[i];
-		if ( f > 0.5 )
-			err += abs(grads.data[i]);
-	}
-	return err * 100;
-}
-
-
-void forward( vector<layer_t*>& layers, tensor_t<float>& data )
-{
-	for ( int i = 0; i < layers.size(); i++ )
-	{
-		if ( i == 0 )
-			activate( layers[i], data );
-		else
-			activate( layers[i], layers[i - 1]->out );
-	}
-}
-
 struct case_t
 {
 	tensor_t<float> data;

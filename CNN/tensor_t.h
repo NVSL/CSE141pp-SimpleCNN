@@ -32,12 +32,18 @@ struct tensor_t
 	{
 		data = new T[other.size.x *other.size.y *other.size.z];
 		memcpy(
-			this->data,
+			data,
 			other.data,
 			other.size.x *other.size.y *other.size.z * sizeof( T )
 		);
 	}
-	
+
+	~tensor_t()
+	{
+		delete[] data;
+	}
+
+
 	tensor_t<T> & operator=(const tensor_t& other )
 	{
 		delete[] data;
@@ -98,7 +104,7 @@ struct tensor_t
 	T& get( int _x, int _y, int _z )
 	{
 		throw_assert( _x >= 0 && _y >= 0 && _z >= 0, "Tried to read tensor at negative coordinates" );
-		throw_assert( _x < size.x && _y < size.y && _z < size.z, "Tried to read tensor out of bounds" );
+		throw_assert( _x < size.x && _y < size.y && _z < size.z, "Tried to read tensor out of bounds " << tdsize(_x, _y, _z) << ". But tensor is " << size );
 
 		return data[
 			_z * (size.x * size.y) +
@@ -130,11 +136,6 @@ struct tensor_t
 			for ( int j = 0; j < y; j++ )
 				for ( int k = 0; k < z; k++ )
 					get( i, j, k ) = data[k][j][i];
-	}
-
-	~tensor_t()
-	{
-		delete[] data;
 	}
 
 };

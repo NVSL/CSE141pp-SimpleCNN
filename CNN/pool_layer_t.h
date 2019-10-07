@@ -1,29 +1,21 @@
 #pragma once
 #include "layer_t.h"
 
-#pragma pack(push, 1)
-struct pool_layer_t
+
+class pool_layer_t: public layer_t
 {
-	layer_type type = layer_type::pool;
-	tensor_t<float> grads_in;
-	tensor_t<float> in;
-	tensor_t<float> out;
-	uint16_t stride;
-	uint16_t filter_size;
+public:
+	const uint16_t stride;
+	const uint16_t filter_size;
 
 	pool_layer_t( uint16_t stride, uint16_t filter_size, tdsize in_size )
 		:
-		grads_in( in_size.x, in_size.y, in_size.z ),
-		in( in_size.x, in_size.y, in_size.z ),
-		out(
-		(in_size.x - filter_size) / stride + 1,
-			(in_size.y - filter_size) / stride + 1,
-			in_size.z
-		)
-
+		layer_t(in_size, tdsize((in_size.x - filter_size) / stride + 1,
+				       (in_size.y - filter_size) / stride + 1,
+				       in_size.z)),
+		stride(stride),
+		filter_size(filter_size)
 	{
-		this->stride = stride;
-		this->filter_size = filter_size;
 		throw_assert( (float( in_size.x - filter_size ) / stride + 1)
 			      ==
 			      ((in_size.x - filter_size) / stride + 1), "Stride doesn't devide input sizez");
@@ -90,14 +82,8 @@ struct pool_layer_t
 		};
 	}
 
-	void activate( tensor_t<float>& in )
-	{
-		this->in = in;
-		activate();
-	}
-
-	void __attribute__((noinline)) activate()
-	{
+	void activate(const tensor_t<float>& in ) {
+		copy_input(in);
 		for ( int x = 0; x < out.size.x; x++ )
 		{
 			for ( int y = 0; y < out.size.y; y++ )
@@ -124,7 +110,7 @@ struct pool_layer_t
 
 	}
 
-	void __attribute__((noinline)) calc_grads( tensor_t<float>& grad_next_layer )
+	void calc_grads( tensor_t<float>& grad_next_layer )
 	{
 		for ( int x = 0; x < in.size.x; x++ )
 		{
@@ -150,6 +136,12 @@ struct pool_layer_t
 			}
 		}
 	}
+};
+
+class pool_layer_opt_t: public pool_layer_t
+{
+public:
+	pool_layer_opt_t( uint16_t stride, uint16_t filter_size, tdsize in_size ) : pool_layer_t(stride, filter_size, in_size) {}
 };
 
 #ifdef INCLUDE_TESTS
@@ -181,7 +173,7 @@ namespace CNNTest{
 
 		// Run the optimized version
 		srand(42);
-		pool_layer_t o_layer( stride, ksize, in.size);
+		pool_layer_opt_t o_layer( stride, ksize, in.size);
 		o_layer.activate(in);
 		o_layer.calc_grads(next_grads);
 		o_layer.fix_weights();
@@ -203,9 +195,9 @@ namespace CNNTest{
 		pool_sized(4, 4, 4, 2, 1);
 
 		pool_sized(1, 1, 1, 1, 1);
-		ASSERT_THROW(pool_sized(1,1,1,7,1), AssertionFailureException); // kernel too big
+		EXPECT_THROW(pool_sized(1,1,1,7,1), AssertionFailureException); // kernel too big
 		pool_sized(1,1,1,1,7);
-		ASSERT_THROW(pool_sized(2,1,1,1,7), AssertionFailureException); // stride does not divide size
+		EXPECT_THROW(pool_sized(2,1,1,1,7), AssertionFailureException); // stride does not divide size
 		
 		pool_sized(11, 11, 11, 5, 2);
 		pool_sized(11, 13, 37, 5, 1);
@@ -218,4 +210,3 @@ namespace CNNTest{
 }  // namespace
 #endif
 
-#pragma pack(pop)
