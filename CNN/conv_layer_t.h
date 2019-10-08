@@ -147,8 +147,8 @@ public:
 					}
 	}
 
-	void __attribute__((noinline)) calc_grads( tensor_t<float>& grad_next_layer ) {
-		assert (grad_next_layer.size == out.size);
+	void calc_grads( tensor_t<float>& grad_next_layer ) {
+		throw_assert(grad_next_layer.size == out.size, "mismatch input size for calc_grads");
 
 		for ( uint k = 0; k < filter_grads.size(); k++ )
 		{

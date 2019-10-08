@@ -45,6 +45,7 @@ std::ostream& operator<<(std::ostream& os, const point_t & g)
 	return os;
 }
 
+
 using tdsize = point_t;
 
 

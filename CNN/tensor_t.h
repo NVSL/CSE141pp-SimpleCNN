@@ -124,8 +124,32 @@ struct tensor_t
 		];
 	}
 
-	
 
+	tdsize argmax() const {
+		T max_value = -std::numeric_limits<float>::max();
+		tdsize max_loc;
+		for ( int x = 0; x < this->size.x; x++ )
+			for ( int y = 0; y < this->size.y; y++ )
+				for ( int z = 0; z < this->size.z; z++ )
+					if (get(x,y,z) > max_value) {
+						max_value = get(x,y,z);
+						max_loc = tdsize(x,y,z);
+					}
+		return max_loc;
+	}
+	tdsize argmin() const {
+		T min_value = std::numeric_limits<float>::max();
+		tdsize min_loc;
+		for ( int x = 0; x < this->size.x; x++ )
+			for ( int y = 0; y < this->size.y; y++ )
+				for ( int z = 0; z < this->size.z; z++ )
+					if (get(x,y,z) < min_value) {
+						min_value = get(x,y,z);
+						min_loc = tdsize(x,y,z);
+					}
+		return min_loc;
+	}
+	
 	void copy_from( std::vector<std::vector<std::vector<T>>> data )
 	{
 		int z = data.size();
@@ -220,18 +244,18 @@ tensor_t<float> to_tensor( std::vector<std::vector<std::vector<float>>> data )
 #include "gtest/gtest.h"
 
 namespace CNNTest {
-	
 
-       TEST_F(CNNTest, tensor_gradient) {
+	
+	TEST_F(CNNTest, tensor_gradient) {
 		tdsize s(2,2,3);
 		tensor_t<gradient_t> t1(s);
 		tensor_t<gradient_t> t2(s);
-
+		
 		EXPECT_EQ(t1, t2);
 		randomize(t1, 1);
 		EXPECT_NE(t1, t2);
-       }
-
+	}
+	
 	TEST_F(CNNTest, tensor_operators) {
 		tdsize s1(1,2,3);
 		tdsize s2(2,3,4);
@@ -252,6 +276,16 @@ namespace CNNTest {
 
 		t3 = t1;
 		EXPECT_EQ(t3, t1);
+
+		tensor_t<float> m(2,2,2);
+		m(1,0,0) = -1;
+		m(0,1,0) = 2;
+		m(0,0,1) = 3;
+		EXPECT_EQ(m.argmax(), tdsize(0,0,1));
+		m(1,1,1) = 4;
+		EXPECT_EQ(m.argmax(), tdsize(1,1,1));
+		EXPECT_EQ(m.argmin(), tdsize(1,0,0));
+		
 	}
 
 }
