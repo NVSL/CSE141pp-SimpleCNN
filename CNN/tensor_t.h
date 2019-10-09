@@ -60,6 +60,7 @@ struct tensor_t
 
 	tensor_t<T> operator+( const tensor_t<T>& other )const 
 	{
+		throw_assert(size == other.size, "Mismatche sizes is operator+");
 		tensor_t<T> clone( *this );
 		for ( int i = 0; i < other.size.x * other.size.y * other.size.z; i++ )
 			clone.data[i] += other.data[i];
@@ -68,6 +69,7 @@ struct tensor_t
 
 	tensor_t<T> operator-( const tensor_t<T>& other ) const
 	{
+		throw_assert(size == other.size, "Mismatche sizes is operator-");
 		tensor_t<T> clone( *this );
 		for ( int i = 0; i < other.size.x * other.size.y * other.size.z; i++ )
 			clone.data[i] -= other.data[i];
@@ -286,7 +288,9 @@ namespace CNNTest {
 		m(1,1,1) = 4;
 		EXPECT_EQ(m.argmax(), tdsize(1,1,1));
 		EXPECT_EQ(m.argmin(), tdsize(1,0,0));
-		
+
+		EXPECT_THROW(m - t1, AssertionFailureException); // mismatched sizes
+		EXPECT_THROW(m + t1, AssertionFailureException); // mismatched sizes
 	}
 
 }

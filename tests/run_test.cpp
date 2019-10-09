@@ -47,7 +47,7 @@ namespace CNNTest{
 	TEST_F(CNNTest, simple_model_opt) {
 		tensor_t<float> data(32, 32, 3);
 		randomize(data);
-		tensor_t<float> expected(10, 1, 10);
+		tensor_t<float> expected(10, 1, 1);
 		randomize(expected);
 
 		srand(42);
