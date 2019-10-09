@@ -2,6 +2,7 @@
 #include <fstream>
 #include <vector>
 #include "CNN/types.h"
+#include "byteswap.h"
 
 uint8_t* read_file( const std::string & f )
 {
@@ -17,9 +18,9 @@ uint8_t* read_file( const std::string & f )
 	return buffer;
 }
 
-std::vector<case_t> load_mnist(const std::string & images, const std::string & labels)
+std::vector<test_case_t> load_mnist(const std::string & images, const std::string & labels)
 {
-	std::vector<case_t> cases;
+	std::vector<test_case_t> cases;
 
 	uint8_t* train_image = read_file( images );
 	uint8_t* train_labels = read_file( labels);
@@ -28,7 +29,7 @@ std::vector<case_t> load_mnist(const std::string & images, const std::string & l
 
 	for ( int i = 0; i < case_count; i++ )
 	{
-	        case_t c {tensor_t<float>( 28, 28, 1 ), tensor_t<float>( 10, 1, 1 )};
+	        test_case_t c {tensor_t<float>( 28, 28, 1 ), tensor_t<float>( 10, 1, 1 )};
 
 		uint8_t* img = train_image + 16 + i * (28 * 28);
 		uint8_t* label = train_labels + 8 + i;

@@ -64,7 +64,6 @@ public:
 		return !(*this == o);
 	}
 
-	
 	point_t map_to_input( point_t out, int z )
 	{
 		out.x *= stride;

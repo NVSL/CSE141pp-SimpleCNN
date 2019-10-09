@@ -12,6 +12,8 @@
 #include "conv_layer_t.h"
 #include "dropout_layer_t.h"
 
+#include "model_t.h"
+
 float train( std::vector<layer_t*>& layers, tensor_t<float>& data, tensor_t<float>& expected )
 {
 	for ( uint i = 0; i < layers.size(); i++ )

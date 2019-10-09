@@ -18,11 +18,11 @@ public:
 	{
 		throw_assert( (float( in_size.x - filter_size ) / stride + 1)
 			      ==
-			      ((in_size.x - filter_size) / stride + 1), "Stride doesn't devide input sizez");
+			      ((in_size.x - filter_size) / stride + 1), "Stride doesn't divide input size");
 
 		throw_assert( (float( in_size.y - filter_size ) / stride + 1)
 				==
-				((in_size.y - filter_size) / stride + 1) , "Stride doesn't devide input sizez");
+				((in_size.y - filter_size) / stride + 1) , "Stride doesn't divide input size");
 	}
 
 	bool operator==(const pool_layer_t & o) const {

@@ -126,6 +126,21 @@ public:
 #ifdef INCLUDE_TESTS
 namespace CNNTest{
 
+	TEST_F(CNNTest, fc_allocation) {
+		tdsize in_size(10,10,10);
+		int  out_size = 5;
+
+		fc_layer_t *t1 __attribute__((unused));
+		t1 = new fc_layer_t(in_size, out_size);
+
+		tensor_t<float> data(32, 32, 3);
+		tensor_t<float> expected(10, 1, 10);
+		randomize(expected);
+		fc_layer_opt_t layer4_o(data.size, 10);
+		tensor_t<float> grads = layer4_o.out - expected;
+	}
+
+
 	TEST_F(CNNTest, fc_simple) {
 		
 		tdsize in_size(10,10,10);

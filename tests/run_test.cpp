@@ -4,39 +4,85 @@
 #include "gtest/gtest.h"
 
 namespace CNNTest{
+
+	TEST_F(CNNTest, simple_model_math) {
+		tensor_t<float> data(4, 4, 2);
+		tensor_t<float> expected(2,1,1);
+		model_t model;
+		srand(42);
+		conv_layer_t layer1( 1, 2, 2, data.size );
+		relu_layer_t layer2(layer1.out.size );
+		pool_layer_t layer3( 1, 2, layer2.out.size );
+		fc_layer_t layer4(layer3.out.size, 2);
+		
+		model.add_layer(layer1 );
+		model.add_layer(layer2 );
+		model.add_layer(layer3 );
+		model.add_layer(layer4 );
+
+		for(int i = 0; i < 100; i++) {
+			randomize(data);
+			randomize(expected);
+			model.train(data, expected); 
+		}
+		
+		//std::cout << layer4.weights << "\n";
+		//for(auto & k: layer1.filters) {
+		//std::cout << k << "\n";
+		//}
+
+		randomize(expected);
+		//std::cout <<  model.apply(data) << "\n";
+	}
+
+	TEST_F(CNNTest, fc_aggravator) {
+		tensor_t<float> data(32, 32, 3);
+		tensor_t<float> expected(10, 1, 10);
+		randomize(expected);
+		fc_layer_opt_t   layer4_o(data.size, 10);
+		tensor_t<float> grads = layer4_o.out - expected;
+	}
+
+
 	TEST_F(CNNTest, simple_model_opt) {
 		tensor_t<float> data(32, 32, 3);
 		randomize(data);
 		tensor_t<float> expected(10, 1, 10);
 		randomize(expected);
 
-		std::vector<layer_t*> layers;
 		srand(42);
-		conv_layer_t * layer1 = new conv_layer_t( 1, 5, 8, data.size );
-		relu_layer_t * layer2 = new relu_layer_t( layer1->out.size );
-		pool_layer_t * layer3 = new pool_layer_t( 2, 2, layer2->out.size );
-		fc_layer_t * layer4 = new fc_layer_t(layer3->out.size, 10);
+		model_t model;
+		conv_layer_t layer1( 1, 5, 8, data.size );
+		relu_layer_t layer2( layer1.out.size );
+		pool_layer_t layer3( 2, 2, layer2.out.size );
+		fc_layer_t layer4(layer3.out.size, 10);
 		
-		layers.push_back(layer1 );
-		layers.push_back(layer2 );
-		layers.push_back(layer3 );
-		layers.push_back(layer4 );
+		model.add_layer(layer1 );
+		model.add_layer(layer2 );
+		model.add_layer(layer3 );
+		model.add_layer(layer4 );
 
-		train(layers, data, expected);
-
-		std::vector<layer_t*> layers_o;
 		srand(42);
-		conv_layer_opt_t * layer1_o = new conv_layer_opt_t( 1, 5, 8, data.size );
-		relu_layer_opt_t * layer2_o = new relu_layer_opt_t( layer1_o->out.size );
-		pool_layer_opt_t * layer3_o = new pool_layer_opt_t( 2, 2, layer2_o->out.size );
-		fc_layer_opt_t * layer4_o = new fc_layer_opt_t(layer3_o->out.size, 10);
+		model_t model_o;
+		conv_layer_opt_t layer1_o( 1, 5, 8, data.size );
+		relu_layer_opt_t layer2_o( layer1_o.out.size );
+		pool_layer_opt_t layer3_o( 2, 2, layer2_o.out.size );
+		fc_layer_opt_t   layer4_o(layer3_o.out.size, 10);
 		
-		layers_o.push_back(layer1_o );
-		layers_o.push_back(layer2_o );
-		layers_o.push_back(layer3_o );
-		layers_o.push_back(layer4_o );
+		model_o.add_layer(layer1_o );
+		model_o.add_layer(layer2_o );
+		model_o.add_layer(layer3_o );
+		model_o.add_layer(layer4_o );
 
-		train(layers_o, data, expected);
+		for(int i = 0; i < 100; i++) {
+			randomize(data);
+			randomize(expected);
+			model.train(data, expected); 
+			model_o.train(data, expected); 
+		}
+		
+		randomize(data);
+		EXPECT_EQ(model.apply(data), model_o.apply(data));
 		
 	}
 }

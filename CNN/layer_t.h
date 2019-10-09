@@ -15,7 +15,6 @@ enum class layer_type
 class layer_t
 {
 public:
-	//layer_type type;
 	tensor_t<float> in;
 	tensor_t<float> out;
 	tensor_t<float> grads_in;
@@ -31,6 +30,19 @@ public:
 	virtual void calc_grads(tensor_t<float>& grad_next_layer ) = 0;
 
 	layer_t(const tdsize & in_size, const tdsize & out_size) :  in(in_size), out(out_size), grads_in(in_size) {}
+
+#if(0)
+	virtual bool operator==(const layer_t & o) const {
+		if (o.in != in) return false;
+		if (o.grads_in != grads_in) return false;
+		if (o.out != out) return false;
+		return true;
+	}
+	
+	bool operator!=(const layer_t & o) const {
+		return !(*this == o);
+	}
+#endif
 
 	virtual ~layer_t(){}
 };

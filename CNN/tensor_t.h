@@ -20,17 +20,18 @@ struct tensor_t
 
 	tensor_t( int _x, int _y, int _z ) : size(_x, _y, _z) {
 		throw_assert(size.x > 0 && size.y > 0 && size.z > 0,  "Tensor initialized with negative dimensions");
-		data = new T[_x * _y * _z]();
+		data = new T[size.x * size.y * size.z]();
 	}
 
 	tensor_t(const tdsize & _size) : size(_size)
 	{
-		data = new T[_size.x * _size.y * _size.z]();
+		throw_assert(size.x > 0 && size.y > 0 && size.z > 0,  "Tensor initialized with negative dimensions");
+		data = new T[size.x * size.y * size.z]();
 	}
 
 	tensor_t( const tensor_t& other ) :size(other.size)
 	{
-		data = new T[other.size.x *other.size.y *other.size.z];
+		data = new T[size.x *size.y *size.z];
 		memcpy(
 			data,
 			other.data,
@@ -57,7 +58,7 @@ struct tensor_t
 		return *this;
 	}
 
-	tensor_t<T> operator+( tensor_t<T>& other )
+	tensor_t<T> operator+( const tensor_t<T>& other )const 
 	{
 		tensor_t<T> clone( *this );
 		for ( int i = 0; i < other.size.x * other.size.y * other.size.z; i++ )
@@ -65,7 +66,7 @@ struct tensor_t
 		return clone;
 	}
 
-	tensor_t<T> operator-( tensor_t<T>& other )
+	tensor_t<T> operator-( const tensor_t<T>& other ) const
 	{
 		tensor_t<T> clone( *this );
 		for ( int i = 0; i < other.size.x * other.size.y * other.size.z; i++ )
