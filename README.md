@@ -1,17 +1,38 @@
-# simple_cnn
+# Canela
 
-simple_cnn is ment to be an easy to read and easy to use convolutional neural network library.
+Canela is a simple convolutional neural network library.  It's main goal is to be easy to understand.  It was developed for teaching purposes.
 
-simple_cnn is written in a mostly C-like manner behind the scenes, doesnt use virtual classes and avoids using std where its possible so that it is easier to convert to CUDA code when needed.
+## Setup and Installation
 
+To setup Canela run
 
-Example use on handwritten digit recognition (Youtube Video):
+```
+make
+```
 
-[![Youtube Video](https://img.youtube.com/vi/afLUb6lFTCk/0.jpg)](https://www.youtube.com/watch?v=afLUb6lFTCk)
+or, to build the examples and run the tests:
 
-# Building
+```
+make all
+```
 
-On linux, run make.
+## Dependencies
 
+Canela relies on `googletest` and uses the build system from `libarchlab`.
 
-MNIST digits taken from http://yann.lecun.com/exdb/mnist/
+The utilities depend on and  `libpng`, `libjpeg` which should be installed by default on most systems.
+
+## Finding Your Way Around
+
+Here's where you'll find the parts of Cenala:
+
+1.  `tests` -- the Canela test suite
+2.  `examples` -- example code.
+3.  `CNN` -- The core Canela source code.
+4.  `util` -- Utility and helper functions (e.g., image loaders)
+5.  `datasets` -- sample data sets.
+
+## Credits
+
+Canela is based on https://github.com/can1357/simple_cnn.
+
