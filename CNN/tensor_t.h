@@ -11,6 +11,8 @@ static float rand_f(int maxval) {
 	return 1.0f / maxval * rand() / float( RAND_MAX );
 }
 
+#define TENSOR_FOR(T,X,Y,Z) for(int X = 0; X < T.size.x; X++) for(int Y = 0; Y < T.size.y; Y++) for(int Z = 0; Z < T.size.z; Z++) 
+
 template<typename T>
 struct tensor_t
 {
@@ -128,6 +130,16 @@ struct tensor_t
 	}
 
 
+	T max() const {
+		auto l = argmax();
+		return get(l.x,l.y,l.z);
+	}
+	
+        T min() const {
+		auto l = argmin();
+		return get(l.x,l.y,l.z);
+	}
+	
 	tdsize argmax() const {
 		T max_value = -std::numeric_limits<float>::max();
 		tdsize max_loc;
@@ -246,8 +258,23 @@ tensor_t<float> to_tensor( std::vector<std::vector<std::vector<float>>> data )
 #ifdef INCLUDE_TESTS
 #include "gtest/gtest.h"
 
+
 namespace CNNTest {
 
+
+	TEST_F(CNNTest, tensor_for) {
+		tensor_t<float> t1(3,4,5);
+		float i = 0.0;
+		TENSOR_FOR(t1, x, y, z) {
+			t1(x,y,z) = i;
+			i += 1.0;
+		}
+		float sum = 0.0;
+		TENSOR_FOR(t1, x, y, z) {
+			sum += t1(x,y,z);
+		}
+		EXPECT_EQ(sum, 1770.0);
+	}
 	
 	TEST_F(CNNTest, tensor_gradient) {
 		tdsize s(2,2,3);
@@ -288,6 +315,8 @@ namespace CNNTest {
 		m(1,1,1) = 4;
 		EXPECT_EQ(m.argmax(), tdsize(1,1,1));
 		EXPECT_EQ(m.argmin(), tdsize(1,0,0));
+		EXPECT_EQ(m.max(), 4);
+		EXPECT_EQ(m.min(), -1);
 
 		EXPECT_THROW(m - t1, AssertionFailureException); // mismatched sizes
 		EXPECT_THROW(m + t1, AssertionFailureException); // mismatched sizes

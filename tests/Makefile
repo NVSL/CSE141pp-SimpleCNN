@@ -1,11 +1,16 @@
 include ../Make.rules
 
+-include $(SRCS:.cpp=.d)
+
+SRCS=run_test.cpp
+
 .PHONY:default test
 default test: run_test.exe
 	./run_test.exe
 
+GCOV_CFLAGS=-fprofile-arcs -ftest-coverage
 run_test.exe: run_test.cpp
-	$(CXX) $(CXXFLAGS) -fprofile-arcs -ftest-coverage -L../googletest/lib/ $< -lgtest -lgtest_main  -o $@
+	$(CXX) $(CXXFLAGS)   -L../googletest/lib/ $< -lgtest -lgtest_main -lpng  -o $@
 
 .PHONY: codecov
 codecov:
@@ -16,4 +21,5 @@ tests-clean:
 	rm -rf run_test.exe
 
 clean: tests-clean
+
 

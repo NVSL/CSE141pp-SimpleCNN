@@ -1,5 +1,6 @@
 #define INCLUDE_TESTS
 #include "../CNN/cnn.h"
+#include "../util/tensor_util.h"
 #include <iostream>
 #include "gtest/gtest.h"
 
