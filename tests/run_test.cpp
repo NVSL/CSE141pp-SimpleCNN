@@ -35,14 +35,6 @@ namespace CNNTest{
 		//std::cout <<  model.apply(data) << "\n";
 	}
 
-	TEST_F(CNNTest, fc_aggravator) {
-		tensor_t<float> data(32, 32, 3);
-		tensor_t<float> expected(10, 1, 10);
-		randomize(expected);
-		fc_layer_opt_t   layer4_o(data.size, 10);
-		tensor_t<float> grads = layer4_o.out - expected;
-	}
-
 
 	TEST_F(CNNTest, simple_model_opt) {
 		tensor_t<float> data(32, 32, 3);

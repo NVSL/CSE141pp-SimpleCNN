@@ -13,15 +13,15 @@ using namespace std;
 
 int main()
 {
-	vector<test_case_t> cases = load_mnist("train-images.idx3-ubyte",
-					  "train-labels.idx1-ubyte");
+	vector<test_case_t> cases = load_mnist("../datasets/mnist/train-images.idx3-ubyte",
+					       "../datasets/mnist/train-labels.idx1-ubyte");
 
 	model_t model;
 
-	conv_layer_t * layer1( 1, 5, 8, cases[0].data.size );		// 28 * 28 * 1 -> 24 * 24 * 8
-	relu_layer_t * layer2( layer1.out.size );
-	pool_layer_t * layer3( 2, 2, layer2.out.size );				// 24 * 24 * 8 -> 12 * 12 * 8
-	fc_layer_t * layer4(layer3.out.size, 10);					// 4 * 4 * 16 -> 10
+	conv_layer_t  layer1( 1, 5, 8, cases[0].data.size );		// 28 * 28 * 1 -> 24 * 24 * 8
+	relu_layer_t  layer2( layer1.out.size );
+	pool_layer_t layer3( 2, 2, layer2.out.size );				// 24 * 24 * 8 -> 12 * 12 * 8
+	fc_layer_t  layer4(layer3.out.size, 10);					// 4 * 4 * 16 -> 10
 
 	model.add_layer(layer1 );
 	model.add_layer(layer2 );
@@ -54,8 +54,8 @@ int main()
 	for ( test_case_t& t : cases )
 	{
 		tensor_t<float>& out = model.apply(t.data);
-
-		tdsize guess = layers.back()->out.argmax();
+		
+		tdsize guess = out.argmax();
 	        tdsize answer = t.out.argmax();
 		if (guess == answer) {
 			correct++;

@@ -10,8 +10,10 @@ uint8_t* read_file( const std::string & f )
 	std::streamsize size = file.tellg();
 	file.seekg( 0, std::ios::beg );
 
-	if ( size == -1 )
-		return nullptr;
+	if ( size == -1 ) {
+		std::cerr << "Couldn't open " << f << "\n";
+		exit(1);
+	}
 
 	uint8_t* buffer = new uint8_t[size];
 	file.read( (char*)buffer, size );
@@ -27,7 +29,7 @@ std::vector<test_case_t> load_mnist(const std::string & images, const std::strin
 
 	uint32_t case_count = byteswap_uint32( *(uint32_t*)(train_image + 4) );
 
-	for ( int i = 0; i < case_count; i++ )
+	for ( uint i = 0; i < case_count; i++ )
 	{
 	        test_case_t c {tensor_t<float>( 28, 28, 1 ), tensor_t<float>( 10, 1, 1 )};
 

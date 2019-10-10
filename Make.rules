@@ -1,0 +1,3 @@
+#-*- Makefile -*-
+include $(ARCHLAB_ROOT)/compile.make
+
