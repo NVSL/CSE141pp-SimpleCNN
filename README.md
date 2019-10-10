@@ -1,16 +1,24 @@
 # Canela
 
-Canela is a simple convolutional neural network library.  It's main goal is to be easy to understand.  It was developed for teaching purposes.
+Canela is a simple convolutional neural network library.  It's main goal is to be easy to understand and optimize.
+
+It was developed for teaching purposes.
 
 ## Setup and Installation
 
-To setup Canela run
+To setup Canela, first setup your environment
 
 ```
 make
 ```
 
-or, to build the examples and run the tests:
+Then, to start hacking:
+
+```
+source env.sh
+```
+
+To run the tests and build the examples:
 
 ```
 make all
