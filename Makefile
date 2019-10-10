@@ -16,7 +16,6 @@ disttest:
 	git clone . ./.test_build
 	(cd .test_build; make; . ./env.sh; make all)
 
-
 .PHONY: examples
 examples: check_env
 	$(MAKE) -C examples
@@ -26,7 +25,7 @@ setup: googletest cse141pp-archlab
 
 .PHONY: check_env
 check_env:
-	@if [ "$(ARCHLAB_ROOT)." = "." ]; then echo You know need to do 'source ./env.sh' to setup your environment.; false; else true; fi
+	@if [ "$(ARCHLAB_ROOT)." = "." ]; then echo You need to do 'source ./env.sh' to setup your environment.; false; else true; fi
 
 googletest:
 	rm -rf googletest
