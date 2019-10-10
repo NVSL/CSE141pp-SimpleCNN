@@ -12,8 +12,10 @@ test: check_env
 
 .PHONY: disttest
 disttest:
+	rm -rf ./.test_build
 	git clone . ./.test_build
 	(cd .test_build; make; . ./env.sh; make all)
+
 
 .PHONY: examples
 examples: check_env

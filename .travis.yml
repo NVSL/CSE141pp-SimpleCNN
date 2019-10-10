@@ -1,0 +1,4 @@
+dist:bionic
+language: c
+install: make setup
+script: make all
