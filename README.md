@@ -1,5 +1,7 @@
 # Canela
 
+![](https://travis-ci.com/NVSL/CSE141pp-SimpleCNN.svg?branch=master)
+
 Canela is a simple convolutional neural network library.  It's main goal is to be easy to understand and optimize.
 
 It was developed for teaching purposes.
