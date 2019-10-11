@@ -23,7 +23,8 @@ tensor_t<float> load_tensor_from_png(const char* file_name)
         FILE *fp = fopen(file_name, "rb");
 	throw_assert(fp, "[read_png_file] File " << file_name << " could not be opened for reading");
 	
-        fread(header, 1, 8, fp);
+        int r = fread(header, 1, 8, fp);
+	throw_assert(r == 8, "short read reading " << file_name << "\n");
         throw_assert(png_sig_cmp((png_const_bytep)header, 0, 8) == 0, "[read_png_file] File " << file_name << " is not recognized as a PNG file");
 
         /* initialize stuff */
