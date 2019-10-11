@@ -122,7 +122,7 @@ struct tensor_t
 
 	const T & get( int _x, int _y, int _z ) const {
 		throw_assert( _x >= 0 && _y >= 0 && _z >= 0 , "Tried to read tensor at negative coordinates" );
-		throw_assert( _x < size.x && _y < size.y && _z < size.z, "Tried to read tensor out of bounds" );
+		throw_assert( _x < size.x && _y < size.y && _z < size.z, "Tried to read tensor out of bounds: read at " << tdsize(_x, _y, _z) << "; bound = " << size );
 
 		return data[
 			_z * (size.x * size.y) +
@@ -172,6 +172,21 @@ struct tensor_t
 		auto l = argmin();
 		return get(l.x,l.y,l.z);
 	}
+
+	tensor_t<T> matmul(const tensor_t<T> & rhs) const {
+		const tensor_t<T> & lhs = *this;
+		throw_assert(lhs.size.y == rhs.size.x, "Matrix size mismatch in matmul: lhs = " << lhs.size << "; rhs = " << rhs.size);
+		throw_assert(lhs.size.z == 1 && rhs.size.z == 1, "Matmul only works with depth-1 tensors: lhs = " << lhs.size << "; rhs = " << rhs.size);
+		tensor_t<T> n(lhs.size.x, rhs.size.y, 1);
+		TDSIZE_FOR(n.size, x,y,_) {
+			float sum = 0;
+			for(int i = 0; i < lhs.size.y; i++) {
+				sum += lhs(x, i, 0) * rhs(i, y, 0);
+			}
+			n(x,y,_) = sum;
+		}
+		return n;
+	}
 	
 	tdsize argmax() const {
 		T max_value = -std::numeric_limits<float>::max();
@@ -211,6 +226,7 @@ struct tensor_t
 	}
 
 };
+
 
 void randomize(tensor_t<float> & t, float max = 1.0) {
 	for(int x = 0; x < t.size.x; x++) {
@@ -295,6 +311,38 @@ tensor_t<float> to_tensor( std::vector<std::vector<std::vector<float>>> data )
 namespace CNNTest {
 
 
+	TEST_F(CNNTest, tensor_matmul) {
+		tensor_t<float> a(2,3,1), b(3,2,1);
+
+		a(0,0,0) = 1;
+		a(0,1,0) = 2;
+		a(0,2,0) = 3;
+		a(1,0,0) = 4;
+		a(1,1,0) = 5;
+		a(1,2,0) = 6;
+
+		b(0,0,0) = 1;
+		b(0,1,0) = 2;
+		b(1,0,0) = 3;
+		b(1,1,0) = 4;
+		b(2,0,0) = 5;
+		b(2,1,0) = 6;
+
+		tensor_t<float> ab(2,2,1);
+		ab(0,0,0) = 22;
+		ab(0,1,0) = 28;
+		ab(1,0,0) = 49;
+		ab(1,1,0) = 64;
+
+		EXPECT_EQ(ab, a.matmul(b));
+		tensor_t<float> c(2,3,2), d(3,2,2);
+		EXPECT_THROW(c.matmul(d), AssertionFailureException); // too "thick"
+
+		tensor_t<float> f(2,4,1), g(3,2,1);
+		EXPECT_THROW(f.matmul(g), AssertionFailureException); // mismatch dimensions.
+
+	}
+	
 	TEST_F(CNNTest, tensor_for) {
 		tensor_t<float> t1(3,4,5);
 		float i = 0.0;
