@@ -11,7 +11,8 @@ static float rand_f(int maxval) {
 	return 1.0f / maxval * rand() / float( RAND_MAX );
 }
 
-#define TENSOR_FOR(T,X,Y,Z) for(int X = 0; X < T.size.x; X++) for(int Y = 0; Y < T.size.y; Y++) for(int Z = 0; Z < T.size.z; Z++) 
+#define TDSIZE_FOR(T,X,Y,Z) for(int X = 0; X < T.x; X++) for(int Y = 0; Y < T.y; Y++) for(int Z = 0; Z < T.z; Z++) 
+#define TENSOR_FOR(T,X,Y,Z) TDSIZE_FOR(T.size, X, Y, Z)
 
 template<typename T>
 struct tensor_t
@@ -105,6 +106,7 @@ struct tensor_t
 	bool operator!=(const tensor_t<T> & o) const {
 		return !(*this == o);
 	}
+
 	
 	T& get( int _x, int _y, int _z )
 	{
@@ -129,6 +131,37 @@ struct tensor_t
 		];
 	}
 
+	tensor_t<T> & paste(const tdsize & where, const tensor_t<T> & in,  bool grow=false) {
+		if (grow) {
+			throw_assert(false, "Grow not implemented");
+		} else {
+			throw_assert((where.x + in.size.x <= size.x) &&
+				     (where.y + in.size.y <= size.y) &&
+				     (where.z + in.size.z <= size.z), "Out of bounds tensor<>.copy_at()");
+		}
+		
+		TDSIZE_FOR(in.size, x,y,z) 
+			get(where.x + x,where.y + y,where.z + z) = in(x,y,z);
+		return *this; 
+	}
+
+	tensor_t<T> copy(const tdsize & where, const tdsize & s,  bool grow=false) {
+		if (grow) {
+			throw_assert(false, "Grow not implemented");
+		} else {
+			throw_assert((where.x + s.x <= size.x) &&
+				     (where.y + s.y <= size.y) &&
+				     (where.z + s.z <= size.z),
+				     "Out of bounds tensor<>.copy_at(). where = " << where << "; s = " << s << "; this->size = " << size);
+		}
+
+		tensor_t<T> n(s);
+		
+		TDSIZE_FOR(n.size, x,y,z) 
+			n.get(x,y,z) = get(where.x + x,where.y + y,where.z + z);
+		
+		return n;
+	}
 
 	T max() const {
 		auto l = argmax();
@@ -274,6 +307,26 @@ namespace CNNTest {
 			sum += t1(x,y,z);
 		}
 		EXPECT_EQ(sum, 1770.0);
+	}
+
+	TEST_F(CNNTest, tensor_slice) {
+		tensor_t<float> t1(3,4,5);
+
+		auto t2 = t1.copy({0,0,0}, {2, 3, 1});
+		TDSIZE_FOR(tdsize(2,3,1), x,y,z)
+			EXPECT_EQ(t1(x,y,z), t2(x,y,z));
+
+		auto t3 = t1.copy({1,1,1}, {2, 3, 1});
+		EXPECT_EQ(t3.size.x, 2);
+		EXPECT_EQ(t3.size.y, 3);
+		EXPECT_EQ(t3.size.z, 1);
+		TDSIZE_FOR(tdsize(2,3,1), x,y,z)
+			EXPECT_EQ(t1(x+1,y+1,z+1), t2(x,y,z));
+
+		t1.paste({0,0,0}, t3);
+		TDSIZE_FOR(t3.size, x,y,z)
+			EXPECT_EQ(t1(x,y,z), t2(x,y,z));
+		
 	}
 	
 	TEST_F(CNNTest, tensor_gradient) {
