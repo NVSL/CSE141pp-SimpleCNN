@@ -3,3 +3,8 @@
 *.png
 cse141pp-archlab
 googletest
+.test_build
+\#*
+.\#*
+*.gcov
+*.exe
