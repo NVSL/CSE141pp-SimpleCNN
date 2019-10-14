@@ -13,9 +13,11 @@ using namespace std;
 
 int main()
 {
-	dataset_t mnist = load_mnist("../datasets/mnist/train-images.idx3-ubyte",
-				     "../datasets/mnist/train-labels.idx1-ubyte");
 	
+//	dataset_t mnist = load_mnist("../datasets/mnist/train-images.idx3-ubyte",
+//				     "../datasets/mnist/train-labels.idx1-ubyte");
+	std::ifstream in("../tools/mnist.dataset",std::ofstream::binary);
+	dataset_t mnist = dataset_t::read(in);
 	model_t model;
 
 	conv_layer_t  layer1( 1, 5, 8, mnist.test_cases[0].data.size );		// 28 * 28 * 1 -> 24 * 24 * 8

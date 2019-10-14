@@ -8,3 +8,9 @@ googletest
 .\#*
 *.gcov
 *.exe
+*.o
+*.tensor
+*.dataset
+.test_case
+.test_case
+*.test_case

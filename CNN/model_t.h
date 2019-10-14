@@ -60,7 +60,7 @@ public:
 		return layers.back()->out;
 	}
 
-	size_t get_total_size() const {
+	size_t get_total_memory_size() const {
 		size_t sum = 0;
 
 		for(auto &r: layers) {

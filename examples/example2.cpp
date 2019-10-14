@@ -38,10 +38,12 @@ int main()
 	model.add_layer(layer7 );
 
 
+	std::cout << "Model size        : " << (model.get_total_memory_size()+0.0)/(1024*1024) << " MB" << std::endl;
+	std::cout << "Training data size: " << (mnist.get_total_memory_size()+0.0)/(1024*1024)  << " MB" << std::endl;
 	float amse = 0;
 	int ic = 0;
 	int ep = 0;
-#define COUNT 100000
+#define COUNT 10000
 	do {
 		for ( test_case_t& t : mnist.test_cases )
 
