@@ -36,6 +36,9 @@ cse141pp-archlab:
 	rm -rf cse141pp-archlab
 	git clone https://github.com/NVSL/cse141pp-archlab.git
 
+.PHONY: hooks
+hooks:
+	git config core.hooksPath hooks
 
 .PHONY: clean
 clean:
