@@ -1,3 +1,4 @@
+#pragma once
 #include "CNN/tensor_t.h"
 #include <stdio.h>
 

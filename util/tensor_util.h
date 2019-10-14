@@ -71,12 +71,15 @@ tensor_t<float> perspective2D(float d) {
 	return r;
 }
 
-tensor_t<float> inv_affine2D_nn(const tensor_t<float> & in, const tensor_t<float> & trans, const tdsize & dst_size) {
-	throw_assert(in.size.z == dst_size.z, "affine2D only works with matched z depths in.size = " << in.size
+// This applies the inverse of `trans` to `in`.  It works by generating a set
+// of sample points (one for each point in the output), appling `trans` to
+// them, and then sampling `in` at the resulting points.
+tensor_t<float> inv_2Dtransform_nn(const tensor_t<float> & in, const tensor_t<float> & trans, const tdsize & dst_size) {
+	throw_assert(in.size.z == dst_size.z, "2Dtransform only works with matched z depths in.size = " << in.size
 		     << "; dst_size = " << dst_size);
 	throw_assert(trans.size.x == 3 &&
 		     trans.size.y == 3 &&
-		     trans.size.z == 1, "affine2D transform must be 3,3,1.  trans.size = " << trans.size);
+		     trans.size.z == 1, "2Dtransform transform must be 3,3,1.  trans.size = " << trans.size);
 
 	tensor_t<float> dst(dst_size);
 
@@ -114,9 +117,42 @@ tensor_t<float> scale_nn(const tensor_t<float> & in, const tdsize & dst_size) {
 	return dst;
 }
 
+// take `in` and make it's size match `target_size` by cropping or padding it.  If
+// 'letterbox' is true, pad with 0s to match size, otherwise crop.
+tensor_t<float> pad_or_crop(const tensor_t<float> & in, const tdsize & target_size, bool letterbox) {
+	tdsize scaled_size;
+	float scale;
+	if (letterbox) {
+		scale = MIN((target_size.x + 0.0)/(in.size.x + 0.0),
+			    (target_size.y + 0.0)/(in.size.y + 0.0));
+	} else {
+		scale = MAX((target_size.x + 0.0)/(in.size.x + 0.0),
+			    (target_size.y + 0.0)/(in.size.y + 0.0));
+	}
+	auto scaled = inv_2Dtransform_nn(in, ident2D(), tdsize(in.size.x*scale, in.size.y*scale, in.size.z));
+
+	if (letterbox) {
+		tensor_t<float> out(target_size);
+		out.paste({
+				(target_size.x-scaled.size.x)/2,
+				(target_size.y-scaled.size.y)/2,
+				0
+			}, scaled);
+		return out;
+	} else {
+		return scaled.copy(
+			{
+				(scaled.size.x-target_size.x)/2,
+				(scaled.size.y-target_size.y)/2,
+				0
+			},target_size);
+	}
+}
+
 #ifdef INCLUDE_TESTS
 #include "gtest/gtest.h"
 #include "util/png_util.h"
+#include "util/jpeg_util.h"
 
 namespace CNNTest {
 
@@ -141,29 +177,48 @@ namespace CNNTest {
 		EXPECT_EQ(p, ident2D().matmul(p));
 	}
 	
-	TEST_F(CNNTest, scale_png) {
+	TEST_F(CNNTest, transform_image) {
 		tensor_t<float> in = load_tensor_from_png("../tests/images/NVSL.png");
 		auto scaled = scale_nn(in, {40,40,in.size.z});
 		write_tensor_to_png("NVSL-scale1.png", scaled);
 
-		auto ident = inv_affine2D_nn(in, ident2D(), in.size);
+		auto ident = inv_2Dtransform_nn(in, ident2D(), in.size);
 		write_tensor_to_png("NVSL-ident.png", ident);
 		
-		auto rotate = inv_affine2D_nn(in, rotate2D(-30), in.size);
+		auto rotate = inv_2Dtransform_nn(in, rotate2D(-30), in.size);
 		write_tensor_to_png("NVSL-rotate.png", rotate);
 		
-		auto translate = inv_affine2D_nn(in, translate2D(20,20), in.size);
+		auto translate = inv_2Dtransform_nn(in, translate2D(20,20), in.size);
 		write_tensor_to_png("NVSL-translate.png", translate);
 		
-		auto scale = inv_affine2D_nn(in, scale2D(.75, 0.75), in.size);
+		auto scale = inv_2Dtransform_nn(in, scale2D(.75, 0.75), in.size);
 		write_tensor_to_png("NVSL-scale.png", scale);
 		
-		auto shear = inv_affine2D_nn(in, shear2D(0.1, 0), in.size);
+		auto shear = inv_2Dtransform_nn(in, shear2D(0.1, 0), in.size);
 		write_tensor_to_png("NVSL-shear.png", shear);
 
-		auto perspective = inv_affine2D_nn(in, perspective2D(0.5), in.size);
+		auto perspective = inv_2Dtransform_nn(in, perspective2D(0.5), in.size);
 		write_tensor_to_png("NVSL-perspective.png", perspective);
+
+	}
+	
+	TEST_F(CNNTest, adjust_image) {
+		auto portrait_img = load_tensor_from_jpeg("images/bear.jpg");
+		auto landscape_img = load_tensor_from_jpeg("images/bear_rot.jpg");
+
+		tdsize landscape(200,300,3);
+		tdsize portrait(300,200,3);
 		
+		write_tensor_to_png("ppt.png", pad_or_crop(portrait_img, portrait, true));
+		write_tensor_to_png("lpt.png", pad_or_crop(landscape_img, portrait, true));
+		write_tensor_to_png("plt.png", pad_or_crop(portrait_img, landscape, true));
+		write_tensor_to_png("llt.png", pad_or_crop(landscape_img, landscape, true));
+		
+		write_tensor_to_png("ppf.png", pad_or_crop(portrait_img, portrait, false));
+		write_tensor_to_png("lpf.png", pad_or_crop(landscape_img, portrait, false));
+		write_tensor_to_png("plf.png", pad_or_crop(portrait_img, landscape, false));
+		write_tensor_to_png("llf.png", pad_or_crop(landscape_img, landscape, false));
+
 	}
 }
 
