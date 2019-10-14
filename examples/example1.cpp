@@ -20,7 +20,7 @@ int main()
 	dataset_t mnist = dataset_t::read(in);
 	model_t model;
 
-	conv_layer_t  layer1( 1, 5, 8, mnist.test_cases[0].data.size );		// 28 * 28 * 1 -> 24 * 24 * 8
+	conv_layer_t  layer1( 1, 5, 8, mnist.data_size);
 	relu_layer_t  layer2( layer1.out.size );
 	pool_layer_t layer3( 2, 2, layer2.out.size );				// 24 * 24 * 8 -> 12 * 12 * 8
 	fc_layer_t  layer4(layer3.out.size, 10);					// 4 * 4 * 16 -> 10
