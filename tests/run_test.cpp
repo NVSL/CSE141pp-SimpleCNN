@@ -5,6 +5,7 @@
 #include "gtest/gtest.h"
 #include "util/png_util.h"
 #include "util/jpeg_util.h"
+#include "util/mnist.h"
 #include "CNN/dataset_t.h"
 namespace CNNTest{
 

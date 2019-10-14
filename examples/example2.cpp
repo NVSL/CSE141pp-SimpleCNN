@@ -14,12 +14,12 @@ using namespace std;
 int main()
 {
 
-	vector<test_case_t> cases = load_mnist("../datasets/mnist/train-images.idx3-ubyte",
-					       "../datasets/mnist/train-labels.idx1-ubyte");
+	dataset_t mnist = load_mnist("../datasets/mnist/train-images.idx3-ubyte",
+				     "../datasets/mnist/train-labels.idx1-ubyte");
 
 	model_t model;
 
-	conv_layer_t layer1( 1, 5, 8, cases[0].data.size );		// 28 28 1 -> 24 24 8
+	conv_layer_t  layer1( 1, 5, 8, mnist.test_cases[0].data.size );		// 28 * 28 * 1 -> 24 * 24 * 8
 	relu_layer_t layer2( layer1.out.size );
 	pool_layer_t layer3( 2, 2, layer2.out.size );				// 24 24 8 -> 12 12 8
 
@@ -43,7 +43,8 @@ int main()
 	int ep = 0;
 #define COUNT 100000
 	do {
-		for ( test_case_t& t : cases )
+		for ( test_case_t& t : mnist.test_cases )
+
 		{
 			float xerr = model.train(t.data, t.label );
 			amse += xerr;
@@ -61,7 +62,7 @@ int main()
 
 	int correct  = 0, incorrect = 0;
 	ep = 0;
-	for ( test_case_t& t : cases )
+	for ( test_case_t& t : mnist.test_cases )
 	{
 		tensor_t<float>& out = model.apply(t.data);
 		
