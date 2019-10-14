@@ -25,6 +25,15 @@ public:
 				((in_size.y - filter_size) / stride + 1) , "Stride doesn't divide input size");
 	}
 
+	std::string kind_str() const {
+		return "pool";
+	}
+	std::string param_str() const {
+		std::stringstream ss;
+		ss << "stride=" << stride << ", filter_size=" << filter_size;
+		return ss.str();
+	}
+
 	bool operator==(const pool_layer_t & o) const {
 		if (o.stride != stride) return false;
 		if (o.filter_size != filter_size) return false;

@@ -1,4 +1,5 @@
 #pragma once
+#include <sstream>
 #include "layer_t.h"
 
 class conv_layer_t: public layer_t
@@ -58,6 +59,15 @@ public:
 			sum += i.get_total_memory_size();
 		}
 		return sum + layer_t::get_total_memory_size();
+	}
+
+	std::string kind_str() const {
+		return "convolution";
+	}
+	std::string param_str() const {
+		std::stringstream ss;
+		ss << "stride=" << stride << ", kernel_size=" << kernel_size << ", kernel_count=" << filters.size();
+		return ss.str();
 	}
 	
 	bool operator==(const conv_layer_t & o) const {

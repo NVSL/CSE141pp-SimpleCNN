@@ -20,7 +20,14 @@ public:
 		return hitmap.get_total_memory_size() + layer_t::get_total_memory_size();
 	}
 	
-
+	std::string kind_str() const {
+		return "dropout";
+	}
+	std::string param_str() const {
+		std::stringstream ss;
+		ss << "activation=" << p_activation;
+		return ss.str();
+	}
 	
 	bool operator==(const dropout_layer_t & o) const {
 		if (o.p_activation != p_activation) return false;

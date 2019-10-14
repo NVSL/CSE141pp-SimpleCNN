@@ -1,6 +1,6 @@
 include ../Make.rules
 
-EXAMPLES=example1.exe example2.exe
+EXAMPLES=example1.exe example2.exe big.exe
 default: $(EXAMPLES)
 
 %.exe : %.o 

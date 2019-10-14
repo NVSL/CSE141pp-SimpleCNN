@@ -31,6 +31,13 @@ public:
 	virtual size_t get_total_memory_size() const {
 		return in.get_total_memory_size() + out.get_total_memory_size() + grads_in.get_total_memory_size();
 	}
+	virtual std::string param_str() const {return "<missing>";}
+	virtual std::string kind_str() const {return "<missing>";}
+	std::string spec_str() const {
+		std::stringstream ss;
+		ss << kind_str() << "(" << param_str() << ")";
+		return ss.str();
+	}
 	layer_t(const tdsize & in_size, const tdsize & out_size) :  in(in_size), out(out_size), grads_in(in_size) {}
 
 	virtual ~layer_t(){}

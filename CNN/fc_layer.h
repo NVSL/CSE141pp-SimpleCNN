@@ -35,7 +35,15 @@ public:
 			input.size() * sizeof(float) +
 			layer_t::get_total_memory_size();
 	}
-	
+
+	std::string kind_str() const {
+		return "fc";
+	}
+	std::string param_str() const {
+		std::stringstream ss;
+		return ss.str();
+	}
+
 	bool operator==(const fc_layer_t & o) const {
 		if (o.weights != weights) return false;
 		if (o.in != in) return false;

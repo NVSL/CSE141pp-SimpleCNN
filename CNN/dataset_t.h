@@ -45,9 +45,11 @@ const int test_case_t::version;
 struct dataset_t
 {
 	static const int version = 1;
-
+	tdsize data_size;
+	tdsize label_size;
+	
 	std::vector<test_case_t> test_cases;
-
+	
 	size_t get_total_memory_size() const {
 		size_t s = 0;
 		for(auto &tc: test_cases) {
@@ -60,16 +62,27 @@ struct dataset_t
 	{
 		return other.test_cases == test_cases;
 	}
-
+	
 	bool operator!=(const dataset_t & o) const {
 		return !(*this == o);
 	}
-
+	
 	void add(const tensor_t<float> & data, const tensor_t<float> & label) {
-		test_cases.push_back({data, label});
+		add(test_case_t {data, label});
+		//test_cases.push_back({data, label});
 	}
 	
 	void add(const test_case_t & tc) {
+		throw_assert(tc.label.size.y == 1 &&
+			     tc.label.size.z == 1, "Labels should have size (n,1,1).  Got size " << tc.label );
+
+		if (test_cases.size() == 0) {
+			data_size = tc.data.size;
+			label_size = tc.label.size;
+		} else {
+			throw_assert(data_size == tc.data.size , "Test case data size doesn't match dataset. test case: " << tc.data.size << "; dataset: " << data_size);
+			throw_assert(label_size == tc.label.size, "Test case label size doesn't match dataset. test case: " << tc.label.size << "; dataset: " << label_size);
+		}
 		test_cases.push_back(tc);
 	}
 	
@@ -121,8 +134,8 @@ namespace CNNTest {
 
 		dataset_t ds;
 		for(int i = 0; i < 11;i++){
-			test_case_t t {tensor_t<float>(2,2,2), tensor_t<float>(1,10,1)};
-			ds.test_cases.push_back(t);
+			test_case_t t {tensor_t<float>(2,2,2), tensor_t<float>(10,1,1)};
+			ds.add(t);
 		}
 
 		ds.get_total_memory_size();
@@ -132,7 +145,9 @@ namespace CNNTest {
 		std::ifstream infile2 ("ds_out.dataset",std::ofstream::binary);
 		auto dsr = dataset_t::read(infile2);
 		EXPECT_EQ(ds, dsr);
+
 		
+		EXPECT_THROW(ds.add(test_case_t {tensor_t<float>(3,3,3), tensor_t<float>(1,10,1)}), AssertionFailureException);
 	}
 }
 #endif

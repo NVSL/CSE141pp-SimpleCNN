@@ -10,6 +10,14 @@ public:
 	{
 	}
 
+	std::string kind_str() const {
+		return "relu";
+	}
+	std::string param_str() const {
+		std::stringstream ss;
+		return ss.str();
+	}
+
 	bool operator==(const relu_layer_t & o) const {
 		return (o.in == in) && (o.grads_in == grads_in) && (o.out == out);
 	}
