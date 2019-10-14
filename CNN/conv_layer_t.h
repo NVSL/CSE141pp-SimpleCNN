@@ -48,6 +48,17 @@ public:
 		}
 
 	}
+
+	size_t get_total_memory_size() const {
+		size_t sum = 0;
+		for(auto & i: filters) {
+			sum += i.get_total_memory_size();
+		}
+		for(auto & i: filter_grads) {
+			sum += i.get_total_memory_size();
+		}
+		return sum + layer_t::get_total_memory_size();
+	}
 	
 	bool operator==(const conv_layer_t & o) const {
 		if (o.stride != stride) return false;

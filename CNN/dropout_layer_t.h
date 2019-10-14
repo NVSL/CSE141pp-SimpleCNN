@@ -16,6 +16,12 @@ public:
 		throw_assert(p_activation >= 0 && p_activation <= 1.0, "activation level should be betwene 0.0 and 1.0");
 	}
 
+	size_t get_total_memory_size() const {
+		return hitmap.get_total_memory_size() + layer_t::get_total_memory_size();
+	}
+	
+
+	
 	bool operator==(const dropout_layer_t & o) const {
 		if (o.p_activation != p_activation) return false;
 		if (o.hitmap != hitmap) return false;

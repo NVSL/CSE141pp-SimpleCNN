@@ -29,6 +29,13 @@ public:
 			// 2.19722f = f^-1(0.9) => x where [1 / (1 + exp(-x) ) = 0.9]
 		}
 
+	size_t get_total_memory_size() const {
+		return weights.get_total_memory_size() +
+			gradients.size() * sizeof(gradient_t) +
+			input.size() * sizeof(float) +
+			layer_t::get_total_memory_size();
+	}
+	
 	bool operator==(const fc_layer_t & o) const {
 		if (o.weights != weights) return false;
 		if (o.in != in) return false;

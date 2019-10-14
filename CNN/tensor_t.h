@@ -47,7 +47,10 @@ struct tensor_t
 		delete[] data;
 	}
 
-
+	size_t get_total_memory_size() const {
+		return size.x * size.y * size.z *sizeof(T); 
+	}
+	
 	tensor_t<T> & operator=(const tensor_t& other )
 	{
 		delete[] data;
@@ -385,6 +388,8 @@ namespace CNNTest {
 		EXPECT_EQ(t1, t2);
 		randomize(t1, 1);
 		EXPECT_NE(t1, t2);
+
+		EXPECT_EQ(t1.get_total_memory_size(), 2*2*3*sizeof(gradient_t));
 	}
 	
 	TEST_F(CNNTest, tensor_operators) {
@@ -421,6 +426,9 @@ namespace CNNTest {
 
 		EXPECT_THROW(m - t1, AssertionFailureException); // mismatched sizes
 		EXPECT_THROW(m + t1, AssertionFailureException); // mismatched sizes
+
+		EXPECT_EQ(m.get_total_memory_size(), 2*2*2*sizeof(float));
+		
 	}
 
 }
