@@ -70,13 +70,3 @@ public:
 	}
 };
 
-
-#ifdef INCLUDE_TESTS
-namespace CNNTest{
-
-	TEST_F(CNNTest, model_simple) {
-		
-		tdsize size(10,10,10);
-	}
-}
-#endif
