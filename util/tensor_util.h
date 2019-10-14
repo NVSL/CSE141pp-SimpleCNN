@@ -65,6 +65,12 @@ tensor_t<float> shear2D(float x, float y) {
 	return r;
 }
 
+tensor_t<float> perspective2D(float d) {
+	auto r = ident2D();
+	r(1,2,0) = 1/d;
+	return r;
+}
+
 tensor_t<float> inv_affine2D_nn(const tensor_t<float> & in, const tensor_t<float> & trans, const tdsize & dst_size) {
 	throw_assert(in.size.z == dst_size.z, "affine2D only works with matched z depths in.size = " << in.size
 		     << "; dst_size = " << dst_size);
@@ -154,6 +160,9 @@ namespace CNNTest {
 		
 		auto shear = inv_affine2D_nn(in, shear2D(0.1, 0), in.size);
 		write_tensor_to_png("NVSL-shear.png", shear);
+
+		auto perspective = inv_affine2D_nn(in, perspective2D(0.5), in.size);
+		write_tensor_to_png("NVSL-perspective.png", perspective);
 		
 	}
 }

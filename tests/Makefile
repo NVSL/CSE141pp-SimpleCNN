@@ -10,7 +10,7 @@ default test: run_test.exe
 
 GCOV_CFLAGS=-fprofile-arcs -ftest-coverage
 run_test.exe: run_test.cpp
-	$(CXX) $(CXXFLAGS)   -L../googletest/lib/ $< -lgtest -lgtest_main -lpng  -o $@
+	$(CXX) $(CXXFLAGS)   -L../googletest/lib/ $< -lgtest -lgtest_main -lpng -ljpeg  -o $@
 
 .PHONY: codecov
 codecov:

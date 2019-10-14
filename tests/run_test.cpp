@@ -3,6 +3,8 @@
 #include "../util/tensor_util.h"
 #include <iostream>
 #include "gtest/gtest.h"
+#include "util/png_util.h"
+#include "util/jpeg_util.h"
 
 namespace CNNTest{
 

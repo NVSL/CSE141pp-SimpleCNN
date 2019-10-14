@@ -1,3 +1,4 @@
+#pragma once
 /*
  * Copyright 2002-2010 Guillaume Cottenceau.
  *
