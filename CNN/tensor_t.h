@@ -27,13 +27,13 @@ struct tensor_t
 		return size.x *size.y *size.z * sizeof( T );
 	}
 	tensor_t( int _x, int _y, int _z ) :  size(_x, _y, _z) {
-		throw_assert(size.x > 0 && size.y > 0 && size.z > 0,  "Tensor initialized with negative dimensions");
+		throw_assert(size.x > 0 && size.y > 0 && size.z > 0,  "Tensor initialized with non-positive dimensions");
 		data = new T[size.x * size.y * size.z]();
 	}
 
 	tensor_t(const tdsize & _size) : size(_size)
 	{
-		throw_assert(size.x > 0 && size.y > 0 && size.z > 0,  "Tensor initialized with negative dimensions");
+		throw_assert(size.x > 0 && size.y > 0 && size.z > 0,  "Tensor initialized with non-positive dimensions");
 		data = new T[size.x * size.y * size.z]();
 	}
 
@@ -287,7 +287,7 @@ std::ostream& operator<<(std::ostream& os, const tensor_t<T> & t)
 		os << z << ": \n";
 		for ( int y = 0; y < t.size.y; y++ ) {
 			for ( int x = 0; x < t.size.x; x++ ) {
-				os << std::setw(2) << std::setprecision(2);
+				os << std::setw(2) << std::setprecision(10);
 				os << t(x,y,z) << " ";
 			}
 			os << "\n";
@@ -340,6 +340,13 @@ tensor_t<float> to_tensor( std::vector<std::vector<std::vector<float>>> data )
 
 namespace CNNTest {
 
+	void EXPECT_TENSOR_EQ(const tensor_t<float> & a,const tensor_t<float> & b) {
+		EXPECT_EQ(a.size, b.size);
+		TENSOR_FOR(a, x,y,z) {
+			EXPECT_FLOAT_EQ(a(x,y,z), b(x,y,z));
+		}
+	}		
+
 
 	TEST_F(CNNTest, tensor_matmul) {
 		tensor_t<float> a(2,3,1), b(3,2,1);
@@ -370,6 +377,7 @@ namespace CNNTest {
 
 		tensor_t<float> f(2,4,1), g(3,2,1);
 		EXPECT_THROW(f.matmul(g), AssertionFailureException); // mismatch dimensions.
+		
 
 	}
 	
