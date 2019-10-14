@@ -17,9 +17,7 @@ static float rand_f(int maxval) {
 template<typename T>
 struct tensor_t
 {
-	enum version_t {V1 = 1};
-	
-	version_t version;
+	static const int version = 1;
 	tdsize size;
 	T * data;
 
@@ -27,18 +25,18 @@ struct tensor_t
 	size_t calculate_data_size() const {
 		return size.x *size.y *size.z * sizeof( T );
 	}
-	tensor_t( int _x, int _y, int _z ) : version(V1), size(_x, _y, _z) {
+	tensor_t( int _x, int _y, int _z ) :  size(_x, _y, _z) {
 		throw_assert(size.x > 0 && size.y > 0 && size.z > 0,  "Tensor initialized with negative dimensions");
 		data = new T[size.x * size.y * size.z]();
 	}
 
-	tensor_t(const tdsize & _size) : version(V1), size(_size)
+	tensor_t(const tdsize & _size) : size(_size)
 	{
 		throw_assert(size.x > 0 && size.y > 0 && size.z > 0,  "Tensor initialized with negative dimensions");
 		data = new T[size.x * size.y * size.z]();
 	}
 
-	tensor_t( const tensor_t& other ) :version(other.version), size(other.size)
+	tensor_t( const tensor_t& other ) : size(other.size)
 	{
 		data = new T[size.x *size.y *size.z];
 		memcpy(
@@ -59,7 +57,6 @@ struct tensor_t
 	
 	tensor_t<T> & operator=(const tensor_t& other )
 	{
-		throw_assert(version == other.version, "Version mismatch in tensor operation");
 		delete[] data;
 		size = other.size;
 		data = new T[other.size.x *other.size.y *other.size.z];
@@ -73,7 +70,6 @@ struct tensor_t
 
 	tensor_t<T> operator+( const tensor_t<T>& other )const 
 	{
-		throw_assert(version == other.version, "Version mismatch in tensor operation");
 		throw_assert(size == other.size, "Mismatche sizes is operator+");
 		tensor_t<T> clone( *this );
 		for ( int i = 0; i < other.size.x * other.size.y * other.size.z; i++ )
@@ -83,7 +79,7 @@ struct tensor_t
 
 	tensor_t<T> operator-( const tensor_t<T>& other ) const
 	{
-		throw_assert(version == other.version, "Version mismatch in tensor operation");
+
 		throw_assert(size == other.size, "Mismatche sizes is operator-");
 		tensor_t<T> clone( *this );
 		for ( int i = 0; i < other.size.x * other.size.y * other.size.z; i++ )
@@ -103,7 +99,6 @@ struct tensor_t
 
 	bool operator==(const tensor_t<T> & other) const
 	{
-		throw_assert(version == other.version, "Version mismatch in tensor operation");
 		if (other.size != this->size)
 			return false;
 		
@@ -245,7 +240,7 @@ struct tensor_t
 	}
 
 	static tensor_t<T> read(std::ifstream & in) {
-		typename tensor_t<T>::version_t version;
+		int version;
 		tdsize size;
 		in.read((char*)&version, sizeof(version));
 		in.read((char*)&size, sizeof(size));
@@ -255,8 +250,11 @@ struct tensor_t
 		return n;
 	}
 
+	
 };
 
+template<class T>
+const int tensor_t<T>::version;
 
 
 void randomize(tensor_t<float> & t, float max = 1.0) {
@@ -425,6 +423,7 @@ namespace CNNTest {
 		randomize(t1);
 		std::ofstream outfile ("t1_out.tensor",std::ofstream::binary);
 		t1.write(outfile);
+		outfile.close();
 		std::ifstream infile ("t1_out.tensor",std::ofstream::binary);
 		auto r = tensor_t<float>::read(infile);
 		EXPECT_EQ(t1, r);
@@ -433,6 +432,7 @@ namespace CNNTest {
 		randomize(t2);
 		std::ofstream outfile2 ("t2_out.tensor",std::ofstream::binary);
 		t2.write(outfile2);
+		outfile2.close();
 		std::ifstream infile2 ("t2_out.tensor",std::ofstream::binary);
 		auto r2 = tensor_t<gradient_t>::read(infile2);
 		EXPECT_EQ(t2, r2);

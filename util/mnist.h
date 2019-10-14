@@ -41,7 +41,7 @@ std::vector<test_case_t> load_mnist(const std::string & images, const std::strin
 				c.data( x, y, 0 ) = img[x + y * 28] / 255.f;
 
 		for ( int b = 0; b < 10; b++ )
-			c.out( b, 0, 0 ) = *label == b ? 1.0f : 0.0f;
+			c.label( b, 0, 0 ) = *label == b ? 1.0f : 0.0f;
 
 		cases.push_back( c );
 	}

@@ -5,7 +5,7 @@
 #include "gtest/gtest.h"
 #include "util/png_util.h"
 #include "util/jpeg_util.h"
-
+#include "CNN/dataset_t.h"
 namespace CNNTest{
 
 	TEST_F(CNNTest, simple_model_math) {

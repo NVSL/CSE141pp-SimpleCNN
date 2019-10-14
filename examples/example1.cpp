@@ -6,7 +6,7 @@
 #include <algorithm>
 #include "byteswap.h"
 #include "CNN/cnn.h"
-#include "CNN/test_case_t.h"
+#include "CNN/dataset_t.h"
 #include "util/mnist.h"
 
 using namespace std;
@@ -35,7 +35,7 @@ int main()
 	do {
 		for ( test_case_t& t : cases )
 		{
-			float xerr = model.train(t.data, t.out );
+			float xerr = model.train(t.data, t.label );
 			amse += xerr;
 			
 			ep++;
@@ -56,7 +56,7 @@ int main()
 		tensor_t<float>& out = model.apply(t.data);
 		
 		tdsize guess = out.argmax();
-	        tdsize answer = t.out.argmax();
+	        tdsize answer = t.label.argmax();
 		if (guess == answer) {
 			correct++;
 		} else {

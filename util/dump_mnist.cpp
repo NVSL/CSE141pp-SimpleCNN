@@ -2,7 +2,7 @@
 #include <algorithm>
 #include <vector>
 #include "CNN/cnn.h"
-#include "CNN/test_case_t.h"
+#include "CNN/dataset_t.h"
 #include "util/mnist.h"
 
 int main()
