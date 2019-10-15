@@ -93,9 +93,9 @@ namespace CNNTest {
 	TEST_F(CNNTest, model_output) {
 		model_t model;
 		
-		conv_layer_t  layer1( 1, 5, 8, tdsize(28,28,1) );	
+		conv_layer_t  layer1( 1, 5, 8, 0, tdsize(28,28,1) );	
 		relu_layer_t  layer2( layer1.out.size );
-		pool_layer_t layer3( 2, 2, layer2.out.size );	
+		pool_layer_t layer3( 2, 2, 0, layer2.out.size );	
 		fc_layer_t  layer4(layer3.out.size, 10);
 		
 		model.add_layer(layer1 );

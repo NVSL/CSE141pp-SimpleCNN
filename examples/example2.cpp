@@ -19,13 +19,13 @@ int main()
 
 	model_t model;
 
-	conv_layer_t  layer1( 1, 5, 8, mnist.test_cases[0].data.size );		// 28 * 28 * 1 -> 24 * 24 * 8
+	conv_layer_t  layer1( 1, 5, 8, 0, mnist.test_cases[0].data.size );		// 28 * 28 * 1 -> 24 * 24 * 8
 	relu_layer_t layer2( layer1.out.size );
-	pool_layer_t layer3( 2, 2, layer2.out.size );				// 24 24 8 -> 12 12 8
+	pool_layer_t layer3( 2, 2, 0, layer2.out.size );				// 24 24 8 -> 12 12 8
 
-	conv_layer_t layer4( 1, 3, 10, layer3.out.size );			// 12 12 6 -> 10 10 10
+	conv_layer_t layer4( 1, 3, 10, 0, layer3.out.size );			// 12 12 6 -> 10 10 10
 	relu_layer_t layer5( layer4.out.size );
-	pool_layer_t layer6( 2, 2, layer5.out.size );				// 10 10 10 -> 5 5 10
+	pool_layer_t layer6( 2, 2, 0, layer5.out.size );				// 10 10 10 -> 5 5 10
 
 	fc_layer_t layer7( layer6.out.size, 10 );					// 4 * 4 * 16 -> 10
 

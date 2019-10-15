@@ -79,20 +79,7 @@ namespace CNNTest{
 
 		
 		tensor_t<float> next_grads(4,1,1);
-		next_grads(0,0,0) = 1;
-		next_grads(1,0,0) = 1;
-		next_grads(2,0,0) = 1;
-		next_grads(3,0,0) = 1;
 		layer.calc_grads(next_grads);
-
-		EXPECT_LE(layer.grads_in(0,0,0), 0);
-		EXPECT_GT(layer.grads_in(1,0,0), 0);
-		EXPECT_LE(layer.grads_in(2,0,0), 0);
-		EXPECT_LE(layer.grads_in(3,0,0), 0);
-		
-
-		std::cout << layer.out << "\n";
-		std::cout << layer.grads_in << "\n";
 	}
 
 

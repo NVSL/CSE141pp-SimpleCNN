@@ -21,9 +21,9 @@ int main()
 	dataset_t mnist = dataset_t::read(in);
 	model_t model;
 
-	conv_layer_t  layer1( 1, 5, 8, mnist.data_size);
+	conv_layer_t  layer1( 1, 5, 8, 0, mnist.data_size);
 	relu_layer_t  layer2( layer1.out.size );
-	pool_layer_t layer3( 2, 2, layer2.out.size );				// 24 * 24 * 8 -> 12 * 12 * 8
+	pool_layer_t layer3( 2, 2, 0, layer2.out.size );				// 24 * 24 * 8 -> 12 * 12 * 8
 	fc_layer_t   layer4(layer3.out.size, 10);					// 4 * 4 * 16 -> 10
 	softmax_layer_t  layer5(layer4.out.size);					// 4 * 4 * 16 -> 10
 

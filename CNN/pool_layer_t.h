@@ -7,22 +7,16 @@ class pool_layer_t: public layer_t
 public:
 	const uint16_t stride;
 	const uint16_t filter_size;
-
-	pool_layer_t( uint16_t stride, uint16_t filter_size, tdsize in_size )
+	float pad;
+	pool_layer_t( uint16_t stride, uint16_t filter_size, float pad, tdsize in_size )
 		:
-		layer_t(in_size, tdsize((in_size.x - filter_size) / stride + 1,
-				       (in_size.y - filter_size) / stride + 1,
-				       in_size.z)),
+		layer_t(in_size, tdsize((in_size.x + stride - 1) / stride,
+					(in_size.y + stride - 1) / stride,
+					in_size.z)),
 		stride(stride),
-		filter_size(filter_size)
+		filter_size(filter_size),
+		pad(pad)
 	{
-		throw_assert( (float( in_size.x - filter_size ) / stride + 1)
-			      ==
-			      ((in_size.x - filter_size) / stride + 1), "Stride doesn't divide input size");
-
-		throw_assert( (float( in_size.y - filter_size ) / stride + 1)
-				==
-				((in_size.y - filter_size) / stride + 1) , "Stride doesn't divide input size");
 	}
 
 	std::string kind_str() const {
@@ -30,7 +24,7 @@ public:
 	}
 	std::string param_str() const {
 		std::stringstream ss;
-		ss << "stride=" << stride << ", filter_size=" << filter_size;
+		ss << "stride=" << stride << ", filter_size=" << filter_size  << ", pad=" << pad;
 		return ss.str();
 	}
 
@@ -104,7 +98,14 @@ public:
 					for ( int i = 0; i < filter_size; i++ )
 						for ( int j = 0; j < filter_size; j++ )
 						{
-							float v = in( mapped.x + i, mapped.y + j, z );
+							float v;
+							if (mapped.x + i >= in.size.x ||
+							    mapped.y + j >= in.size.y) {
+								v = pad;
+							} else {
+								v = in( mapped.x + i, mapped.y + j, z );
+							}
+
 							if ( v > mval )
 								mval = v;
 						}
@@ -147,7 +148,7 @@ public:
 class pool_layer_opt_t: public pool_layer_t
 {
 public:
-	pool_layer_opt_t( uint16_t stride, uint16_t filter_size, tdsize in_size ) : pool_layer_t(stride, filter_size, in_size) {}
+	pool_layer_opt_t( uint16_t stride, uint16_t filter_size, float pad, tdsize in_size ) : pool_layer_t(stride, filter_size, pad, in_size) {}
 };
 
 #ifdef INCLUDE_TESTS
@@ -156,13 +157,16 @@ namespace CNNTest{
 	TEST_F(CNNTest, pool_simple) {
 		
 		tdsize size(10,10,10);
-		pool_layer_t t1(1, 4, size);
-		pool_layer_t t2(1, 4, size);
+		pool_layer_t t1(2, 4, 0, size);
+		pool_layer_t t2(2, 4, 0, size);
 		tensor_t<float> in(size);
 		randomize(in);
 		t1.activate(in);
 		EXPECT_EQ(t1,t1);
 		EXPECT_NE(t1,t2);
+
+		pool_layer_t t3(4, 5, 0, tdsize(17,17,1));
+		EXPECT_EQ(t3.out.size.x, 5);
 
 	}
 
@@ -179,14 +183,14 @@ namespace CNNTest{
 
 		// Run the optimized version
 		srand(42);
-		pool_layer_opt_t o_layer( stride, ksize, in.size);
+		pool_layer_opt_t o_layer( stride, ksize, 0, in.size);
 		o_layer.activate(in);
 		o_layer.calc_grads(next_grads);
 		o_layer.fix_weights();
 		
 		// Run the reference version
 		srand(42);
-		pool_layer_t layer(stride, ksize, in.size);
+		pool_layer_t layer(stride, ksize, 0, in.size);
 		layer.activate(in);
 		layer.calc_grads(next_grads);
 		layer.fix_weights();
@@ -203,7 +207,7 @@ namespace CNNTest{
 		pool_sized(1, 1, 1, 1, 1);
 		EXPECT_THROW(pool_sized(1,1,1,7,1), AssertionFailureException); // kernel too big
 		pool_sized(1,1,1,1,7);
-		EXPECT_THROW(pool_sized(2,1,1,1,7), AssertionFailureException); // stride does not divide size
+		//EXPECT_THROW(pool_sized(2,1,1,1,7), AssertionFailureException); // stride does not divide size
 		
 		pool_sized(11, 11, 11, 5, 2);
 		pool_sized(11, 13, 37, 5, 1);
