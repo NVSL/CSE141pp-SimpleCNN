@@ -136,7 +136,7 @@ namespace CNNTest{
 		layer.fix_weights();
 
 		// Check for equality.
-		EXPECT_EQ(layer.in, o_layer.in);
+		EXPECT_EQ(layer, o_layer);
 	}
 
 	TEST_F(CNNTest, relu_sizes) {

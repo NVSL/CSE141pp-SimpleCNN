@@ -131,11 +131,8 @@ public:
 					float sum_error = 0;
 					for ( int i = rn.min_x; i <= rn.max_x; i++ )
 					{
-						//int minx = i * stride;
 						for ( int j = rn.min_y; j <= rn.max_y; j++ )
 						{
-							//int miny = j * stride;
-
 							int is_max = in( x, y, z ) == out( i, j, z ) ? 1 : 0;
 							sum_error += is_max * grad_next_layer( i, j, z );
 						}

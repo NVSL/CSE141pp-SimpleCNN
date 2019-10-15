@@ -96,6 +96,7 @@ struct dataset_t
 	}
 
 	static dataset_t read(std::ifstream & in) {
+		throw_assert(in.good(), "Input file descriptor in bad state");
 		int file_version;
 		in.read((char*)&file_version, sizeof(version));
 		throw_assert(version == file_version, "Reloading from old dataset version is not supported.  Current version: " << version << ";  file version: " << file_version);
@@ -103,7 +104,7 @@ struct dataset_t
 		in.read((char*)&count, sizeof(count));
 		dataset_t n;
 		for(uint i = 0; i < count; i++) {
-			n.test_cases.push_back(test_case_t::read(in));
+			n.add(test_case_t::read(in));
 		}
 		return n;
 	}
