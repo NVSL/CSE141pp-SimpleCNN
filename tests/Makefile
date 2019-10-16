@@ -24,4 +24,9 @@ tests-clean:
 
 clean: tests-clean
 
+.PHONY: tests-help
+tests-help:
+	@echo "make TESTS=<google_test test filter>  : just run some tests. (currently=$(TESTS))"
+help: tests-help
+
 -include $(SRCS:.cpp=.d)
