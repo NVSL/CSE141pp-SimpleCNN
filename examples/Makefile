@@ -10,3 +10,5 @@ examples-clean:
 	rm -rf $(EXAMPLES)
 
 clean: examples-clean
+
+-include $(EXAMPLES:.exe=.d)

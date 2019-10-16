@@ -87,16 +87,40 @@ struct tensor_t
 			clone.data[i] -= other.data[i];
 		return clone;
 	}
-
-	T& operator()( int _x, int _y, int _z )
+	
+	inline T& operator()( int _x, int _y, int _z )
 	{
 		return this->get( _x, _y, _z );
 	}
 
-	const T& operator()( int _x, int _y, int _z ) const
+	inline const T& operator()( int _x, int _y, int _z ) const
 	{
 		return this->get( _x, _y, _z );
 	}
+
+	T& get( int _x, int _y, int _z ) {
+		throw_assert_debug( _x >= 0 && _y >= 0 && _z >= 0, "Tried to read tensor at negative coordinates" );
+		throw_assert_debug( _x < size.x && _y < size.y && _z < size.z, "Tried to read tensor out of bounds " << tdsize(_x, _y, _z) << ". But tensor is " << size );
+		
+		return data[
+			_z * (size.x * size.y) +
+			_y * (size.x) +
+			_x
+			];
+	}
+
+	const T & get( int _x, int _y, int _z ) const {
+		throw_assert_debug( _x >= 0 && _y >= 0 && _z >= 0 , "Tried to read tensor at negative coordinates" );
+		throw_assert_debug( _x < size.x && _y < size.y && _z < size.z, "Tried to read tensor out of bounds: read at " << tdsize(_x, _y, _z) << "; bound = " << size );
+		
+		return data[
+			_z * (size.x * size.y) +
+			_y * (size.x) +
+			_x
+			];
+	}
+
+
 
 	bool operator==(const tensor_t<T> & other) const
 	{
@@ -114,30 +138,6 @@ struct tensor_t
 
 	bool operator!=(const tensor_t<T> & o) const {
 		return !(*this == o);
-	}
-
-	
-	T& get( int _x, int _y, int _z )
-	{
-		throw_assert( _x >= 0 && _y >= 0 && _z >= 0, "Tried to read tensor at negative coordinates" );
-		throw_assert( _x < size.x && _y < size.y && _z < size.z, "Tried to read tensor out of bounds " << tdsize(_x, _y, _z) << ". But tensor is " << size );
-
-		return data[
-			_z * (size.x * size.y) +
-				_y * (size.x) +
-				_x
-		];
-	}
-
-	const T & get( int _x, int _y, int _z ) const {
-		throw_assert( _x >= 0 && _y >= 0 && _z >= 0 , "Tried to read tensor at negative coordinates" );
-		throw_assert( _x < size.x && _y < size.y && _z < size.z, "Tried to read tensor out of bounds: read at " << tdsize(_x, _y, _z) << "; bound = " << size );
-
-		return data[
-			_z * (size.x * size.y) +
-				_y * (size.x) +
-				_x
-		];
 	}
 
 	tensor_t<T> & paste(const tdsize & where, const tensor_t<T> & in,  bool grow=false) {

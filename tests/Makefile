@@ -1,8 +1,8 @@
 include ../Make.rules
 
--include $(SRCS:.cpp=.d)
 
 SRCS=run_test.cpp
+
 TESTS?=-SlowTests*
 
 .PHONY:default test
@@ -10,8 +10,9 @@ default test: run_test.exe
 	./run_test.exe --gtest_filter=$(TESTS)
 
 GCOV_CFLAGS=-fprofile-arcs -ftest-coverage
-run_test.exe: run_test.cpp
-	$(CXX) $(CXXFLAGS)   -L../googletest/lib/ $< -lgtest -lgtest_main -lpng -ljpeg  -o $@
+
+%.exe : %.o 
+	$(CXX) $(USER_LDFLAGS) $(LD_OPTS) -L../googletest/lib/  $^ -lgtest -lgtest_main -lpng -ljpeg  -pthread -o $@
 
 .PHONY: codecov
 codecov:
@@ -23,4 +24,4 @@ tests-clean:
 
 clean: tests-clean
 
-
+-include $(SRCS:.cpp=.d)

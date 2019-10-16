@@ -116,3 +116,9 @@ AssertionFailureException(const char* expression, const char* file, int line, co
  
 /// Assert that EXPRESSION evaluates to true, otherwise raise AssertionFailureException with associated MESSAGE (which may use C++ stream-style message formatting)
 #define throw_assert(EXPRESSION, MESSAGE) if(!(EXPRESSION)) { throw AssertionFailureException(#EXPRESSION, __FILE__, __LINE__, (AssertionFailureException::StreamFormatter() << MESSAGE)); }
+
+#ifdef DEBUG
+#define throw_assert_debug(EXPRESSION, MESSAGE) throw_assert(EXPRESSION, MESSAGE)
+#else
+#define throw_assert_debug(EXPRESSION, MESSAGE) 
+#endif
