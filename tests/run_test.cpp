@@ -8,8 +8,13 @@
 #include "util/mnist.h"
 #include "CNN/dataset_t.h"
 
+#define EXCLUDE_MAIN
+#include "../examples/example1.cpp"
+#undef  EXCLUDE_MAIN
+
 namespace CNNTest{
 
+	
 	class SimpleCNNTest : public ::testing::Test {
 	protected:
 		dataset_t rand_ds;
@@ -88,6 +93,14 @@ namespace CNNTest{
 			EXPECT_TENSOR_EQ(model.apply(t), model_o.apply(t));
 		}
 		
+	}
+
+	class SlowTests : public ::testing::Test {
+	};
+	TEST_F(SlowTests, example1) {
+		float accuracy1 = simple_mnist(1000);
+		float accuracy2 = simple_mnist(2000);
+		EXPECT_NEAR(accuracy2 - accuracy1, 0.06, 0.005);
 	}
 }
 

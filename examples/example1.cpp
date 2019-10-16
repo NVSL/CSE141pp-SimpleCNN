@@ -9,9 +9,10 @@
 #include "CNN/dataset_t.h"
 #include "util/mnist.h"
 
+
 using namespace std;
 
-int main()
+float simple_mnist(int COUNT)
 {
 	
 //	dataset_t mnist = load_mnist("../datasets/mnist/train-images.idx3-ubyte",
@@ -25,18 +26,18 @@ int main()
 	relu_layer_t     layer2( layer1.out.size );
 	pool_layer_t     layer3( 2, 2, 0, layer2.out.size );
 	fc_layer_t       layer4(layer3.out.size, 10);
-	softmax_layer_t  layer5(layer4.out.size);
+	//softmax_layer_t  layer5(layer4.out.size);
 	model.add_layer(layer1 );
 	model.add_layer(layer2 );
 	model.add_layer(layer3 );
 	model.add_layer(layer4 );
-	model.add_layer(layer5 );
+	//model.add_layer(layer5 );
 
 	float amse = 0;
 	int ic = 0;
 	int ep = 0;
+	float error;
 
-#define COUNT 10000
 	do {
 		for ( test_case_t& t : mnist.test_cases )
 		{
@@ -45,9 +46,9 @@ int main()
 			
 			ep++;
 			ic++;
-			
-			if ( ep % 1000 == 0 )
-				cout << "case " << ep << " err=" << amse/ic << endl;
+			error = amse/ic;
+			if ( ep % 1000 == 0 ) 
+				cout << "case " << ep << " err=" << error << endl;
 			if ( ep > COUNT) {
 				break;
 			}
@@ -73,6 +74,15 @@ int main()
 		}
 	}
 
-	std::cout << "Accuracy: " << (correct+0.0)/(correct+ incorrect +0.0) << ": " << correct << "/" << correct + incorrect << "\n";
+	float total_error = (correct+0.0)/(correct+ incorrect +0.0);
+	std::cout << "Accuracy: " << total_error << ": " << correct << "/" << correct + incorrect << "\n";
+	return total_error;
+}
+
+
+#ifndef EXCLUDE_MAIN
+int main() {
+	simple_mnist(1000000);
 	return 0;
 }
+#endif

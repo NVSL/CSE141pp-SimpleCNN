@@ -14,7 +14,7 @@ test: check_env
 disttest:
 	rm -rf ./.test_build
 	git clone . ./.test_build
-	bash -c '(cd .test_build; make; . ./env.sh; make all)'
+	bash -c '(cd .test_build; make C_OPTS=-O3; . ./env.sh; make all C_OPTS=-O3 TESTS=*)'
 
 .PHONY: examples
 examples: check_env

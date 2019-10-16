@@ -3,11 +3,11 @@ include ../Make.rules
 -include $(SRCS:.cpp=.d)
 
 SRCS=run_test.cpp
-TEST_FILTER?=*
+TESTS?=-SlowTests*
 
 .PHONY:default test
 default test: run_test.exe
-	./run_test.exe --gtest_filter=$(TEST_FILTER)
+	./run_test.exe --gtest_filter=$(TESTS)
 
 GCOV_CFLAGS=-fprofile-arcs -ftest-coverage
 run_test.exe: run_test.cpp
