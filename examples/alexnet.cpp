@@ -31,8 +31,11 @@ int main()
 
 	conv_layer_t layer9( 1, 3, 384, 1, layer8.out.size );
 	relu_layer_t layer10( layer9.out.size );
+
+	conv_layer_t layer9b( 1, 3, 256, 1, layer10.out.size );
+	relu_layer_t layer10b( layer9b.out.size );
 	
-	pool_layer_t layer11( 2, 3, 0, layer10.out.size );	
+	pool_layer_t layer11( 2, 3, 0, layer10b.out.size );	
 	relu_layer_t layer12( layer11.out.size );
 
 	fc_layer_t layer13( layer12.out.size, 4096 );
@@ -52,6 +55,8 @@ int main()
 	model.add_layer(layer8 );
 	model.add_layer(layer9 );
 	model.add_layer(layer10 );
+	model.add_layer(layer9b );
+	model.add_layer(layer10b);
 	model.add_layer(layer11 );
 	model.add_layer(layer12 );
 	model.add_layer(layer13 );
@@ -63,8 +68,10 @@ int main()
 	
 	std::cout << model.geometry() << "\n";
 
-	auto i = imagenet.begin();
-	model.train_batch(imagenet, i, 1);
+	for(int e = 0; e < 10; e++) {
+		for (auto i = imagenet.begin();; i != imagenet.end())
+			model.train_batch(imagenet, i, 10);
+	}
 	
 	return 0;
 }
