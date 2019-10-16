@@ -17,7 +17,7 @@ float simple_mnist(int COUNT)
 	
 //	dataset_t mnist = load_mnist("../datasets/mnist/train-images.idx3-ubyte",
 //				     "../datasets/mnist/train-labels.idx1-ubyte");
-	std::ifstream in("../tools/mnist.dataset",std::ofstream::binary);
+	std::ifstream in("../datasets/mnist/mnist.dataset",std::ofstream::binary);
 	throw_assert(in.good(), "Couldn't open mnist.dataset");
 	dataset_t mnist = dataset_t::read(in);
 	model_t model;
