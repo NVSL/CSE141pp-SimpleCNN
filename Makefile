@@ -1,6 +1,6 @@
 
 
-SUBDIRS=examples tests tools datasets/mnist
+SUBDIRS=examples tools datasets/mnist tests 
 
 default: setup
 
@@ -14,7 +14,7 @@ test: check_env
 disttest:
 	rm -rf ./.test_build
 	git clone . ./.test_build
-	bash -c '(cd .test_build; make C_OPTS=-O3; . ./env.sh; make all C_OPTS=-O3 TESTS=*)'
+	bash -c '(cd .test_build; make setup; . ./env.sh; make all C_OPTS=-O3 TESTS=*)'
 
 .PHONY: examples
 examples: check_env
