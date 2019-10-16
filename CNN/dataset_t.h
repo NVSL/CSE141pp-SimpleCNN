@@ -29,6 +29,7 @@ struct test_case_t
 		label.write(out);
 	}
 
+	
 	static test_case_t read(std::ifstream & in) {
 		int file_version;
 		in.read((char*)&file_version, sizeof(version));
@@ -111,6 +112,11 @@ struct dataset_t
 		for(auto &c: test_cases) {
 			c.write(out);
 		}
+	}
+
+	static dataset_t read(const std::string & s) {
+		std::ifstream in(s,std::ofstream::binary);
+		return dataset_t::read(in);
 	}
 
 	static dataset_t read(std::ifstream & in) {

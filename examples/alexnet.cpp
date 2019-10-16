@@ -14,8 +14,7 @@ using namespace std;
 int main()
 {
 
-	dataset_t mnist = load_mnist("../datasets/mnist/train-images.idx3-ubyte",
-				     "../datasets/mnist/train-labels.idx1-ubyte");
+	dataset_t imagenet = dataset_t::read("../datasets/imagenet/imagenet.dataset");
 
 	model_t model;
 
@@ -41,7 +40,7 @@ int main()
 	fc_layer_t layer15( layer14.out.size, 4096 );
 	dropout_layer_t layer16(layer15.out.size, 0.5);
 	fc_layer_t layer17( layer16.out.size, 1000 );
-	softmax_layer_t layer18(layer17.out.size);
+	//softmax_layer_t layer18(layer17.out.size);
 	
 	model.add_layer(layer1 );
 	model.add_layer(layer2 );
@@ -60,9 +59,12 @@ int main()
 	model.add_layer(layer15 );
 	model.add_layer(layer16 );
 	model.add_layer(layer17 );
-	model.add_layer(layer18 );
+	//model.add_layer(layer18 );
 	
 	std::cout << model.geometry() << "\n";
 
+	auto i = imagenet.begin();
+	model.train_batch(imagenet, i, 1);
+	
 	return 0;
 }
