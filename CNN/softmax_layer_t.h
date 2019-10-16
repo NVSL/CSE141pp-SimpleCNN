@@ -42,7 +42,7 @@ public:
 
 	}
 
-	void calc_grads( tensor_t<float>& grad_next_layer )
+	void calc_grads(const tensor_t<float>& grad_next_layer )
 	{
 		throw_assert(grad_next_layer.size == in.size, "mismatched input");
 		TENSOR_FOR(in, ix,iy,iz) {

@@ -44,14 +44,11 @@ namespace CNNTest{
 		for(auto & c: rand_ds.test_cases) {
 			model.train(c.data, c.label);
 		}
-		
-		//std::cout << layer4.weights << "\n";
-		//for(auto & k: layer1.filters) {
-		//std::cout << k << "\n";
-		//}
 
-		//randomize(label);
-		//std::cout <<  model.apply(data) << "\n";
+		// batch training
+		for(auto i = rand_ds.begin(); i != rand_ds.end();) 
+			model.train_batch(rand_ds, i, 11);
+
 	}
 
 

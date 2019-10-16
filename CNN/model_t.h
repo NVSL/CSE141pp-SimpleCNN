@@ -13,12 +13,8 @@ public:
 	void add_layer(layer_t & l) {
 		layers.push_back(&l);
 	}
-
-	float train(const test_case_t & tc, bool debug=false) {
-		return train(tc.data, tc.label, debug);
-	}
-
-	float train(const tensor_t<float>& data, const tensor_t<float>& expected, bool debug=false) {
+	
+	void forward_one(const tensor_t<float> & data, bool debug) {
 		for ( uint i = 0; i < layers.size(); i++ )
 		{
 			const tensor_t<float> * d;
@@ -36,19 +32,15 @@ public:
 				std::cout << "Output: " << layers[i]->out << "\n";
 			}
 		}
-		
-		tensor_t<float> grads = layers.back()->out - expected;
+	}
 
-		if (debug) {
-			std::cout << "Expected: " << expected <<"\n";
-			std::cout << "Error   : " << grads <<"\n";
-		}
+	void backward(const tensor_t<float> & error, bool debug) {
 		for (int i = (int)layers.size() - 1; i >= 0; i-- )
 		{
-			tensor_t<float> * g;
+			const tensor_t<float> * g;
 			
 			if ( i == (int)layers.size() - 1 ) {
-				g = & grads;
+				g = & error;
 			} else {
 				g = &layers[i + 1]->grads_in;
 			}
@@ -65,13 +57,47 @@ public:
 				std::cout << layers[i]->spec_str() << "\n" << "Weights: " << layers[i]->internal_state() << "\n";
 			}
 		}
+	}
+
+	int train_batch(const dataset_t & ds, dataset_t::iterator & start, int count, bool debug=false) {
+		tensor_t<float> error(layers.back()->out.size);
+		int i;
+		for(i = 0; start != ds.end() && i < count; start++) {
+			forward_one(start->data, debug);
+			error = error + layers.back()->out - start->label;
+		}
+		
+		if (debug) {
+			std::cout << "Error   : " << error <<"\n";
+		}
+
+		backward(error, debug);
+		return i + 1;
+	}
+	
+	float train(const test_case_t & tc, bool debug=false) {
+		return train(tc.data, tc.label, debug);
+	}
+
+	float train(const tensor_t<float>& data, const tensor_t<float>& expected, bool debug=false) {
+
+		forward_one(data, debug);
+		
+		tensor_t<float> error = layers.back()->out - expected;
+
+		if (debug) {
+			std::cout << "Expected: " << expected <<"\n";
+			std::cout << "Error   : " << error <<"\n";
+		}
+
+		backward(error, debug);
 
 		float err = 0;
-		for ( int i = 0; i < grads.size.x * grads.size.y * grads.size.z; i++ )
+		for ( int i = 0; i < error.size.x * error.size.y * error.size.z; i++ )
 		{
 			float f = expected.data[i];
 			if ( f > 0.5 )
-				err += abs(grads.data[i]);
+				err += abs(error.data[i]);
 		}
 		return err * 100;
 	}

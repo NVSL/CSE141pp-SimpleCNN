@@ -47,8 +47,10 @@ struct dataset_t
 	static const int version = 1;
 	tdsize data_size;
 	tdsize label_size;
-	
+
 	std::vector<test_case_t> test_cases;
+	typedef std::vector<test_case_t>::iterator iterator;
+	typedef std::vector<test_case_t>::const_iterator const_iterator;
 	
 	size_t get_total_memory_size() const {
 		size_t s = 0;
@@ -84,6 +86,22 @@ struct dataset_t
 			throw_assert(label_size == tc.label.size, "Test case label size doesn't match dataset. test case: " << tc.label.size << "; dataset: " << label_size);
 		}
 		test_cases.push_back(tc);
+	}
+
+	iterator begin() {
+		return test_cases.begin();
+	}
+	
+	iterator end() {
+		return test_cases.end();
+	}
+	
+	const_iterator begin() const {
+		return test_cases.begin();
+	}
+	
+	const_iterator end() const {
+		return test_cases.end();
 	}
 	
 	void write(std::ofstream & out) {

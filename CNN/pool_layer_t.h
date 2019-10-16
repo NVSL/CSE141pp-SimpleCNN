@@ -82,7 +82,7 @@ public:
 
 	}
 
-	void calc_grads( tensor_t<float>& grad_next_layer )
+	void calc_grads(const tensor_t<float>& grad_next_layer )
 	{
 		for ( int x = 0; x < in.size.x; x++ )
 		{

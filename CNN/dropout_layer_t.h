@@ -57,7 +57,7 @@ public:
 		
 	}
 
-	void __attribute__((noinline)) calc_grads( tensor_t<float>& grad_next_layer )
+	void calc_grads(const tensor_t<float>& grad_next_layer )
 	{
 		for ( int i = 0; i < in.size.x*in.size.y*in.size.z; i++ )
 			grads_in.data[i] = hitmap.data[i] ? grad_next_layer.data[i] : 0.0f;

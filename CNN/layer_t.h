@@ -27,7 +27,7 @@ public:
 	virtual void activate(const tensor_t<float>& in) = 0;
 	
 	virtual void fix_weights() = 0;
-	virtual void calc_grads(tensor_t<float>& grad_next_layer ) = 0;
+	virtual void calc_grads(const tensor_t<float>& grad_next_layer ) = 0;
 	virtual size_t get_total_memory_size() const {
 		return in.get_total_memory_size() + out.get_total_memory_size() + grads_in.get_total_memory_size();
 	}
