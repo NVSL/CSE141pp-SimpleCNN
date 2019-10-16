@@ -4,8 +4,8 @@
 
 int main()
 {
-	dataset_t mnist = load_mnist("../datasets/mnist/train-images.idx3-ubyte",
-				     "../datasets/mnist/train-labels.idx1-ubyte");
+	dataset_t mnist = load_mnist("train-images.idx3-ubyte",
+				     "train-labels.idx1-ubyte");
 
 	std::ofstream out ("mnist.dataset",std::ofstream::binary);
 	mnist.write(out);

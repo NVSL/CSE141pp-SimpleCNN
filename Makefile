@@ -1,10 +1,10 @@
 
 
-SUBDIRS=examples tests
+SUBDIRS=examples tests tools datasets/mnist
 
 default: setup
 
-all: setup test examples
+all: setup examples tools datasets test
 
 .PHONY: test
 test: check_env
@@ -19,6 +19,14 @@ disttest:
 .PHONY: examples
 examples: check_env
 	$(MAKE) -C examples
+
+.PHONY: tools
+tools: check_env
+	$(MAKE) -C tools
+
+.PHONY: datasets
+datasets: check_env tools		
+	$(MAKE) -C datasets/mnist
 
 .PHONY: setup
 setup: googletest cse141pp-archlab
