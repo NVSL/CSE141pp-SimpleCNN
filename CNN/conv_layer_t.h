@@ -1,6 +1,7 @@
 #pragma once
 #include <sstream>
 #include "layer_t.h"
+#include "range_t.h"
 
 class conv_layer_t: public layer_t
 {
@@ -18,15 +19,15 @@ public:
 		      tdsize in_size
 		)
 		:
-		layer_t(in_size, tdsize((in_size.x + stride - 1) / stride,
-					(in_size.y + stride - 1) / stride,
+		layer_t(in_size, tdsize(ROUND_UP_IDIV(in_size.x, stride),
+					ROUND_UP_IDIV(in_size.y, stride),
 					kernel_count)),
 		pad(pad)
 		
 	{
 		this->stride = stride;
 		this->kernel_size = kernel_size;
-		
+		throw_assert(kernel_size >= stride, "Convolution kernel size (" << kernel_size << ") must be >= than stride (" << stride << ").");
 		for ( int a = 0; a < kernel_count; a++ ) {	
 			tensor_t<float> t( kernel_size, kernel_size, in_size.z );
 
@@ -65,6 +66,16 @@ public:
 		ss << "stride=" << stride << ", kernel_size=" << kernel_size << ", kernel_count=" << filters.size() << ", pad=" << pad;
 		return ss.str();
 	}
+
+	std::string internal_state() const {
+		std::stringstream ss;
+		int i= 0;
+		for(auto &k: filters) {
+			ss << "Kernel " << i++ << "\n";
+			ss << k << "\n";
+		}
+		return ss.str();
+	}
 	
 	bool operator==(const conv_layer_t & o) const {
 		if (o.stride != stride) return false;
@@ -82,40 +93,9 @@ public:
 		return !(*this == o);
 	}
 
-	
-	struct range_t
-	{
-		int min_x, min_y, min_z;
-		int max_x, max_y, max_z;
-	};
-
-	int normalize_range( float f, int max, bool lim_min )
-	{
-		if ( f <= 0 )
-			return 0;
-		max -= 1;
-		if ( f >= max )
-			return max;
-
-		if ( lim_min ) // left side of inequality
-			return ceil( f );
-		else
-			return floor( f );
-	}
-
 	range_t map_to_output( int x, int y )
 	{
-		float a = x;
-		float b = y;
-		return
-		{
-			normalize_range( (a - kernel_size + 1) / stride, out.size.x, true ),
-			normalize_range( (b - kernel_size + 1) / stride, out.size.y, true ),
-			0,
-			normalize_range( a / stride, out.size.x, false ),
-			normalize_range( b / stride, out.size.y, false ),
-			(int)filters.size() - 1,
-		};
+		return map_to_output_impl(x,y, kernel_size, stride, filters.size(), out.size);
 	}
 
 	void activate(const tensor_t<float>& in ) {
@@ -259,13 +239,14 @@ namespace CNNTest{
 	}
 
 	TEST_F(CNNTest, conv_slight_overlap) {
-		conv_layer_t t3(4, 5, 1, 0, tdsize(17,17,1));
+ 		conv_layer_t t3(4, 5, 1, 0, tdsize(17,17,1));
 		EXPECT_EQ(t3.out.size.x, 5);
 			
 		auto r1 =  t3.map_to_output(0,0);
 		EXPECT_EQ(r1.min_x, 0);
 		EXPECT_EQ(r1.max_x, 0);
-		
+		EXPECT_EQ(r1.max_z, t3.filters.size()-1);
+		      
 		auto r2 =  t3.map_to_output(1,1);
 		EXPECT_EQ(r2.min_x, 0);
 		EXPECT_EQ(r2.max_x, 0);
@@ -327,6 +308,8 @@ namespace CNNTest{
 
 		EXPECT_EQ(t3.map_to_output(1, 1).min_x, 0);
 		EXPECT_EQ(t3.map_to_output(1, 1).max_x, 0);
+		EXPECT_EQ(t3.map_to_output(1, 1).min_y, 0);
+		EXPECT_EQ(t3.map_to_output(1, 1).max_y, 0);
 		
 		EXPECT_EQ(t3.map_to_output(2, 2).min_x, 0);
 		EXPECT_EQ(t3.map_to_output(2, 2).max_x, 1);
@@ -336,10 +319,16 @@ namespace CNNTest{
 		
 		EXPECT_EQ(t3.map_to_output(4, 4).min_x, 1);
 		EXPECT_EQ(t3.map_to_output(4, 4).max_x, 2);
+		EXPECT_EQ(t3.map_to_output(4, 4).min_y, 1);
+		EXPECT_EQ(t3.map_to_output(4, 4).max_y, 2);
 		
 		EXPECT_EQ(t3.map_to_output(16, 16).min_x, 7);
 		EXPECT_EQ(t3.map_to_output(16, 16).max_x, 8);
 		
+	}
+
+	TEST_F(CNNTest, conv_gap) {
+		EXPECT_THROW(conv_layer_t(4, 2, 1, 0, tdsize(17,17,1)), AssertionFailureException); 
 	}
 	
 	TEST_F(CNNTest, conv_util) {
@@ -370,8 +359,8 @@ namespace CNNTest{
 		tdsize size(x,y,z);
 		
 		tensor_t<float> in(size.x, size.y, size.z);
-		tensor_t<float> next_grads((in.size.x - ksize ) / stride + 1,
-					   (in.size.y - ksize ) / stride + 1,
+		tensor_t<float> next_grads(ROUND_UP_IDIV(in.size.x, stride),
+					   ROUND_UP_IDIV(in.size.y, stride),
 					   kcount);
 		
 		randomize(in);
@@ -403,11 +392,12 @@ namespace CNNTest{
 		conv_sized(4,4,4, 2, 2, 1);
 		
 		conv_sized(1,1,1,1,1,1);
-		EXPECT_THROW(conv_sized(1,1,1,7,1,1), AssertionFailureException); // kernel too big
+//		EXPECT_THROW(conv_sized(1,1,1,7,1,1), AssertionFailureException); // kernel too big
 		conv_sized(1,1,1,1,7,1);
-		conv_sized(1,1,1,1,1,7);
-		EXPECT_THROW(conv_sized(2,1,1,1,1,7), AssertionFailureException); // stride does not divide size
-		
+		//conv_sized(1,1,1,1,1,7);
+		//EXPECT_THROW(conv_sized(2,1,1,1,1,7), AssertionFailureException); // stride does not divide size
+		//conv_sized(2,1,1, 1, 1, 7);
+				
 		conv_sized(11, 11, 11, 5, 7, 2);
 		conv_sized(11, 13, 37, 5, 3, 1);
 		conv_sized(32, 32, 32, 5, 3, 1);

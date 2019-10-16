@@ -73,8 +73,8 @@ struct dataset_t
 	}
 	
 	void add(const test_case_t & tc) {
-		throw_assert(tc.label.size.y == 1 &&
-			     tc.label.size.z == 1, "Labels should have size (n,1,1).  Got size " << tc.label );
+		//throw_assert(tc.label.size.y == 1 &&
+		//tc.label.size.z == 1, "Labels should have size (n,1,1).  Got size " << tc.label );
 
 		if (test_cases.size() == 0) {
 			data_size = tc.data.size;

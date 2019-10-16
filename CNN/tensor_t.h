@@ -287,7 +287,7 @@ std::ostream& operator<<(std::ostream& os, const tensor_t<T> & t)
 		os << z << ": \n";
 		for ( int y = 0; y < t.size.y; y++ ) {
 			for ( int x = 0; x < t.size.x; x++ ) {
-				os << std::setw(2) << std::setprecision(10);
+				os << std::setw(8) << std::setprecision(3);
 				os << t(x,y,z) << " ";
 			}
 			os << "\n";

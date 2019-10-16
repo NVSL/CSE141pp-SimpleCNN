@@ -1,6 +1,7 @@
 #pragma once
 #include "tensor_t.h"
 #include "layer_t.h"
+#include "dataset_t.h"
 #include <vector>
 #include <sstream>
 
@@ -13,30 +14,56 @@ public:
 		layers.push_back(&l);
 	}
 
-	float train(const tensor_t<float>& data, const tensor_t<float>& expected) {
+	float train(const test_case_t & tc, bool debug=false) {
+		return train(tc.data, tc.label, debug);
+	}
+
+	float train(const tensor_t<float>& data, const tensor_t<float>& expected, bool debug=false) {
 		for ( uint i = 0; i < layers.size(); i++ )
 		{
+			const tensor_t<float> * d;
 			if ( i == 0 ) {
-				layers[i]->activate(data);
+				d = &data;
 			} else {
-				layers[i]->activate(layers[i - 1]->out);
+				d = &layers[i - 1]->out;
+			}
+			if (debug) {
+				std::cout << layers[i]->spec_str() << "\n" << "Input: " << *d << "\n";
+				std::cout << "Weights: " << layers[i]->internal_state() <<"\n";
+			}
+			layers[i]->activate(*d);
+			if (debug) {
+				std::cout << "Output: " << layers[i]->out << "\n";
 			}
 		}
-
+		
 		tensor_t<float> grads = layers.back()->out - expected;
 
+		if (debug) {
+			std::cout << "Expected: " << expected <<"\n";
+			std::cout << "Error   : " << grads <<"\n";
+		}
 		for (int i = (int)layers.size() - 1; i >= 0; i-- )
 		{
+			tensor_t<float> * g;
+			
 			if ( i == (int)layers.size() - 1 ) {
-				layers[i]->calc_grads( grads );
+				g = & grads;
 			} else {
-				layers[i]->calc_grads(layers[i + 1]->grads_in );
+				g = &layers[i + 1]->grads_in;
+			}
+			layers[i]->calc_grads( *g );
+			if (debug) {
+				std::cout << layers[i]->spec_str() << "\n" << "Gradients: " << *g << "\n";
 			}
 		}
 
 		for ( uint i = 0; i < layers.size(); i++ )
 		{
 			layers[i]->fix_weights();
+			if (debug) {
+				std::cout << layers[i]->spec_str() << "\n" << "Weights: " << layers[i]->internal_state() << "\n";
+			}
 		}
 
 		float err = 0;

@@ -38,7 +38,16 @@ public:
 		ss << kind_str() << "(" << param_str() << ")";
 		return ss.str();
 	}
-	layer_t(const tdsize & in_size, const tdsize & out_size) :  in(in_size), out(out_size), grads_in(in_size) {}
+	virtual std::string internal_state() const {
+		return "";
+	}
 
+	virtual void configure(const tdsize & in_size) {
+		in = tensor_t<float>(in_size);
+		grads_in = tensor_t<float>(in_size);
+	}
+
+	layer_t(const tdsize & in_size, const tdsize & out_size) :  in(in_size), out(out_size), grads_in(in_size) {}
+	
 	virtual ~layer_t(){}
 };
