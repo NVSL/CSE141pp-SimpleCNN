@@ -15,3 +15,5 @@ googletest
 .test_case
 *.test_case
 .test.out
+*.d
+gmon.out
