@@ -2,6 +2,7 @@
 imagenet.dataset:
 	../../tools/build_imagenet.exe 
 
-.PHONY:clean		
-clean:
+.PHONY:imagenet-clean		
+imagenet-clean:
 	rm -rf imagenet.dataset
+clean:imagenet-clean

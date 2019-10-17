@@ -6,9 +6,9 @@ default: $(EXAMPLES)
 %.exe : %.o 
 	$(CXX) $(USER_LDFLAGS) $(LD_OPTS) $^ -o $@
 
+clean: examples-clean
 examples-clean:
 	rm -rf $(EXAMPLES)
 
-clean: examples-clean
 
--include $(EXAMPLES:.exe=.d)
+

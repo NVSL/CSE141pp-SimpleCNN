@@ -2,8 +2,6 @@
 
 SUBDIRS=examples tools datasets/mnist tests 
 
-default: setup
-
 all: setup examples tools datasets test
 
 .PHONY: test
@@ -50,6 +48,7 @@ hooks:
 
 .PHONY: clean
 clean:
+	rm -rf .test_build
 	for i in $(SUBDIRS); do $(MAKE) -C $$i clean;done
 
 .PHONY: distclean
