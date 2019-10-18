@@ -4,7 +4,7 @@ EXAMPLES=example1.exe example2.exe alexnet.exe toy.exe
 default: $(EXAMPLES)
 
 %.exe : %.o 
-	$(CXX) $(USER_LDFLAGS) $(LD_OPTS) $^ -o $@
+	$(CXX) $(GENERIC_LDFLAGS) $^ -o $@
 
 clean: examples-clean
 examples-clean:

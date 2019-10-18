@@ -17,3 +17,5 @@ googletest
 .test.out
 *.d
 gmon.out
+*.gprof
+*.i

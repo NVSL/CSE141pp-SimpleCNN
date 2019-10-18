@@ -188,8 +188,8 @@ public:
 			  uint16_t kernel_count,
 			  float pad,
 			  tdsize in_size
-			  ) : conv_layer_t(stride, kernel_size, kernel_count, pad, in_size) {}
-			
+		) : conv_layer_t(stride, kernel_size, kernel_count, pad, in_size) {}
+	
 };
 
 std::ostream& operator<<(std::ostream& os, const conv_layer_t & l)
@@ -352,61 +352,6 @@ namespace CNNTest{
 		EXPECT_NE(t1,t4); // shouldn't be equal because kernels are random.
 		EXPECT_EQ(t1,t5); // should be equal because we set the seed.
 		EXPECT_NE(t1,t3);
-	}
-
-	conv_layer_t conv_sized(int x, int y, int z, int ksize, int kcount, int stride) {
-		
-		tdsize size(x,y,z);
-		
-		tensor_t<float> in(size.x, size.y, size.z);
-		tensor_t<float> next_grads(ROUND_UP_IDIV(in.size.x, stride),
-					   ROUND_UP_IDIV(in.size.y, stride),
-					   kcount);
-		
-		randomize(in);
-		randomize(next_grads);
-
-		// Run the optimized version
-		srand(42);
-		conv_layer_opt_t o_layer( stride, ksize, kcount, 0,in.size);
-		o_layer.activate(in);
-		o_layer.calc_grads(next_grads);
-		o_layer.fix_weights();
-
-		// Run the reference version
-		srand(42);
-		conv_layer_t layer(stride, ksize, kcount, 0,in.size);
-		layer.activate(in);
-		layer.calc_grads(next_grads);
-		layer.fix_weights();
-
-		// Check for equality.
-		EXPECT_EQ(layer, o_layer);
-		return layer;
-	}
-
-	TEST_F(CNNTest, conv_sizes) {
-		// Check a range of sizes, especially non-round numbers.
-		conv_sized(4,4,4, 2, 2, 1);
-
-		conv_sized(4,4,4, 2, 2, 1);
-		
-		conv_sized(1,1,1,1,1,1);
-//		EXPECT_THROW(conv_sized(1,1,1,7,1,1), AssertionFailureException); // kernel too big
-		conv_sized(1,1,1,1,7,1);
-		//conv_sized(1,1,1,1,1,7);
-		//EXPECT_THROW(conv_sized(2,1,1,1,1,7), AssertionFailureException); // stride does not divide size
-		//conv_sized(2,1,1, 1, 1, 7);
-				
-		conv_sized(11, 11, 11, 5, 7, 2);
-		conv_sized(11, 13, 37, 5, 3, 1);
-		conv_sized(32, 32, 32, 5, 3, 1);
-
-		conv_sized(32, 32, 32, 8, 3, 1);
-		conv_sized(31, 33, 37, 8, 3, 1);
-		//conv_sized(64, 64, 64, 16, 3, 1);
-		//conv_sized(128, 128, 128, 4, 1, 1);
-
 	}
 
 }  // namespace

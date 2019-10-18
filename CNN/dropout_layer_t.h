@@ -12,9 +12,9 @@ public:
 		layer_t(in_size, in_size),
 		hitmap( in_size.x, in_size.y, in_size.z ),
 		p_activation( p_activation )
-	{
-		throw_assert(p_activation >= 0 && p_activation <= 1.0, "activation level should be betwene 0.0 and 1.0");
-	}
+		{
+			throw_assert(p_activation >= 0 && p_activation <= 1.0, "activation level should be betwene 0.0 and 1.0");
+		}
 
 	size_t get_total_memory_size() const {
 		return hitmap.get_total_memory_size() + layer_t::get_total_memory_size();
@@ -53,15 +53,15 @@ public:
 	}
 
 	void fix_weights()
-	{
+		{
 		
-	}
+		}
 
 	void calc_grads(const tensor_t<float>& grad_next_layer )
-	{
-		for ( int i = 0; i < in.size.x*in.size.y*in.size.z; i++ )
-			grads_in.data[i] = hitmap.data[i] ? grad_next_layer.data[i] : 0.0f;
-	}
+		{
+			for ( int i = 0; i < in.size.x*in.size.y*in.size.z; i++ )
+				grads_in.data[i] = hitmap.data[i] ? grad_next_layer.data[i] : 0.0f;
+		}
 };
 
 class dropout_layer_opt_t : public dropout_layer_t
@@ -86,49 +86,7 @@ namespace CNNTest{
 
 	}
 
-	dropout_layer_t dropout_sized(int x, int y, int z, float activation) {
-		tdsize size(x,y,z);
-		
-		tensor_t<float> in(size.x, size.y, size.z);
-		tensor_t<float> next_grads(in.size);
-		
-		randomize(in);
-		randomize(next_grads);
 
-		// Run the optimized version
-		srand(42);
-		dropout_layer_opt_t o_layer(in.size, activation);
-		o_layer.activate(in);
-		o_layer.calc_grads(next_grads);
-		o_layer.fix_weights();
-		
-		// Run the reference version
-		srand(42);
-		dropout_layer_t layer(in.size, activation);
-		layer.activate(in);
-		layer.calc_grads(next_grads);
-		layer.fix_weights();
-
-		// Check for equality.
-		EXPECT_EQ(layer, o_layer);
-		return layer;
-	}
-
-	TEST_F(CNNTest, dropout_sizes) {
-		// Check a range of sizes, especially non-round numbers.
-		dropout_sized(4, 4, 4, 0.5);
-
-		dropout_sized(1, 1, 1, 0.5);
-		dropout_sized(10, 10, 10, 0.0);
-		dropout_sized(10, 10, 10, 1.0);
-		
-		dropout_sized(11, 11, 11, 0.5);
-		dropout_sized(11, 13, 37, 0.5);
-		dropout_sized(32, 32, 32, 0.5);
-
-		dropout_sized(32, 32, 32, 0.5);
-		dropout_sized(31, 33, 37, 0.5);
-	}
 
 }  // namespace
 #endif

@@ -60,11 +60,14 @@ public:
 	}
 
 	int train_batch(const dataset_t & ds, dataset_t::iterator & start, int count, bool debug=false) {
+		throw_assert(false, "THis code doesn't terminate correctly.");
 		tensor_t<float> error(layers.back()->out.size);
-		int i;
-		for(i = 0; start != ds.end() && i < count; start++) {
+		int i = 0;
+		while(start != ds.end() && i < count) {
 			forward_one(start->data, debug);
 			error = error + layers.back()->out - start->label;
+			i++;
+			start++;
 		}
 		
 		if (debug) {
@@ -72,7 +75,7 @@ public:
 		}
 
 		backward(error, debug);
-		return i + 1;
+		return i;
 	}
 	
 	float train(const test_case_t & tc, bool debug=false) {

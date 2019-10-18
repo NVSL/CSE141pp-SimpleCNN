@@ -1,16 +1,21 @@
 #include <iostream>
 #include "CNN/dataset_t.h"
 #include "util/jpeg_util.h"
-
+#include "util/tensor_util.h"
 int main()
 {
 	dataset_t imagenet;
 
-	auto r = load_tensor_from_jpeg("P1050082.jpg");
-	tensor_t<float> label(1000,1,1);
-	label(1,0,0) = 1.0;
+	std::ifstream in("image-list.txt");
 
-	imagenet.add(r, label);
+	std::string line;
+	while (std::getline(in, line)) {
+		auto r = load_tensor_from_jpeg(line.c_str());
+		r = pad_or_crop(r, {224,224,3}, true);
+		tensor_t<float> label(1000,1,1);
+		label(1,0,0) = 1.0;
+		imagenet.add(r, label);
+	}
 	
 	std::ofstream out ("imagenet.dataset",std::ofstream::binary);
 	imagenet.write(out);

@@ -139,52 +139,6 @@ namespace CNNTest{
 		
 	}
 
-	pool_layer_t pool_sized(int x, int y, int z, int ksize, int stride) {
-		tdsize size(x,y,z);
-		
-		tensor_t<float> in(size.x, size.y, size.z);
-		tensor_t<float> next_grads(ROUND_UP_IDIV(in.size.x, stride),
-					   ROUND_UP_IDIV(in.size.y, stride),
-					   in.size.z);
-		
-		randomize(in);
-		randomize(next_grads);
-
-		// Run the optimized version
-		srand(42);
-		pool_layer_opt_t o_layer( stride, ksize, 0, in.size);
-		o_layer.activate(in);
-		o_layer.calc_grads(next_grads);
-		o_layer.fix_weights();
-		
-		// Run the reference version
-		srand(42);
-		pool_layer_t layer(stride, ksize, 0, in.size);
-		layer.activate(in);
-		layer.calc_grads(next_grads);
-		layer.fix_weights();
-
-		// Check for equality.
-		EXPECT_EQ(layer, o_layer);
-		return layer;
-	}
-
-	TEST_F(CNNTest, pool_sizes) {
-		// Check a range of sizes, especially non-round numbers.
-		pool_sized(4, 4, 4, 2, 1);
-
-		pool_sized(1, 1, 1, 1, 1);
-		//EXPECT_THROW(pool_sized(1,1,1,7,1), AssertionFailureException); // kernel too big
-		//pool_sized(1,1,1,1,7);
-		//EXPECT_THROW(pool_sized(2,1,1,1,7), AssertionFailureException); // stride does not divide size
-		
-		pool_sized(11, 11, 11, 5, 2);
-		pool_sized(13, 11, 37, 5, 1);
-		pool_sized(32, 32, 32, 5, 1);
-
-		pool_sized(32, 32, 32, 8, 1);
-		pool_sized(33, 31, 37, 8, 1);
-	}
 
 }  // namespace
 #endif

@@ -3,7 +3,9 @@ include ../Make.rules
 TESTS?=-SlowTests*
 
 .PHONY:default test
-default test: run_test.exe
+default test: core_tests
+
+core_tests:run_test.exe 
 	./run_test.exe --gtest_filter=$(TESTS)
 
 GCOV_CFLAGS=-fprofile-arcs -ftest-coverage

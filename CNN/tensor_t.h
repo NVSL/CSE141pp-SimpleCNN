@@ -13,7 +13,7 @@ static float rand_f(int maxval) {
 }
 
 #define TDSIZE_FOR(T,X,Y,Z) for(int X = 0; X < T.x; X++) for(int Y = 0; Y < T.y; Y++) for(int Z = 0; Z < T.z; Z++) 
-#define TENSOR_FOR(T,X,Y,Z) TDSIZE_FOR(T.size, X, Y, Z)
+#define TENSOR_FOR(T,X,Y,Z) TDSIZE_FOR((T).size, X, Y, Z)
 
 template<typename T>
 struct tensor_t
@@ -26,6 +26,7 @@ struct tensor_t
 	size_t calculate_data_size() const {
 		return size.x *size.y *size.z * sizeof( T );
 	}
+
 	tensor_t( int _x, int _y, int _z ) :  size(_x, _y, _z) {
 		throw_assert(size.x > 0 && size.y > 0 && size.z > 0,  "Tensor initialized with non-positive dimensions");
 		data = new T[size.x * size.y * size.z]();
@@ -47,6 +48,11 @@ struct tensor_t
 		);
 	}
 
+	tensor_t( tensor_t&& other ) : size(other.size), data(other.data)
+	{
+		other.data = nullptr;
+	}
+
 	~tensor_t()
 	{
 		delete[] data;
@@ -58,17 +64,30 @@ struct tensor_t
 	
 	tensor_t<T> & operator=(const tensor_t& other )
 	{
-		delete[] data;
-		size = other.size;
-		data = new T[other.size.x *other.size.y *other.size.z];
-		memcpy(
-			this->data,
-			other.data,
-			calculate_data_size()
-			);
+		if (&other != this) {
+			delete[] data;
+			size = other.size;
+			data = new T[other.size.x *other.size.y *other.size.z];
+			memcpy(
+				this->data,
+				other.data,
+				calculate_data_size()
+				);
+		}
 		return *this;
 	}
-
+	
+	tensor_t<T> & operator=(tensor_t<T>&& other) {
+		if (&other != this) {
+			delete [] data;
+			data = other.data;
+			size = other.size;
+			other.data = nullptr;
+		}
+		return *this;
+	}
+	
+    
 	tensor_t<T> operator+( const tensor_t<T>& other )const 
 	{
 		throw_assert(size == other.size, "Mismatche sizes is operator+");
@@ -120,19 +139,14 @@ struct tensor_t
 			];
 	}
 
-
-
 	bool operator==(const tensor_t<T> & other) const
 	{
 		if (other.size != this->size)
 			return false;
-		
-		for ( int x = 0; x < this->size.x; x++ )
-			for ( int y = 0; y < this->size.y; y++ )
-				for ( int z = 0; z < this->size.z; z++ )
-					//if (fabs(other(x,y,z) - (*this)(x,y,z)) > EPSILON) 
-					if (other(x,y,z) != (*this)(x,y,z))
-						return false;
+
+		TENSOR_FOR(*this, x,y,z) 
+			if (other(x,y,z) != (*this)(x,y,z))
+				return false;
 		return true;
 	}
 
@@ -200,25 +214,22 @@ struct tensor_t
 	tdsize argmax() const {
 		T max_value = -std::numeric_limits<float>::max();
 		tdsize max_loc;
-		for ( int x = 0; x < this->size.x; x++ )
-			for ( int y = 0; y < this->size.y; y++ )
-				for ( int z = 0; z < this->size.z; z++ )
-					if (get(x,y,z) > max_value) {
-						max_value = get(x,y,z);
-						max_loc = tdsize(x,y,z);
-					}
+		
+		TENSOR_FOR(*this, x,y,z) 
+			if (get(x,y,z) > max_value) {
+				max_value = get(x,y,z);
+				max_loc = tdsize(x,y,z);
+			}
 		return max_loc;
 	}
 	tdsize argmin() const {
 		T min_value = std::numeric_limits<float>::max();
 		tdsize min_loc;
-		for ( int x = 0; x < this->size.x; x++ )
-			for ( int y = 0; y < this->size.y; y++ )
-				for ( int z = 0; z < this->size.z; z++ )
-					if (get(x,y,z) < min_value) {
-						min_value = get(x,y,z);
-						min_loc = tdsize(x,y,z);
-					}
+		TENSOR_FOR(*this, x,y,z) 
+			if (get(x,y,z) < min_value) {
+				min_value = get(x,y,z);
+				min_loc = tdsize(x,y,z);
+			}
 		return min_loc;
 	}
 	
@@ -259,23 +270,15 @@ const int tensor_t<T>::version;
 
 
 void randomize(tensor_t<float> & t, float max = 1.0) {
-	for(int x = 0; x < t.size.x; x++) {
-		for(int y = 0; y < t.size.y; y++) {
-			for(int z = 0; z < t.size.z; z++) {
-				t(x, y, z) = rand_f(max);
-			}
-		}
+	TENSOR_FOR(t,x,y,z) {
+		t(x, y, z) = rand_f(max);
 	}
 }
 
 void randomize(tensor_t<gradient_t> & t, float max = 1.0) {
-	for(int x = 0; x < t.size.x; x++) {
-		for(int y = 0; y < t.size.y; y++) {
-			for(int z = 0; z < t.size.z; z++) {
-				t(x, y, z).grad = rand_f(max);
-				t(x, y, z).oldgrad = rand_f(max);
-			}
-		}
+	TENSOR_FOR(t,x,y,z) {
+		t(x, y, z).grad = rand_f(max);
+		t(x, y, z).oldgrad = rand_f(max);
 	}
 }
 
@@ -333,19 +336,18 @@ tensor_t<float> to_tensor( std::vector<std::vector<std::vector<float>>> data )
 	return t;
 }
 
+void EXPECT_TENSOR_EQ(const tensor_t<float> & a,const tensor_t<float> & b) {
+	EXPECT_EQ(a.size, b.size);
+	TENSOR_FOR(a, x,y,z) {
+		EXPECT_FLOAT_EQ(a(x,y,z), b(x,y,z));
+	}
+}		
 
 #ifdef INCLUDE_TESTS
 #include "gtest/gtest.h"
 
 
 namespace CNNTest {
-
-	void EXPECT_TENSOR_EQ(const tensor_t<float> & a,const tensor_t<float> & b) {
-		EXPECT_EQ(a.size, b.size);
-		TENSOR_FOR(a, x,y,z) {
-			EXPECT_FLOAT_EQ(a(x,y,z), b(x,y,z));
-		}
-	}		
 
 
 	TEST_F(CNNTest, tensor_matmul) {

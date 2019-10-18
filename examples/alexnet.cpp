@@ -67,10 +67,13 @@ int main()
 	//model.add_layer(layer18 );
 	
 	std::cout << model.geometry() << "\n";
+	std::cout << "Training data size: " << (imagenet.get_total_memory_size()+0.0)/(1024*1024)  << " MB" << std::endl;
+	std::cout << "Training cases    : " << imagenet.size() << std::endl;
 
-	for(int e = 0; e < 10; e++) {
-		for (auto i = imagenet.begin();; i != imagenet.end())
-			model.train_batch(imagenet, i, 10);
+	for(int e = 0; e < 1; e++) {
+		for ( test_case_t& t : imagenet.test_cases ) {
+			model.train(t);
+		}
 	}
 	
 	return 0;

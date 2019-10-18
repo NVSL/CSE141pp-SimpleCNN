@@ -40,14 +40,14 @@ int main()
 
 	std::cout << "Model size        : " << (model.get_total_memory_size()+0.0)/(1024*1024) << " MB" << std::endl;
 	std::cout << "Training data size: " << (mnist.get_total_memory_size()+0.0)/(1024*1024)  << " MB" << std::endl;
+	std::cout << "Training cases    : " << mnist.size() << std::endl;
+	
 	float amse = 0;
 	int ic = 0;
 	int ep = 0;
-#define COUNT 10000
-	do {
-		for ( test_case_t& t : mnist.test_cases )
-
-		{
+#define EPOCH_COUNT 1
+	for (int epoch = 0; epoch < EPOCH_COUNT; epoch++){ 
+		for ( test_case_t& t : mnist.test_cases ) {
 			float xerr = model.train(t.data, t.label );
 			amse += xerr;
 			
@@ -56,14 +56,10 @@ int main()
 			
 			if ( ep % 1000 == 0 )
 				cout << "case " << ep << " err=" << amse/ic << endl;
-			if ( ep > COUNT) {
-				break;
-			}
 		}
-	} while (ep <= COUNT);
+	}
 
 	int correct  = 0, incorrect = 0;
-	ep = 0;
 	for ( test_case_t& t : mnist.test_cases )
 	{
 		tensor_t<float>& out = model.apply(t.data);
@@ -74,10 +70,6 @@ int main()
 			correct++;
 		} else {
 			incorrect++;
-		}
-		ep++;
-		if (ep > COUNT) {
-			break;
 		}
 	}
 

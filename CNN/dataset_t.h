@@ -69,7 +69,10 @@ struct dataset_t
 	bool operator!=(const dataset_t & o) const {
 		return !(*this == o);
 	}
-	
+
+	size_t size() const {
+		return test_cases.size();
+	}
 	void add(const tensor_t<float> & data, const tensor_t<float> & label) {
 		add(test_case_t {data, label});
 		//test_cases.push_back({data, label});

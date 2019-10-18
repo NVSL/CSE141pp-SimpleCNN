@@ -83,36 +83,6 @@ namespace CNNTest{
 		layer.calc_grads(next_grads);
 	}
 
-
-	void softmax_sized(int x) {
-		tensor_t<float> in(x, 1,1);
-		tensor_t<float> next_grads(x,1,1);
-
-		randomize(in);
-		randomize(next_grads);
-
-		// Run the optimized version
-		softmax_layer_opt_t o_layer(in.size);
-		o_layer.activate(in);
-		o_layer.calc_grads(next_grads);
-		o_layer.fix_weights();
-
-		// Run the reference version
-		softmax_layer_t layer(in.size);
-		layer.activate(in);
-		layer.calc_grads(next_grads);
-		layer.fix_weights();
-
-		// Check for equality.
-		EXPECT_EQ(layer, o_layer);
-	}
-
-	TEST_F(CNNTest, softmax_sizes) {
-		// Check a range of sizes, especially non-round numbers.
-		softmax_sized(1);
-		softmax_sized(16);
-		softmax_sized(47);
-	}
 	
 }  // namespace
 #endif

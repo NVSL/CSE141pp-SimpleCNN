@@ -114,41 +114,6 @@ namespace CNNTest{
 		EXPECT_EQ(layer.grads_in(3,0,3), 0.5);
 
 	}
-
-	void relu_sized(int x, int y, int z) {
-		tdsize size(x,y,z);
-		tensor_t<float> in(size.x, size.y, size.z);
-		tensor_t<float> next_grads(size.x, size.y, size.z);
-
-		randomize(in);
-		randomize(next_grads);
-
-		// Run the optimized version
-		relu_layer_opt_t o_layer(in.size);
-		o_layer.activate(in);
-		o_layer.calc_grads(next_grads);
-		o_layer.fix_weights();
-
-		// Run the reference version
-		relu_layer_t layer(in.size);
-		layer.activate(in);
-		layer.calc_grads(next_grads);
-		layer.fix_weights();
-
-		// Check for equality.
-		EXPECT_EQ(layer, o_layer);
-	}
-
-	TEST_F(CNNTest, relu_sizes) {
-		// Check a range of sizes, especially non-round numbers.
-		relu_sized(1,1,1);
-		relu_sized(16,1,1);
-		relu_sized(1,16,1);
-		relu_sized(1,1,16);
-		relu_sized(2,4,8);
-		relu_sized(10,10,10);
-		relu_sized(47, 65, 98);
-	}
 	
 }  // namespace
 #endif
