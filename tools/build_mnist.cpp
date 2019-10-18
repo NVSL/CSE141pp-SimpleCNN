@@ -2,12 +2,16 @@
 #include "CNN/dataset_t.h"
 #include "util/mnist.h"
 
-int main()
+int main(int argc, char *argv[])
 {
-	dataset_t mnist = load_mnist("train-images.idx3-ubyte",
-				     "train-labels.idx1-ubyte");
+	if (argc != 4) {
+		std::cerr << "Usage; build_mnist.exe <image file> <labels file> <output file>\n";
+		exit(1);
+	}
+	
+	dataset_t mnist = load_mnist(argv[1], argv[2]);
 
-	std::ofstream out ("mnist.dataset",std::ofstream::binary);
+	std::ofstream out (argv[3],std::ofstream::binary);
 	mnist.write(out);
 	out.close();
 

@@ -16,6 +16,7 @@ googletest
 *.test_case
 .test.out
 *.d
+*.d.*
 gmon.out
 *.gprof
 *.i
