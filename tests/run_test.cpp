@@ -63,9 +63,7 @@ namespace CNNTest {
 	}
 
 
-	class SlowTests : public ::testing::Test {
-	};
-	TEST_F(SlowTests, example1) {
+	TEST_F(CNNTest, example1_SLOW) {
 		float accuracy1 = simple_mnist(1000);
 		float accuracy2 = simple_mnist(2000);
 		EXPECT_NEAR(accuracy2 - accuracy1, 0.06, 0.005);
