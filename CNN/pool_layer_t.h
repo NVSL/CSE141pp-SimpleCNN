@@ -107,10 +107,10 @@ public:
 	}
 };
 
-class pool_layer_opt_t: public pool_layer_t
+class opt_pool_layer_t: public pool_layer_t
 {
 public:
-	pool_layer_opt_t( uint16_t stride, uint16_t filter_size, float pad, tdsize in_size ) : pool_layer_t(stride, filter_size, pad, in_size) {}
+	opt_pool_layer_t( uint16_t stride, uint16_t filter_size, float pad, tdsize in_size ) : pool_layer_t(stride, filter_size, pad, in_size) {}
 };
 
 #ifdef INCLUDE_TESTS

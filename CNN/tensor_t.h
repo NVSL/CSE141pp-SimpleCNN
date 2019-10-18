@@ -336,12 +336,6 @@ tensor_t<float> to_tensor( std::vector<std::vector<std::vector<float>>> data )
 	return t;
 }
 
-void EXPECT_TENSOR_EQ(const tensor_t<float> & a,const tensor_t<float> & b) {
-	EXPECT_EQ(a.size, b.size);
-	TENSOR_FOR(a, x,y,z) {
-		EXPECT_FLOAT_EQ(a(x,y,z), b(x,y,z));
-	}
-}		
 
 #ifdef INCLUDE_TESTS
 #include "gtest/gtest.h"

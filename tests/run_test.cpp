@@ -12,6 +12,14 @@
 #include "../examples/example1.cpp"
 #undef  EXCLUDE_MAIN
 
+void EXPECT_TENSOR_EQ(const tensor_t<float> & a,const tensor_t<float> & b) {
+	EXPECT_EQ(a.size, b.size);
+	TENSOR_FOR(a, x,y,z) {
+		EXPECT_FLOAT_EQ(a(x,y,z), b(x,y,z));
+	}
+}		
+
+
 namespace CNNTest {
 
 	class SimpleCNNTest : public ::testing::Test {

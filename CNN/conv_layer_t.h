@@ -180,10 +180,10 @@ public:
 	}
 };
 
-class conv_layer_opt_t : public conv_layer_t
+class opt_conv_layer_t : public conv_layer_t
 {
 public:
-	conv_layer_opt_t( uint16_t stride,
+	opt_conv_layer_t( uint16_t stride,
 			  uint16_t kernel_size, 
 			  uint16_t kernel_count,
 			  float pad,

@@ -60,10 +60,10 @@ public:
 	}
 };
 
-class relu_layer_opt_t : public relu_layer_t
+class opt_relu_layer_t : public relu_layer_t
 {
 public:
-	relu_layer_opt_t(const tdsize & in_size ): relu_layer_t(in_size){}
+	opt_relu_layer_t(const tdsize & in_size ): relu_layer_t(in_size){}
 };
 
 

@@ -1,6 +1,6 @@
 include ../Make.rules
 
-TESTS?=-SlowTests*
+TESTS?=-*SLOW*
 
 .PHONY:default test
 default test: core_tests

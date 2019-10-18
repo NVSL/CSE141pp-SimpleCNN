@@ -131,10 +131,10 @@ public:
 	}
 };
 
-class fc_layer_opt_t : public fc_layer_t
+class opt_fc_layer_t : public fc_layer_t
 {
 public:
-	fc_layer_opt_t( tdsize in_size, int out_size ) : fc_layer_t(in_size, out_size) {}
+	opt_fc_layer_t( tdsize in_size, int out_size ) : fc_layer_t(in_size, out_size) {}
 			
 };
 

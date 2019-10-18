@@ -55,10 +55,10 @@ public:
 	}
 };
 
-class softmax_layer_opt_t : public softmax_layer_t
+class opt_softmax_layer_t : public softmax_layer_t
 {
 public:
-	softmax_layer_opt_t(const tdsize & in_size ): softmax_layer_t(in_size){}
+	opt_softmax_layer_t(const tdsize & in_size ): softmax_layer_t(in_size){}
 };
 
 
