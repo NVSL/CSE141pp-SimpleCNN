@@ -20,3 +20,4 @@ googletest
 gmon.out
 *.gprof
 *.i
+*-ubyte

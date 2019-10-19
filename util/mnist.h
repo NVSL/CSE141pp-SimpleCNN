@@ -61,8 +61,8 @@ dataset_t load_mnist(const std::string & images, const std::string & labels)
 namespace CNNTest {
 
 	TEST_F(CNNTest, mnist_io) {
-		auto r = load_mnist("../datasets/mnist/train-images.idx3-ubyte",
-				    "../datasets/mnist/train-labels.idx1-ubyte");
+		auto r = load_mnist("../datasets/mnist/t10k-images-idx3-ubyte",
+				    "../datasets/mnist/t10k-labels-idx1-ubyte");
 	}
 }
 
