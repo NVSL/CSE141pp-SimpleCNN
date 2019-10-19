@@ -58,10 +58,10 @@ namespace CNNTest {
 	}
 
 
-	TEST_F(CNNTest, example1_SLOW) {
-		float accuracy1 = simple(0, 1000);
-		float accuracy2 = simple(0, 2000);
-		EXPECT_NEAR(accuracy2 - accuracy1, 0.06, 0.005);
+	TEST_F(CNNTest, learning_SLOW) {
+		float accuracy1 = simple(3, 1000);
+		float accuracy2 = simple(3, 2000);
+		EXPECT_NEAR(accuracy2 - accuracy1, 0.222, 0.005);
 	}
 }
 
