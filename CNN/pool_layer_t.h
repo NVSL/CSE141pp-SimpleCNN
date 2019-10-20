@@ -49,17 +49,13 @@ public:
 
 	void activate(const tensor_t<float>& in ) {
 		copy_input(in);
-		for ( int x = 0; x < out.size.x; x++ )
-		{
-			for ( int y = 0; y < out.size.y; y++ )
-			{
-				for ( int z = 0; z < out.size.z; z++ )
-				{
+		for ( int x = 0; x < out.size.x; x++ ) {
+			for ( int y = 0; y < out.size.y; y++ ) {
+				for ( int z = 0; z < out.size.z; z++ ) {
 					point_t mapped(x*stride, y*stride, 0);
 					float mval = -FLT_MAX;
 					for ( int i = 0; i < filter_size; i++ )
-						for ( int j = 0; j < filter_size; j++ )
-						{
+						for ( int j = 0; j < filter_size; j++ ) {
 							float v;
 							if (mapped.x + i >= in.size.x ||
 							    mapped.y + j >= in.size.y) {
@@ -84,18 +80,13 @@ public:
 
 	void calc_grads(const tensor_t<float>& grad_next_layer )
 	{
-		for ( int x = 0; x < in.size.x; x++ )
-		{
-			for ( int y = 0; y < in.size.y; y++ )
-			{
+		for ( int x = 0; x < in.size.x; x++ ) {
+			for ( int y = 0; y < in.size.y; y++ ) {
 				range_t rn = map_to_output( x, y );
-				for ( int z = 0; z < in.size.z; z++ )
-				{
+				for ( int z = 0; z < in.size.z; z++ ) {
 					float sum_error = 0;
-					for ( int i = rn.min_x; i <= rn.max_x; i++ )
-					{
-						for ( int j = rn.min_y; j <= rn.max_y; j++ )
-						{
+					for ( int i = rn.min_x; i <= rn.max_x; i++ ) {
+						for ( int j = rn.min_y; j <= rn.max_y; j++ ) {
 							int is_max = in( x, y, z ) == out( i, j, z ) ? 1 : 0;
 							sum_error += is_max * grad_next_layer( i, j, z );
 						}
@@ -136,6 +127,7 @@ namespace CNNTest{
 		EXPECT_EQ(r1.min_y, 0);
 		EXPECT_EQ(r1.max_y, 0);
 		EXPECT_EQ(r1.max_z, t3.out.size.z - 1);
+
 		
 	}
 

@@ -122,7 +122,7 @@ struct dataset_t
 		return dataset_t::read(in);
 	}
 
-	static dataset_t read(std::ifstream & in) {
+	static dataset_t read(std::ifstream & in, std::vector<test_case_t>::size_type max_count = std::numeric_limits<std::vector<test_case_t>::size_type>::max()) {
 		throw_assert(in.good(), "Input file descriptor in bad state");
 		int file_version;
 		in.read((char*)&file_version, sizeof(version));
@@ -132,6 +132,9 @@ struct dataset_t
 		dataset_t n;
 		for(uint i = 0; i < count; i++) {
 			n.add(test_case_t::read(in));
+			if (n.test_cases.size() >= max_count) {
+				break;
+			}
 		}
 		return n;
 	}

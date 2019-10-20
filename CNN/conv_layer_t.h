@@ -100,19 +100,15 @@ public:
 
 	void activate(const tensor_t<float>& in ) {
 		copy_input(in);
-		for ( uint filter = 0; filter < filters.size(); filter++ )
-		{
+		for ( uint filter = 0; filter < filters.size(); filter++ ) {
 			tensor_t<float>& filter_data = filters[filter];
-			for ( int x = 0; x < out.size.x; x++ )
-			{
-				for ( int y = 0; y < out.size.y; y++ )
-				{
+			for ( int x = 0; x < out.size.x; x++ ) {
+				for ( int y = 0; y < out.size.y; y++ ) {
 					point_t mapped(x*stride, y*stride, 0);
 					float sum = 0;
 					for ( int i = 0; i < kernel_size; i++ )
 						for ( int j = 0; j < kernel_size; j++ )
-							for ( int z = 0; z < in.size.z; z++ )
-							{
+							for ( int z = 0; z < in.size.z; z++ ) {
 								float f = filter_data( i, j, z );
 								
 								float v;
@@ -151,22 +147,16 @@ public:
 					for ( int z = 0; z < in.size.z; z++ )
 						filter_grads[k].get( i, j, z ).grad = 0;
 		
-		for ( int x = 0; x < in.size.x; x++ )
-		{
-			for ( int y = 0; y < in.size.y; y++ )
-			{
+		for ( int x = 0; x < in.size.x; x++ ) {
+			for ( int y = 0; y < in.size.y; y++ ) {
 				range_t rn = map_to_output( x, y );
-				for ( int z = 0; z < in.size.z; z++ )
-				{
+				for ( int z = 0; z < in.size.z; z++ ) {
 					float sum_error = 0;
-					for ( int i = rn.min_x; i <= rn.max_x; i++ )
-					{
+					for ( int i = rn.min_x; i <= rn.max_x; i++ ) {
 						int minx = i * stride;
-						for ( int j = rn.min_y; j <= rn.max_y; j++ )
-						{
+						for ( int j = rn.min_y; j <= rn.max_y; j++ ) {
 							int miny = j * stride;
-							for ( int k = rn.min_z; k <= rn.max_z; k++ )
-							{
+							for ( int k = rn.min_z; k <= rn.max_z; k++ ) {
 								int w_applied = filters[k].get( x - minx, y - miny, z );
 								sum_error += w_applied * grad_next_layer( i, j, k );
 								filter_grads[k].get( x - minx, y - miny, z ).grad += in( x, y, z ) * grad_next_layer( i, j, k );
