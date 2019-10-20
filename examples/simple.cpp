@@ -68,7 +68,7 @@ float simple(int which, int samples)
 {
 	
 	dataset_t mnist_train = dataset_t::read("../datasets/mnist/mnist-train.dataset", samples);
-	dataset_t mnist_test = dataset_t::read("../datasets/mnist/mnist-test.dataset", 1);
+	dataset_t mnist_test = dataset_t::read("../datasets/mnist/mnist-test.dataset", samples);
 	       
 	if (samples == 0) {
 		samples = mnist_train.test_cases.size();
