@@ -67,8 +67,8 @@ model_t * build_deep(const dataset_t & ds) {
 float simple(int which, int samples) 
 {
 	
-	dataset_t mnist_train = dataset_t::read("../datasets/mnist/mnist-train.dataset");
-	dataset_t mnist_test = dataset_t::read("../datasets/mnist/mnist-test.dataset");
+	dataset_t mnist_train = dataset_t::read("../datasets/mnist/mnist-train.dataset", samples);
+	dataset_t mnist_test = dataset_t::read("../datasets/mnist/mnist-test.dataset", 1);
 	       
 	if (samples == 0) {
 		samples = mnist_train.test_cases.size();
@@ -148,7 +148,7 @@ float simple(int which, int samples)
 
 #ifndef EXCLUDE_MAIN
 int main() {
-	simple(0, 0);
+	simple(3, 1000);
 	return 0;
 }
 #endif
