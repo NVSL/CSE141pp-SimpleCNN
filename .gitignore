@@ -21,3 +21,5 @@ gmon.out
 *.gprof
 *.i
 *-ubyte
+*.gcno
+*.gcda
