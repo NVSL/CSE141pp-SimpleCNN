@@ -1,7 +1,7 @@
 #pragma once
 #include <sstream>
-#include "layer_t.h"
-#include "range_t.h"
+#include "layer_t.hpp"
+#include "range_t.hpp"
 
 class conv_layer_t: public layer_t
 {

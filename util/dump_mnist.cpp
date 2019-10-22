@@ -1,9 +1,9 @@
 #include <iostream>
 #include <algorithm>
 #include <vector>
-#include "CNN/cnn.h"
-#include "CNN/dataset_t.h"
-#include "util/mnist.h"
+#include "CNN/cnn.hpp"
+#include "CNN/dataset_t.hpp"
+#include "util/mnist.hpp"
 
 int main()
 {

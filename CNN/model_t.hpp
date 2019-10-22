@@ -1,7 +1,7 @@
 #pragma once
-#include "tensor_t.h"
-#include "layer_t.h"
-#include "dataset_t.h"
+#include "tensor_t.hpp"
+#include "layer_t.hpp"
+#include "dataset_t.hpp"
 #include <vector>
 #include <sstream>
 
@@ -141,7 +141,6 @@ public:
 };
 
 #ifdef INCLUDE_TESTS
-#include "gtest/gtest.h"
 
 
 namespace CNNTest {

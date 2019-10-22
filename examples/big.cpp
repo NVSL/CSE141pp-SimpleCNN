@@ -4,10 +4,9 @@
 #include <iostream>
 #include <fstream>
 #include <algorithm>
-#include "byteswap.h"
-#include "CNN/cnn.h"
-#include "CNN/dataset_t.h"
-#include "util/mnist.h"
+#include "CNN/cnn.hpp"
+#include "CNN/dataset_t.hpp"
+#include "util/mnist.hpp"
 
 using namespace std;
 

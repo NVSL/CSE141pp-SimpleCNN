@@ -8,7 +8,7 @@
  */
 
 #include <iostream>
-#include "png.h"
+#include <png.h>
 
 
 tensor_t<float> load_tensor_from_png(const char* file_name)
@@ -180,7 +180,6 @@ void write_tensor_to_png(const char* file_name, tensor_t<float> t)
 
 
 #ifdef INCLUDE_TESTS
-#include "gtest/gtest.h"
 
 namespace CNNTest {
 

@@ -2,7 +2,7 @@
 #include <math.h>
 #include <float.h>
 #include <string.h>
-#include "layer_t.h"
+#include "layer_t.hpp"
 
 class fc_layer_t: public layer_t
 {

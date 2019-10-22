@@ -1,5 +1,5 @@
 #pragma once
-#include "layer_t.h"
+#include "layer_t.hpp"
 
 class relu_layer_t : public layer_t
 {

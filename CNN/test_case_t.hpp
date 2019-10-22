@@ -1,6 +1,6 @@
 #pragma once
 
-#include"tensor_t.h"
+#include"tensor_t.hpp"
 
 struct test_case_t
 {

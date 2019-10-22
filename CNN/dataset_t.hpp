@@ -1,6 +1,6 @@
 #pragma once
 
-#include"tensor_t.h"
+#include"tensor_t.hpp"
 #include <fstream>
 
 struct test_case_t
@@ -145,7 +145,6 @@ const int dataset_t::version;
 
 
 #ifdef INCLUDE_TESTS
-#include "gtest/gtest.h"
 
 
 namespace CNNTest {

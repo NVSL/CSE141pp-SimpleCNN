@@ -1,5 +1,5 @@
 #pragma once
-#include "tensor_t.h"
+#include "tensor_t.hpp"
 
 enum class layer_type
 {

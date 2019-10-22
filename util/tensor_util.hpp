@@ -2,7 +2,7 @@
 
 #define _USE_MATH_DEFINES
 #include <cmath>
-#include"CNN/tensor_t.h"
+#include"CNN/tensor_t.hpp"
 #include <algorithm>
 
 
@@ -150,9 +150,8 @@ tensor_t<float> pad_or_crop(const tensor_t<float> & in, const tdsize & target_si
 }
 
 #ifdef INCLUDE_TESTS
-#include "gtest/gtest.h"
-#include "util/png_util.h"
-#include "util/jpeg_util.h"
+#include "util/png_util.hpp"
+#include "util/jpeg_util.hpp"
 
 namespace CNNTest {
 

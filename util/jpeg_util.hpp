@@ -1,9 +1,9 @@
 #pragma once
-#include "CNN/tensor_t.h"
+#include "CNN/tensor_t.hpp"
 #include <stdio.h>
 
 
-#include "jpeglib.h"
+#include <jpeglib.h>
 
 // Adapted from https://gist.github.com/PhirePhly/3080633
 tensor_t<float>
@@ -89,7 +89,6 @@ load_tensor_from_jpeg(const char * filename)
 }
 
 #ifdef INCLUDE_TESTS
-#include "gtest/gtest.h"
 
 namespace CNNTest {
 

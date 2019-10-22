@@ -1,7 +1,7 @@
 #pragma once
 #include <iostream>
 #include <iomanip>
-#include "throw_assert.h"
+#include "throw_assert.hpp"
 
 struct gradient_t
 {

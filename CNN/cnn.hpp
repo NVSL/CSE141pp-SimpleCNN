@@ -4,12 +4,12 @@
 #include <cstdio>
 #include <vector>
 
-#include "tensor_t.h"
-#include "optimization_method.h"
-#include "fc_layer.h"
-#include "pool_layer_t.h"
-#include "relu_layer_t.h"
-#include "conv_layer_t.h"
-#include "dropout_layer_t.h"
-#include "softmax_layer_t.h"
-#include "model_t.h"
+#include "tensor_t.hpp"
+#include "optimization_method.hpp"
+#include "fc_layer.hpp"
+#include "pool_layer_t.hpp"
+#include "relu_layer_t.hpp"
+#include "conv_layer_t.hpp"
+#include "dropout_layer_t.hpp"
+#include "softmax_layer_t.hpp"
+#include "model_t.hpp"

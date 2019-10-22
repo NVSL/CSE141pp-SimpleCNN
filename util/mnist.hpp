@@ -2,9 +2,9 @@
 #include <cstdint>
 #include <fstream>
 #include <vector>
-#include "CNN/types.h"
-#include "CNN/dataset_t.h"
-#include "byteswap.h"
+#include "CNN/types.hpp"
+#include "CNN/dataset_t.hpp"
+#include "byteswap.hpp"
 
 uint8_t* read_file( const std::string & f )
 {
@@ -55,8 +55,6 @@ dataset_t load_mnist(const std::string & images, const std::string & labels)
 }
 
 #ifdef INCLUDE_TESTS
-#include "gtest/gtest.h"
-
 
 namespace CNNTest {
 

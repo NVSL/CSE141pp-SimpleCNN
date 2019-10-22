@@ -1,7 +1,7 @@
 #include <iostream>
-#include "CNN/dataset_t.h"
-#include "util/jpeg_util.h"
-#include "util/tensor_util.h"
+#include "CNN/dataset_t.hpp"
+#include "util/jpeg_util.hpp"
+#include "util/tensor_util.hpp"
 int main()
 {
 	dataset_t imagenet;

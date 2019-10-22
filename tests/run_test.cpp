@@ -1,12 +1,12 @@
 #define INCLUDE_TESTS
-#include "../CNN/cnn.h"
-#include "../util/tensor_util.h"
+#include "../CNN/cnn.hpp"
+#include "../util/tensor_util.hpp"
 #include <iostream>
 #include "gtest/gtest.h"
-#include "util/png_util.h"
-#include "util/jpeg_util.h"
-#include "util/mnist.h"
-#include "CNN/dataset_t.h"
+#include "util/png_util.hpp"
+#include "util/jpeg_util.hpp"
+#include "util/mnist.hpp"
+#include "CNN/dataset_t.hpp"
 
 #define EXCLUDE_MAIN
 #include "../examples/simple.cpp"

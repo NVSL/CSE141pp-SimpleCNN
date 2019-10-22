@@ -1,6 +1,6 @@
 #include <iostream>
-#include "CNN/dataset_t.h"
-#include "util/mnist.h"
+#include "CNN/dataset_t.hpp"
+#include "util/mnist.hpp"
 
 int main(int argc, char *argv[])
 {
