@@ -4,8 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <algorithm>
-#include "CNN/cnn.hpp"
-#include "CNN/dataset_t.hpp"
+#include "CNN/canela.hpp"
 #include "util/mnist.hpp"
 #include "util/tensor_util.hpp"
 

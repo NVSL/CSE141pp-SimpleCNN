@@ -1,13 +1,5 @@
-#include <cassert>
-#include <cstdint>
-#include <cstdio>
 #include <iostream>
-#include <fstream>
-#include <algorithm>
-#include "CNN/cnn.hpp"
-#include "CNN/dataset_t.hpp"
-#include "util/mnist.hpp"
-#include "CNN/throw_assert.hpp"
+#include "CNN/canela.hpp"
 
 using namespace std;
 

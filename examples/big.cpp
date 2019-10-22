@@ -1,11 +1,5 @@
-#include <cassert>
-#include <cstdint>
-#include <cstdio>
 #include <iostream>
-#include <fstream>
-#include <algorithm>
-#include "CNN/cnn.hpp"
-#include "CNN/dataset_t.hpp"
+#include "CNN/canela.hpp"
 #include "util/mnist.hpp"
 
 using namespace std;

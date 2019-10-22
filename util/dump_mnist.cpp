@@ -1,7 +1,7 @@
 #include <iostream>
 #include <algorithm>
 #include <vector>
-#include "CNN/cnn.hpp"
+#include "CNN/canela.hpp"
 #include "CNN/dataset_t.hpp"
 #include "util/mnist.hpp"
 

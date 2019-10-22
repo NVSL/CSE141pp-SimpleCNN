@@ -1,4 +1,5 @@
 #pragma once
+#include <cstdint>
 #include <iostream>
 #include <iomanip>
 #include "throw_assert.hpp"
