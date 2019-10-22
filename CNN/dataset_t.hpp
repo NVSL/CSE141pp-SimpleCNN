@@ -155,10 +155,10 @@ namespace CNNTest {
 		test_case_t t {tensor_t<float>(2,2,2), tensor_t<float>(1,10,1)};
 		randomize(t.data);
 		randomize(t.label);
-		std::ofstream outfile ("t1_out.test_case",std::ofstream::binary);
+		std::ofstream outfile (DEBUG_OUTPUT "t1_out.test_case",std::ofstream::binary);
 		t.write(outfile);
 		outfile.close();
-		std::ifstream infile ("t1_out.test_case",std::ofstream::binary);
+		std::ifstream infile (DEBUG_OUTPUT "t1_out.test_case",std::ofstream::binary);
 		auto r = test_case_t::read(infile);
 		EXPECT_EQ(t, r);
 
@@ -169,10 +169,10 @@ namespace CNNTest {
 		}
 
 		ds.get_total_memory_size();
-		std::ofstream outfile2 ("ds_out.dataset",std::ofstream::binary);
+		std::ofstream outfile2 (DEBUG_OUTPUT "ds_out.dataset",std::ofstream::binary);
 		ds.write(outfile2);
 		outfile2.close();
-		std::ifstream infile2 ("ds_out.dataset",std::ofstream::binary);
+		std::ifstream infile2 (DEBUG_OUTPUT "ds_out.dataset",std::ofstream::binary);
 		auto dsr = dataset_t::read(infile2);
 		EXPECT_EQ(ds, dsr);
 

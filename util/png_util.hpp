@@ -186,8 +186,8 @@ namespace CNNTest {
 	TEST_F(CNNTest, png_readwrite)
 	{
 		auto r = load_tensor_from_png("images/NVSL.png");
-		write_tensor_to_png("copied.png", r);
-		auto reload = load_tensor_from_png("copied.png");
+		write_tensor_to_png(DEBUG_OUTPUT "copied.png", r);
+		auto reload = load_tensor_from_png(DEBUG_OUTPUT "copied.png");
 		auto d = r - reload;
 		TENSOR_FOR(d, x,y,z)
 			d(x,y,z) = fabs(d(x,y,z));
@@ -196,12 +196,12 @@ namespace CNNTest {
 		// Gray scale
 		auto gray = reload.copy({0,0,1}, {reload.size.x, reload.size.y, 1});
 		EXPECT_EQ(gray.size.z, 1);
-		write_tensor_to_png("gray.png", gray);
+		write_tensor_to_png(DEBUG_OUTPUT "gray.png", gray);
 
 		// Gray with alpha channel
 		auto agray = reload.copy({0,0,2}, {reload.size.x, reload.size.y, 2});
 		EXPECT_EQ(agray.size.z, 2);
-		write_tensor_to_png("agray.png", agray);
+		write_tensor_to_png(DEBUG_OUTPUT "agray.png", agray);
 	}
 }
 

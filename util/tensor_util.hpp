@@ -179,25 +179,25 @@ namespace CNNTest {
 	TEST_F(CNNTest, transform_image) {
 		tensor_t<float> in = load_tensor_from_png("../tests/images/NVSL.png");
 		auto scaled = scale_nn(in, {40,40,in.size.z});
-		write_tensor_to_png("NVSL-scale1.png", scaled);
+		write_tensor_to_png(DEBUG_OUTPUT "NVSL-scale1.png", scaled);
 
 		auto ident = inv_2Dtransform_nn(in, ident2D(), in.size);
-		write_tensor_to_png("NVSL-ident.png", ident);
+		write_tensor_to_png(DEBUG_OUTPUT "NVSL-ident.png", ident);
 		
 		auto rotate = inv_2Dtransform_nn(in, rotate2D(-30), in.size);
-		write_tensor_to_png("NVSL-rotate.png", rotate);
+		write_tensor_to_png(DEBUG_OUTPUT "NVSL-rotate.png", rotate);
 		
 		auto translate = inv_2Dtransform_nn(in, translate2D(20,20), in.size);
-		write_tensor_to_png("NVSL-translate.png", translate);
+		write_tensor_to_png(DEBUG_OUTPUT "NVSL-translate.png", translate);
 		
 		auto scale = inv_2Dtransform_nn(in, scale2D(.75, 0.75), in.size);
-		write_tensor_to_png("NVSL-scale.png", scale);
+		write_tensor_to_png(DEBUG_OUTPUT "NVSL-scale.png", scale);
 		
 		auto shear = inv_2Dtransform_nn(in, shear2D(0.1, 0), in.size);
-		write_tensor_to_png("NVSL-shear.png", shear);
+		write_tensor_to_png(DEBUG_OUTPUT "NVSL-shear.png", shear);
 
 		auto perspective = inv_2Dtransform_nn(in, perspective2D(0.5), in.size);
-		write_tensor_to_png("NVSL-perspective.png", perspective);
+		write_tensor_to_png(DEBUG_OUTPUT "NVSL-perspective.png", perspective);
 
 	}
 	
@@ -208,15 +208,15 @@ namespace CNNTest {
 		tdsize landscape(200,300,3);
 		tdsize portrait(300,200,3);
 		
-		write_tensor_to_png("ppt.png", pad_or_crop(portrait_img, portrait, true));
-		write_tensor_to_png("lpt.png", pad_or_crop(landscape_img, portrait, true));
-		write_tensor_to_png("plt.png", pad_or_crop(portrait_img, landscape, true));
-		write_tensor_to_png("llt.png", pad_or_crop(landscape_img, landscape, true));
+		write_tensor_to_png(DEBUG_OUTPUT "ppt.png", pad_or_crop(portrait_img, portrait, true));
+		write_tensor_to_png(DEBUG_OUTPUT "lpt.png", pad_or_crop(landscape_img, portrait, true));
+		write_tensor_to_png(DEBUG_OUTPUT "plt.png", pad_or_crop(portrait_img, landscape, true));
+		write_tensor_to_png(DEBUG_OUTPUT "llt.png", pad_or_crop(landscape_img, landscape, true));
 		
-		write_tensor_to_png("ppf.png", pad_or_crop(portrait_img, portrait, false));
-		write_tensor_to_png("lpf.png", pad_or_crop(landscape_img, portrait, false));
-		write_tensor_to_png("plf.png", pad_or_crop(portrait_img, landscape, false));
-		write_tensor_to_png("llf.png", pad_or_crop(landscape_img, landscape, false));
+		write_tensor_to_png(DEBUG_OUTPUT "ppf.png", pad_or_crop(portrait_img, portrait, false));
+		write_tensor_to_png(DEBUG_OUTPUT "lpf.png", pad_or_crop(landscape_img, portrait, false));
+		write_tensor_to_png(DEBUG_OUTPUT "plf.png", pad_or_crop(portrait_img, landscape, false));
+		write_tensor_to_png(DEBUG_OUTPUT "llf.png", pad_or_crop(landscape_img, landscape, false));
 
 	}
 }

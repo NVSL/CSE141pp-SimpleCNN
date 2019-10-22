@@ -5,7 +5,9 @@ TESTS?=-*SLOW*
 .PHONY:default test
 default test: core_tests
 
-core_tests:run_test.exe 
+core_tests:run_test.exe
+	mkdir -p output
+	rm -rf output/*
 	./run_test.exe --gtest_filter=$(TESTS)
 
 GCOV_CFLAGS=-fprofile-arcs -ftest-coverage

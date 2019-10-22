@@ -1,4 +1,5 @@
 #define INCLUDE_TESTS
+#define DEBUG_OUTPUT "output/"
 #include "../CNN/canela.hpp"
 #include "../util/tensor_util.hpp"
 #include <iostream>

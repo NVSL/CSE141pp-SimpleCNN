@@ -426,19 +426,19 @@ namespace CNNTest {
 	TEST_F(CNNTest, tensor_io) {
 		tensor_t<float> t1(11,14,23);
 		randomize(t1);
-		std::ofstream outfile ("t1_out.tensor",std::ofstream::binary);
+		std::ofstream outfile (DEBUG_OUTPUT "t1_out.tensor",std::ofstream::binary);
 		t1.write(outfile);
 		outfile.close();
-		std::ifstream infile ("t1_out.tensor",std::ofstream::binary);
+		std::ifstream infile (DEBUG_OUTPUT "t1_out.tensor",std::ofstream::binary);
 		auto r = tensor_t<float>::read(infile);
 		EXPECT_EQ(t1, r);
 
 		tensor_t<gradient_t> t2(1,100,3);
 		randomize(t2);
-		std::ofstream outfile2 ("t2_out.tensor",std::ofstream::binary);
+		std::ofstream outfile2 (DEBUG_OUTPUT "t2_out.tensor",std::ofstream::binary);
 		t2.write(outfile2);
 		outfile2.close();
-		std::ifstream infile2 ("t2_out.tensor",std::ofstream::binary);
+		std::ifstream infile2 (DEBUG_OUTPUT "t2_out.tensor",std::ofstream::binary);
 		auto r2 = tensor_t<gradient_t>::read(infile2);
 		EXPECT_EQ(t2, r2);
 	}
