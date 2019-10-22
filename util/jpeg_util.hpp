@@ -95,8 +95,8 @@ namespace CNNTest {
 	TEST_F(CNNTest, jpeg_read)
 	{
 		auto r = load_tensor_from_jpeg("images/bear.jpg");
-		write_tensor_to_png("bear.png", r);
-		auto reload = load_tensor_from_png("bear.png");
+		write_tensor_to_png(DEBUG_OUTPUT "bear.png", r);
+		auto reload = load_tensor_from_png(DEBUG_OUTPUT bear.png");
 		auto d = r - reload;
 		TENSOR_FOR(d, x,y,z)
 			d(x,y,z) = fabs(d(x,y,z));
