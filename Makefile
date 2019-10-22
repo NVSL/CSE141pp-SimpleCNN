@@ -1,6 +1,4 @@
-
-
-SUBDIRS=examples tools datasets/mnist tests 
+SUBDIRS=datasets/mnist tests examples tools 
 
 all: setup examples tools datasets test
 

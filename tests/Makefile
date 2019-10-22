@@ -1,3 +1,5 @@
+GOOGLE_TEST_ROOT?=../googletest
+USER_CFLAGS += -I$(GOOGLE_TEST_ROOT)/googletest/include/
 include ../Make.rules
 
 TESTS?=-*SLOW*
@@ -13,7 +15,7 @@ core_tests:run_test.exe
 GCOV_CFLAGS=-fprofile-arcs -ftest-coverage
 
 %.exe : %.o 
-	$(CXX) $(USER_LDFLAGS) $(LD_OPTS) -L../googletest/lib/  $^ -lgtest -lgtest_main -lpng -ljpeg  -pthread -o $@
+	$(CXX) $(USER_LDFLAGS) $(LD_OPTS) -L$(GOOGLE_TEST_ROOT)/lib/  $^ -lgtest -lgtest_main -lpng -ljpeg  -pthread -o $@
 
 .PHONY: codecov
 codecov:

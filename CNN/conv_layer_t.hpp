@@ -237,7 +237,7 @@ namespace CNNTest{
 		auto r1 =  t3.map_to_output(0,0);
 		EXPECT_EQ(r1.min_x, 0);
 		EXPECT_EQ(r1.max_x, 0);
-		EXPECT_EQ(r1.max_z, t3.filters.size()-1);
+		EXPECT_EQ(r1.max_z, (int)(t3.filters.size()-1));
 		      
 		auto r2 =  t3.map_to_output(1,1);
 		EXPECT_EQ(r2.min_x, 0);

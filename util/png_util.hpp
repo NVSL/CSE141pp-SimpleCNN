@@ -26,7 +26,7 @@ tensor_t<float> load_tensor_from_png(const char* file_name)
 	
         int r = fread(header, 1, 8, fp);
 	throw_assert(r == 8, "short read reading " << file_name << "\n");
-        throw_assert(png_sig_cmp((png_const_bytep)header, 0, 8) == 0, "[read_png_file] File " << file_name << " is not recognized as a PNG file");
+        throw_assert(png_sig_cmp((png_bytep)header, 0, 8) == 0, "[read_png_file] File " << file_name << " is not recognized as a PNG file");
 
         /* initialize stuff */
         png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
