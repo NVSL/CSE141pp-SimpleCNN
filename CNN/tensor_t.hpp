@@ -269,13 +269,13 @@ template<class T>
 const int tensor_t<T>::version;
 
 
-void randomize(tensor_t<float> & t, float max = 1.0) {
+inline void randomize(tensor_t<float> & t, float max = 1.0) {
 	TENSOR_FOR(t,x,y,z) {
 		t(x, y, z) = rand_f(max);
 	}
 }
 
-void randomize(tensor_t<gradient_t> & t, float max = 1.0) {
+inline void randomize(tensor_t<gradient_t> & t, float max = 1.0) {
 	TENSOR_FOR(t,x,y,z) {
 		t(x, y, z).grad = rand_f(max);
 		t(x, y, z).oldgrad = rand_f(max);
@@ -284,7 +284,7 @@ void randomize(tensor_t<gradient_t> & t, float max = 1.0) {
 
 
 template<class T>
-std::ostream& operator<<(std::ostream& os, const tensor_t<T> & t)
+static std::ostream& operator<<(std::ostream& os, const tensor_t<T> & t)
 {
 	for ( int z = 0; z < t.size.z; z++ ) {
 		os << z << ": \n";
@@ -300,34 +300,15 @@ std::ostream& operator<<(std::ostream& os, const tensor_t<T> & t)
 	return os;
 }
 
-void print_tensor( tensor_t<float>& data )
-{
-	int mx = data.size.x;
-	int my = data.size.y;
-	int mz = data.size.z;
-
-	for ( int z = 0; z < mz; z++ )
-	{
-		printf( "[Dim%d]\n", z );
-		for ( int y = 0; y < my; y++ )
-		{
-			for ( int x = 0; x < mx; x++ )
-			{
-				printf( "%.2f \t", (float)data.get( x, y, z ) );
-			}
-			printf( "\n" );
-		}
-	}
-}
-
-tensor_t<float> to_tensor( std::vector<std::vector<std::vector<float>>> data )
+template<class T>
+static tensor_t<T> to_tensor( std::vector<std::vector<std::vector<T>>> data )
 {
 	int z = data.size();
 	int y = data[0].size();
 	int x = data[0][0].size();
 
 
-	tensor_t<float> t( x, y, z );
+	tensor_t<T> t( x, y, z );
 
 	for ( int i = 0; i < x; i++ )
 		for ( int j = 0; j < y; j++ )

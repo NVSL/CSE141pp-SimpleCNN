@@ -184,7 +184,7 @@ public:
 
 	
 
-std::ostream& operator<<(std::ostream& os, const conv_layer_t & l)
+inline static std::ostream& operator<<(std::ostream& os, const conv_layer_t & l)
 {
 #define DUMP_FIELD(x) #x " = " << l. x << "\n";
 	os << DUMP_FIELD(in);

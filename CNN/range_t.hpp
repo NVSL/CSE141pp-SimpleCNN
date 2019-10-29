@@ -7,7 +7,7 @@ struct range_t
 	int max_x, max_y, max_z;
 };
 
-int clamp(int x, int max)
+inline int clamp(int x, int max)
 {
 	if (x < 0) {
 		return 0;
@@ -20,7 +20,7 @@ int clamp(int x, int max)
 
 #define ROUND_UP_IDIV(x,y) (((x) + (y) - 1)/(y))
 	
-range_t map_to_output_impl( int x, int y, int kernel_size, int stride, int depth, const tdsize & size )
+inline range_t map_to_output_impl( int x, int y, int kernel_size, int stride, int depth, const tdsize & size )
 {
 	return {
 			clamp( ROUND_UP_IDIV(x - kernel_size + 1, stride), size.x - 1),

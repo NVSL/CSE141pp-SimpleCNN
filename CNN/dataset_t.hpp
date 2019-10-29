@@ -41,7 +41,6 @@ struct test_case_t
 
 };
 
-const int test_case_t::version; 
 
 struct dataset_t
 {
@@ -140,8 +139,6 @@ struct dataset_t
 	}
 
 };
-
-const int dataset_t::version; 
 
 
 #ifdef INCLUDE_TESTS

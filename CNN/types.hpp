@@ -19,7 +19,7 @@ struct gradient_t
 	}
 };
 
-std::ostream& operator<<(std::ostream& os, const gradient_t & g)
+inline std::ostream& operator<<(std::ostream& os, const gradient_t & g)
 {
 	os << std::setw(2) << std::setprecision(2);
 	os << "[" << g.grad << ", " << g.oldgrad << "]";
@@ -39,7 +39,7 @@ struct point_t
 	}
 };
 
-std::ostream& operator<<(std::ostream& os, const point_t & g)
+inline std::ostream& operator<<(std::ostream& os, const point_t & g)
 {
 	os << std::setw(2) << std::setprecision(2);
 	os << "(" << g.x << ", " << g.y << ", " << g.z << ")";
