@@ -1,4 +1,4 @@
-SUBDIRS=datasets/mnist datasets/cifar tests examples tools 
+SUBDIRS=datasets/mnist datasets/cifar datasets/imagenet tests examples tools 
 
 all: setup examples tools datasets test
 

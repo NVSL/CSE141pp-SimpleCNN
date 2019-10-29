@@ -1,5 +1,5 @@
 
-default: mnist
+default: all
 
 all: emnist mnist
 
