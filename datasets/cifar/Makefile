@@ -22,3 +22,10 @@ cifar-10-batches-bin/%.bin:
 cifar10_%.dataset: cifar-10-batches-bin/%.bin
 	../../tools/build_cifar.exe $^ 10 $@
 
+
+
+.PHONY:cifar-clean		
+cifar-clean:
+	rm -rf make *.dataset *.tar.gz cifar-100-binary cifar-10-batches-bin
+clean:cifar-clean
+

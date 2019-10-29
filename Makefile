@@ -10,7 +10,7 @@ test: check_env
 disttest:
 	rm -rf ./.test_build
 	git clone . ./.test_build
-	bash -c '(cd .test_build; make setup; . ./env.sh; make all C_OPTS=-O3 TESTS=*)'
+	bash -c '(cd .test_build; make setup; . ./env.sh; make C_OPTS=-O3 TESTS=*)'
 
 .PHONY: examples
 examples: check_env
@@ -22,7 +22,7 @@ tools: check_env
 
 .PHONY: datasets
 datasets: check_env tools		
-	$(MAKE) -C datasets/mnist
+	for i in $(SUBDIRS); do $(MAKE) -C $$i; done
 
 .PHONY: setup
 setup: googletest cse141pp-archlab
