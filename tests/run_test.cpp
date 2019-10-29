@@ -7,6 +7,7 @@
 #include "util/png_util.hpp"
 #include "util/jpeg_util.hpp"
 #include "util/mnist.hpp"
+#include "util/cifar.hpp"
 #include "CNN/dataset_t.hpp"
 
 #define EXCLUDE_MAIN

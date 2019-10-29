@@ -1,6 +1,6 @@
 include ../Make.rules
 
-TOOLS=build_mnist.exe build_imagenet.exe
+TOOLS=build_mnist.exe build_imagenet.exe build_cifar.exe
 default: $(TOOLS)
 
 %.exe : %.o 
