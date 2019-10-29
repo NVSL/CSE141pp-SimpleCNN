@@ -5,8 +5,7 @@
 
 struct test_case_t
 {
-	static const int version = 1;
-	
+        enum {VERSION = 1};
 	tensor_t<float> data;
 	tensor_t<float> label;
 
@@ -24,7 +23,8 @@ struct test_case_t
 	}
 
 	void write(std::ofstream & out) {
-		out.write((char*)&version, sizeof(version));
+	        int v = VERSION;
+		out.write((char*)&v, sizeof(v));
 		data.write(out);
 		label.write(out);
 	}
@@ -32,8 +32,8 @@ struct test_case_t
 	
 	static test_case_t read(std::ifstream & in) {
 		int file_version;
-		in.read((char*)&file_version, sizeof(version));
-		throw_assert(version == file_version, "Reloading from old test_case version is not supported.  Current version: " << version << ";  file version: " << file_version);
+		in.read((char*)&file_version, sizeof(file_version));
+		throw_assert(VERSION == file_version, "Reloading from old test_case version is not supported.  Current version: " << VERSION << ";  file version: " << file_version);
 		auto data = tensor_t<float>::read(in);
 		auto label = tensor_t<float>::read(in);
 		return {data, label};
@@ -41,11 +41,10 @@ struct test_case_t
 
 };
 
-const int test_case_t::version; 
 
 struct dataset_t
 {
-	static const int version = 1;
+        enum {VERSION = 1};
 	tdsize data_size;
 	tdsize label_size;
 
@@ -109,7 +108,8 @@ struct dataset_t
 	}
 	
 	void write(std::ofstream & out) {
-		out.write((char*)&version, sizeof(version));
+             	int v = VERSION;
+		out.write((char*)&v, sizeof(v));
 		size_t count = test_cases.size();
 		out.write((char*)&count, sizeof(count));
 		for(auto &c: test_cases) {
@@ -125,8 +125,8 @@ struct dataset_t
 	static dataset_t read(std::ifstream & in, std::vector<test_case_t>::size_type max_count = std::numeric_limits<std::vector<test_case_t>::size_type>::max()) {
 		throw_assert(in.good(), "Input file descriptor in bad state");
 		int file_version;
-		in.read((char*)&file_version, sizeof(version));
-		throw_assert(version == file_version, "Reloading from old dataset version is not supported.  Current version: " << version << ";  file version: " << file_version);
+		in.read((char*)&file_version, sizeof(file_version));
+		throw_assert(VERSION == file_version, "Reloading from old dataset version is not supported.  Current version: " << VERSION << ";  file version: " << file_version);
 		size_t count;
 		in.read((char*)&count, sizeof(count));
 		dataset_t n;
@@ -140,8 +140,6 @@ struct dataset_t
 	}
 
 };
-
-const int dataset_t::version; 
 
 
 #ifdef INCLUDE_TESTS

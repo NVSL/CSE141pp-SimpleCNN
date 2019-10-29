@@ -1,3 +1,4 @@
+USER_CFLAGS=-I..
 include ../Make.rules
 
 EXAMPLES=alexnet.exe toy.exe simple.exe
