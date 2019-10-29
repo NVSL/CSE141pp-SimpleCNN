@@ -1,4 +1,4 @@
-default: cifar10
+default: all
 
 all: cifar10 cifar100
 
