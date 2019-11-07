@@ -9,10 +9,11 @@
 #include "util/mnist.hpp"
 #include "util/cifar.hpp"
 #include "CNN/dataset_t.hpp"
-
+#include "../CNN/optimized.hpp"
 #define EXCLUDE_MAIN
 #include "../examples/simple.cpp"
 #undef  EXCLUDE_MAIN
+
 
 void EXPECT_TENSOR_EQ(const tensor_t<float> & a,const tensor_t<float> & b) {
 	EXPECT_EQ(a.size, b.size);

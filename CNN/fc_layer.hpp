@@ -131,12 +131,6 @@ public:
 	}
 };
 
-class opt_fc_layer_t : public fc_layer_t
-{
-public:
-	opt_fc_layer_t( tdsize in_size, int out_size ) : fc_layer_t(in_size, out_size) {}
-			
-};
 
 #ifdef INCLUDE_TESTS
 namespace CNNTest{

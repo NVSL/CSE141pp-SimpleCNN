@@ -64,11 +64,7 @@ public:
 		}
 };
 
-class opt_dropout_layer_t : public dropout_layer_t
-{
-public:
-	opt_dropout_layer_t( tdsize in_size, float p_activation ) : dropout_layer_t(in_size, p_activation) {}
-};
+
 
 #ifdef INCLUDE_TESTS
 namespace CNNTest{

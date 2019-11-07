@@ -60,12 +60,6 @@ public:
 	}
 };
 
-class opt_relu_layer_t : public relu_layer_t
-{
-public:
-	opt_relu_layer_t(const tdsize & in_size ): relu_layer_t(in_size){}
-};
-
 
 #ifdef INCLUDE_TESTS
 namespace CNNTest{

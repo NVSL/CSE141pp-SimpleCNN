@@ -8,3 +8,6 @@ if [ "$GOOGLE_TEST_ROOT." = "." ]; then
     export GOOGLE_TEST_ROOT=$PWD/googletest
 fi
 
+if [ "$CANELA_ROOT." = "." ]; then
+    export CANELA_ROOT=$PWD
+fi

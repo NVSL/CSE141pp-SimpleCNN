@@ -98,11 +98,6 @@ public:
 	}
 };
 
-class opt_pool_layer_t: public pool_layer_t
-{
-public:
-	opt_pool_layer_t( uint16_t stride, uint16_t filter_size, float pad, tdsize in_size ) : pool_layer_t(stride, filter_size, pad, in_size) {}
-};
 
 #ifdef INCLUDE_TESTS
 namespace CNNTest{

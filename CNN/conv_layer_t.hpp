@@ -170,18 +170,6 @@ public:
 	}
 };
 
-class opt_conv_layer_t : public conv_layer_t
-{
-public:
-	opt_conv_layer_t( uint16_t stride,
-			  uint16_t kernel_size, 
-			  uint16_t kernel_count,
-			  float pad,
-			  tdsize in_size
-		) : conv_layer_t(stride, kernel_size, kernel_count, pad, in_size) {}
-
-};
-
 	
 
 inline static std::ostream& operator<<(std::ostream& os, const conv_layer_t & l)

@@ -55,12 +55,6 @@ public:
 	}
 };
 
-class opt_softmax_layer_t : public softmax_layer_t
-{
-public:
-	opt_softmax_layer_t(const tdsize & in_size ): softmax_layer_t(in_size){}
-};
-
 
 #ifdef INCLUDE_TESTS
 namespace CNNTest{
