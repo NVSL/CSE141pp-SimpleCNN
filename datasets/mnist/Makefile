@@ -11,9 +11,9 @@ emnist: emnist-byclass-test.dataset emnist-byclass-train.dataset
 ## MNIST
 
 mnist-test.dataset:  t10k-images-idx3-ubyte t10k-labels-idx1-ubyte
-	../../tools/build_mnist.exe $^ $@
+	../../tools/build_mnist.exe $^ $@ digits
 mnist-train.dataset: train-images-idx3-ubyte train-labels-idx1-ubyte
-	../../tools/build_mnist.exe $^ $@
+	../../tools/build_mnist.exe $^ $@ digits
 
 %-ubyte:
 	curl -L http://yann.lecun.com/exdb/mnist/$*-ubyte.gz -o $*-ubyte.gz
@@ -32,10 +32,10 @@ $(EMNIST_INPUTS): gzip.zip
 	touch gzip/*
 
 emnist-byclass-test.dataset:  gzip/emnist-byclass-test-images-idx3-ubyte gzip/emnist-byclass-test-labels-idx1-ubyte
-	../../tools/build_mnist.exe $^ $@
+	../../tools/build_mnist.exe $^ $@ extended
 
 emnist-byclass-train.dataset: gzip/emnist-byclass-train-images-idx3-ubyte gzip/emnist-byclass-train-labels-idx1-ubyte
-	../../tools/build_mnist.exe $^ $@
+	../../tools/build_mnist.exe $^ $@ extended
 
 
 .PHONY:mnist-clean		
