@@ -119,6 +119,7 @@ struct dataset_t
 
 	static dataset_t read(const std::string & s, std::vector<test_case_t>::size_type max_count = std::numeric_limits<std::vector<test_case_t>::size_type>::max()) {
 		std::ifstream in(s,std::ofstream::binary);
+		throw_assert(in.good(), "Couldn't open " << s);
 		return dataset_t::read(in, max_count);
 	}
 

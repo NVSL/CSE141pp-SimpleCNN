@@ -77,8 +77,8 @@ namespace PREFIX(Tests) {
 	}
 		
 	TEST_F(PREFIX(OptimizationTests), rand_dropout) {
-		rand_conv(32,  64, 1);
-		rand_conv(64,  16, 2);
+		rand_dropout(32,  64, 1);
+		rand_dropout(64,  16, 2);
 	}
 	
 	void rand_fc(int scale, int reps, int seed) {
@@ -105,8 +105,8 @@ namespace PREFIX(Tests) {
 	}
 	
 	TEST_F(PREFIX(OptimizationTests), rand_fc) {
-		rand_conv(32,  64, 1);
-		rand_conv(64,  16, 2);
+		rand_fc(32,  64, 1);
+		rand_fc(64,  16, 2);
 	}
 	
 	void rand_pool(int scale, int reps, int seed) {
@@ -134,8 +134,8 @@ namespace PREFIX(Tests) {
 	}
 		
 	TEST_F(PREFIX(OptimizationTests), rand_pool) {
-		rand_conv(32,  64, 1);
-		rand_conv(64,  16, 2);
+		rand_pool(32,  64, 1);
+		rand_pool(64,  16, 2);
 	}
 
 	void rand_relu(int scale, int reps, int seed) {
@@ -161,8 +161,8 @@ namespace PREFIX(Tests) {
 	}
 		
 	TEST_F(PREFIX(OptimizationTests), rand_relu) {
-		rand_conv(32,  64, 1);
-		rand_conv(64,  16, 2);
+		rand_relu(32,  64, 1);
+		rand_relu(64,  16, 2);
 	}
 
 	void rand_softmax(int scale, int reps, int seed) {
@@ -187,10 +187,10 @@ namespace PREFIX(Tests) {
 		}
 	}
 		
-	TEST_F(PREFIX(OptimizationTests), rand_softmax) {
-		rand_conv(32,  64, 1);
-		rand_conv(64,  16, 2);
-	}
+	// TEST_F(PREFIX(OptimizationTests), rand_softmax) {
+	// 	rand_softmax(32,  64, 1);
+	// 	rand_softmax(64,  16, 2);
+	// }
 
 	using SimpleCNNTest = CNNTest::SimpleCNNTest;
 	TEST_F(SimpleCNNTest, PREFIX(simple_model_opt)) {
