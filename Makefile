@@ -1,6 +1,7 @@
 SUBDIRS=datasets/mnist datasets/cifar datasets/imagenet tests examples tools 
 
-all: setup examples tools datasets test
+all: examples tools datasets test
+install:
 
 .PHONY: test
 test: check_env
