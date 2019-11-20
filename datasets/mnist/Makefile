@@ -23,8 +23,9 @@ mnist-train.dataset: train-images-idx3-ubyte train-labels-idx1-ubyte
 
 EMNIST_INPUTS=gzip/emnist-byclass-train-images-idx3-ubyte gzip/emnist-byclass-test-images-idx3-ubyte gzip/emnist-byclass-train-labels-idx1-ubyte gzip/emnist-byclass-test-labels-idx1-ubyte
 
-gzip.zip:	
-	curl -L http://www.itl.nist.gov/iaui/vip/cs_links/EMNIST/gzip.zip > $@
+gzip.zip:
+# this url is for convenience.  If it breaks, the original is here:http://www.itl.nist.gov/iaui/vip/cs_links/EMNIST/gzip.zip
+	curl -L https://storage.googleapis.com/nvsl_misc/gzip.zip -o $@
 
 $(EMNIST_INPUTS): gzip.zip
 	unzip -o $<
