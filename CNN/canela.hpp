@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <cstdio>
 #include <vector>
+#include <gtest/gtest.h>
 
 #include "tensor_t.hpp"
 #include "optimization_method.hpp"

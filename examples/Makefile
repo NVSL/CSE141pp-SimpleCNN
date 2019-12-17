@@ -1,4 +1,4 @@
-USER_CFLAGS=-I..
+USER_CFLAGS += -I$(GOOGLE_TEST_ROOT)/googletest/include/ -I..
 include ../Make.rules
 
 EXAMPLES=alexnet.exe toy.exe simple.exe

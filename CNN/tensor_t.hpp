@@ -368,7 +368,6 @@ std::string diff(const std::vector<T> & a, const std::vector<T> & b)
 #ifdef INCLUDE_TESTS
 #include <gtest/gtest.h>
 
-
 namespace CNNTest {
 
 

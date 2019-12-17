@@ -68,10 +68,11 @@ namespace CNNTest {
 	}
 }
 
+#if(0)
 #define PREFIX(x) opt_##x
 #include "optimization_tests_inc.cpp"
 #undef PREFIX
-
+#endif
 
 int main(int argc, char **argv) {
 	::testing::InitGoogleTest(&argc, argv);
