@@ -51,7 +51,7 @@ using tdsize = point_t;
 
 
 #ifdef INCLUDE_TESTS
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 
 
 namespace CNNTest {

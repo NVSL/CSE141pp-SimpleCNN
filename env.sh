@@ -4,8 +4,4 @@ if [ "$ARCHLAB_ROOT." = "." ]; then
     popd
 fi
 
-if [ "$GOOGLE_TEST_ROOT." = "." ]; then
-    export GOOGLE_TEST_ROOT=$PWD/googletest
-fi
-
 export CANELA_ROOT=$PWD

@@ -129,7 +129,50 @@ public:
 					}
 		}
 	}
+
+	virtual ~fc_layer_t(){}
+	
+	virtual std::string analyze_inequality_with(fc_layer_t* other) {
+		std::stringstream out;
+		if (this->input.size() != other->input.size()) {
+			out << "Input sizes don't match: " << DUMP(this->input.size()) << " != " << DUMP(other->input.size()) << "\n";
+		}
+		if (this->weights.size != other->weights.size) {
+			out << "Weights sizes don't match: " << DUMP(this->weights.size) << " != " << DUMP(other->weights.size) << "\n";
+		}
+		if (this->gradients.size() != other->gradients.size()) {
+			out << "Gradients sizes don't match: " << DUMP(this->gradients.size()) << " != " << DUMP(other->gradients.size()) << "\n";
+		}
+		
+		out << this->layer_t::analyze_inequality_with(other);
+	
+		out << "Diff of ->input: " << diff(this->input, other->input) << "\n";
+		out << "Diff of ->weights: " << diff(this->weights, other->weights) << "\n";
+		out << "Diff of ->gradients: " << diff(this->gradients, other->gradients) << "\n";
+		return out.str();
+	}
+	
 };
+
+template<class T> T* run_fc(int x, int y, int z,
+			    int out_size,
+			    int seed) {
+	srand(seed);
+	tdsize size(x,y,z);
+	T * l = new T( size, out_size);
+	l->test_me();
+	return l;
+}
+
+
+template<class T>
+void fc_test(int x, int y, int z, int out, int seed) {					
+	fc_layer_t * reference = run_fc<fc_layer_t>(x,y,z,out,seed); 
+	fc_layer_t * optimized = run_fc<T>(x,y,z,out,seed); 
+	EXPECT_LAYERS_EQ(fc_layer_t, reference, optimized) << "Failure: fc_test("<< x << ", " << y<< ", " << z<< ", " << out << ", " << seed << ");\n";
+	delete reference;					
+	delete optimized;
+}
 
 
 #ifdef INCLUDE_TESTS

@@ -287,7 +287,7 @@ template<class T>
 static std::ostream& operator<<(std::ostream& os, const tensor_t<T> & t)
 {
 	for ( int z = 0; z < t.size.z; z++ ) {
-		os << z << ": \n";
+		os << "z = " << z << ": \n";
 		for ( int y = 0; y < t.size.y; y++ ) {
 			for ( int x = 0; x < t.size.x; x++ ) {
 				os << std::setw(8) << std::setprecision(3);
@@ -317,9 +317,56 @@ static tensor_t<T> to_tensor( std::vector<std::vector<std::vector<T>>> data )
 	return t;
 }
 
+template<class T>
+std::string diff(const tensor_t<T> & a, const tensor_t<T> & b)
+{
+	std::stringstream out;
+	tensor_t<bool> diff(a.size);
+	bool found = false;
+
+	for ( int z = 0; z < diff.size.z; z++ ) {
+		out << "z = " << z << ": \n";
+		for ( int y = 0; y < diff.size.y; y++ ) {
+			for ( int x = 0; x < diff.size.x; x++ ) {
+				if (a(x,y,z) != b(x,y,z)) found = true;
+				out << (a(x,y,z) != b(x,y,z) ? "#" : ".");
+			}
+			out << "\n";
+		}
+	}
+	if (found) {
+		return "\n" + out.str();
+	} else {
+		return "<identical>";
+	}
+	
+}
+
+template<class T>
+std::string diff(const std::vector<T> & a, const std::vector<T> & b)
+{
+	std::stringstream out;
+	std::vector<bool> diff(a.size());
+	bool found = false;
+
+	for ( uint x = 0; x < diff.size(); x++ ) {
+		if (a[x] != b[x]) found = true;
+		out << (a[x] != b[x] ? "!" : " ");
+	}
+	out << "\n";
+
+	if (found) {
+		return "\n" + out.str();
+	} else {
+		return "<identical>";
+	}
+	
+}
+
+
 
 #ifdef INCLUDE_TESTS
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 
 
 namespace CNNTest {

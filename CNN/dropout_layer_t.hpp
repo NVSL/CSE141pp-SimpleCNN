@@ -65,6 +65,38 @@ public:
 };
 
 
+template<class T> T* run_dropout(int x,int y, int z,
+				 int seed){
+	srand(seed);
+	tdsize size(x,y,z);
+	// Run the optimized version
+	srand(seed);
+	T * l = new T(size, 0.5);
+	l->test_me();
+	return l;
+}
+
+
+std::string analyze_dropout_failure(dropout_layer_t* reference,
+				    dropout_layer_t* optimized) {
+	std::stringstream out;
+
+	out << analyze_dropout_failure(reference, optimized);
+	
+	return out.str();
+}
+
+
+template<class T>
+void dropout_test(int x, int y, int z,int seed) {
+	dropout_layer_t * reference = run_dropout<dropout_layer_t>(x,y,z,seed); 
+	dropout_layer_t * optimized = run_dropout<T>(x,y,z,seed); 
+	EXPECT_LAYERS_EQ(dropout_layer_t, reference, optimized) << "Failure: dropout_test("<< x << ", " << y<< ", " << z<< ", " << seed << ");\n";
+	delete reference;						
+	delete optimized;					       
+}			
+
+
 
 #ifdef INCLUDE_TESTS
 namespace CNNTest{

@@ -3,7 +3,7 @@
 #include "../CNN/canela.hpp"
 #include "../util/tensor_util.hpp"
 #include <iostream>
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 #include "util/png_util.hpp"
 #include "util/jpeg_util.hpp"
 #include "util/mnist.hpp"

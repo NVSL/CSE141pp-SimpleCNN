@@ -11,6 +11,10 @@ enum class layer_type
 	dropout_layer
 };
 
+#define DUMP(x) #x " = " << x
+#define RAND_R(x,y) ((x)+ (rand() % ((y)-(x))))
+#define RAND_LARGE(x) RAND_R(x/2, x)
+
 
 class layer_t
 {
@@ -50,4 +54,59 @@ public:
 	layer_t(const tdsize & in_size, const tdsize & out_size) :  in(in_size), out(out_size), grads_in(in_size) {}
 	
 	virtual ~layer_t(){}
+
+	virtual std::string analyze_inequality_with(layer_t* other) {
+		std::stringstream out;
+		if (this->in.size != other->in.size) {
+			out << "Input sizes don't match: " << DUMP(this->in.size) << " != " << DUMP(other->in.size) << "\n";
+		}
+		if (this->out.size != other->out.size) {
+			out << "Output sizes don't match: " << DUMP(this->out.size) << " != " << DUMP(other->out.size) << "\n";
+		}
+		
+		if (this->grads_in.size != other->grads_in.size) {
+			out << "Grads sizes don't match: " << DUMP(this->grads_in.size) << " != " << DUMP(other->grads_in.size) << "\n";
+		}
+		out << "Diff of ->in: " << diff(this->in, other->in) << "\n";
+		out << "Diff of ->out: " << diff(this->out, other->out) << "\n";
+		out << "Diff of ->grads_in: " << diff(this->grads_in, other->grads_in) << "\n";
+		return out.str();
+	}
+	
+	
+	void test_me() {
+		tensor_t<float> in(this->in.size);
+		randomize(in);
+		tensor_t<float> next_grads(this->out.size);
+		randomize(next_grads);
+		activate(in);
+		calc_grads(next_grads);
+		fix_weights();
+	}
+
 };
+
+
+// Customized assertion formatter for googletest
+template<class T>
+::testing::AssertionResult AssertLayersEqual(const char* m_expr,
+					     const char* n_expr,
+					     T * m,
+					     T * n) {
+	if (*m == *n) return ::testing::AssertionSuccess();
+
+	return ::testing::AssertionFailure() << m->analyze_inequality_with(n);
+}
+
+#define ASSERT_LAYERS_EQ(T, a,b) ASSERT_PRED_FORMAT2(AssertLayersEqual<T>, a,b)
+#define EXPECT_LAYERS_EQ(T, a,b) EXPECT_PRED_FORMAT2(AssertLayersEqual<T>, a,b)
+	
+void run_layer(layer_t & l) {
+	tensor_t<float> in(l.in.size);
+	randomize(in);
+	tensor_t<float> next_grads(l.out.size);
+	randomize(next_grads);
+	l.activate(in);
+	l.calc_grads(next_grads);
+	l.fix_weights();
+}
