@@ -1,5 +1,9 @@
 SUBDIRS=datasets/mnist datasets/cifar datasets/imagenet tests examples tools 
 
+ifndef CANELA_ROOT
+$(error CANELA_ROOT is not set.  Have you sourced config.sh?  Maybe do it again.)
+endif
+
 all: examples tools datasets test
 install:
 
