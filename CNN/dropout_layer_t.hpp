@@ -77,7 +77,7 @@ template<class T> T* run_dropout(int x,int y, int z,
 }
 
 
-std::string analyze_dropout_failure(dropout_layer_t* reference,
+static inline std::string analyze_dropout_failure(dropout_layer_t* reference,
 				    dropout_layer_t* optimized) {
 	std::stringstream out;
 

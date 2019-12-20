@@ -101,7 +101,7 @@ template<class T>
 #define ASSERT_LAYERS_EQ(T, a,b) ASSERT_PRED_FORMAT2(AssertLayersEqual<T>, a,b)
 #define EXPECT_LAYERS_EQ(T, a,b) EXPECT_PRED_FORMAT2(AssertLayersEqual<T>, a,b)
 	
-void run_layer(layer_t & l) {
+static inline void run_layer(layer_t & l) {
 	tensor_t<float> in(l.in.size);
 	randomize(in);
 	tensor_t<float> next_grads(l.out.size);
