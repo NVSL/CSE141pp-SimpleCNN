@@ -1,3 +1,4 @@
+GOOGLE_TEST_ROOT?=../googletest
 USER_CFLAGS += -I$(GOOGLE_TEST_ROOT)/googletest/include/ -I..
 include ../Make.rules
 
