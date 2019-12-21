@@ -31,7 +31,7 @@ setup: googletest cse141pp-archlab
 
 .PHONY: check_env
 check_env:
-	@if [ "$(ARCHLAB_ROOT)." = "." ]; then echo You need to do 'source ./env.sh' to setup your environment.; false; else true; fi
+	true
 
 googletest:
 	rm -rf googletest
