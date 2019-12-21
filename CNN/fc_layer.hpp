@@ -132,23 +132,25 @@ public:
 
 	virtual ~fc_layer_t(){}
 	
-	virtual std::string analyze_inequality_with(fc_layer_t* other) {
+	virtual std::string analyze_inequality_with(layer_t* other) {
+		auto _other = dynamic_cast<fc_layer_t*>(other);
+		throw_assert(_other, "You called 'analyze_inequality_with' without a mismatched layer type")
 		std::stringstream out;
-		if (this->input.size() != other->input.size()) {
-			out << "Input sizes don't match: " << DUMP(this->input.size()) << " != " << DUMP(other->input.size()) << "\n";
+		if (this->input.size() != _other->input.size()) {
+			out << "Input sizes don't match: " << DUMP(this->input.size()) << " != " << DUMP(_other->input.size()) << "\n";
 		}
-		if (this->weights.size != other->weights.size) {
-			out << "Weights sizes don't match: " << DUMP(this->weights.size) << " != " << DUMP(other->weights.size) << "\n";
+		if (this->weights.size != _other->weights.size) {
+			out << "Weights sizes don't match: " << DUMP(this->weights.size) << " != " << DUMP(_other->weights.size) << "\n";
 		}
-		if (this->gradients.size() != other->gradients.size()) {
-			out << "Gradients sizes don't match: " << DUMP(this->gradients.size()) << " != " << DUMP(other->gradients.size()) << "\n";
+		if (this->gradients.size() != _other->gradients.size()) {
+			out << "Gradients sizes don't match: " << DUMP(this->gradients.size()) << " != " << DUMP(_other->gradients.size()) << "\n";
 		}
 		
-		out << this->layer_t::analyze_inequality_with(other);
+		out << this->layer_t::analyze_inequality_with(_other);
 	
-		out << "Diff of ->input: " << diff(this->input, other->input) << "\n";
-		out << "Diff of ->weights: " << diff(this->weights, other->weights) << "\n";
-		out << "Diff of ->gradients: " << diff(this->gradients, other->gradients) << "\n";
+		out << "Diff of ->input: " << diff(this->input, _other->input) << "\n";
+		out << "Diff of ->weights: " << diff(this->weights, _other->weights) << "\n";
+		out << "Diff of ->gradients: " << diff(this->gradients, _other->gradients) << "\n";
 		return out.str();
 	}
 	

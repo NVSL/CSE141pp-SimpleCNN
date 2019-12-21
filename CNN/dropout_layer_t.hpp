@@ -65,7 +65,8 @@ public:
 };
 
 
-template<class T> T* run_dropout(int x,int y, int z,
+template<class T>
+T* run_dropout(int x,int y, int z,
 				 int seed){
 	srand(seed);
 	tdsize size(x,y,z);
@@ -74,16 +75,6 @@ template<class T> T* run_dropout(int x,int y, int z,
 	T * l = new T(size, 0.5);
 	l->test_me();
 	return l;
-}
-
-
-static inline std::string analyze_dropout_failure(dropout_layer_t* reference,
-				    dropout_layer_t* optimized) {
-	std::stringstream out;
-
-	out << analyze_dropout_failure(reference, optimized);
-	
-	return out.str();
 }
 
 
