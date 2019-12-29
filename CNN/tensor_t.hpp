@@ -351,7 +351,7 @@ std::string diff(const std::vector<T> & a, const std::vector<T> & b)
 
 	for ( uint x = 0; x < diff.size(); x++ ) {
 		if (a[x] != b[x]) found = true;
-		out << (a[x] != b[x] ? "!" : " ");
+		out << (a[x] != b[x] ? "#" : ".");
 	}
 	out << "\n";
 
