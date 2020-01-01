@@ -6,7 +6,6 @@
 #include <fstream>
 #include <limits>
 
-#define EPSILON 1e-8
 
 static float rand_f(int maxval) {
 	return 1.0f / maxval * rand() / float( RAND_MAX );
@@ -15,10 +14,22 @@ static float rand_f(int maxval) {
 #define TDSIZE_FOR(T,X,Y,Z) for(int X = 0; X < T.x; X++) for(int Y = 0; Y < T.y; Y++) for(int Z = 0; Z < T.z; Z++) 
 #define TENSOR_FOR(T,X,Y,Z) TDSIZE_FOR((T).size, X, Y, Z)
 
+#define EPSILON 1e-8
+
+template<class T>
+bool almost_equal(T a, T b) {
+        return fabs(a-b) < EPSILON;
+}
+template<>
+bool almost_equal(gradient_t a, gradient_t b) {
+        return almost_equal(a.grad, b.grad) || almost_equal(a.oldgrad, b.oldgrad);
+}
+
 template<typename T>
 struct tensor_t
 {
 	static const int version = 1;
+        static bool diff_prints_deltas;
 	tdsize size;
 	T * data;
 
@@ -90,7 +101,7 @@ struct tensor_t
     
 	tensor_t<T> operator+( const tensor_t<T>& other )const 
 	{
-		throw_assert(size == other.size, "Mismatche sizes is operator+");
+		throw_assert(size == other.size, "Mismatched sizes is operator+");
 		tensor_t<T> clone( *this );
 		for ( int i = 0; i < other.size.x * other.size.y * other.size.z; i++ )
 			clone.data[i] += other.data[i];
@@ -100,7 +111,7 @@ struct tensor_t
 	tensor_t<T> operator-( const tensor_t<T>& other ) const
 	{
 
-		throw_assert(size == other.size, "Mismatche sizes is operator-");
+		throw_assert(size == other.size, "Mismatchef sizes is operator-");
 		tensor_t<T> clone( *this );
 		for ( int i = 0; i < other.size.x * other.size.y * other.size.z; i++ )
 			clone.data[i] -= other.data[i];
@@ -145,7 +156,7 @@ struct tensor_t
 			return false;
 
 		TENSOR_FOR(*this, x,y,z) 
-			if (other(x,y,z) != (*this)(x,y,z))
+		        if (!almost_equal(other(x,y,z),(*this)(x,y,z)))
 				return false;
 		return true;
 	}
@@ -268,6 +279,8 @@ struct tensor_t
 template<class T>
 const int tensor_t<T>::version;
 
+template<class T>
+bool tensor_t<T>::diff_prints_deltas = false;
 
 inline void randomize(tensor_t<float> & t, float max = 1.0) {
 	TENSOR_FOR(t,x,y,z) {
@@ -317,19 +330,24 @@ static tensor_t<T> to_tensor( std::vector<std::vector<std::vector<T>>> data )
 	return t;
 }
 
+
 template<class T>
-std::string diff(const tensor_t<T> & a, const tensor_t<T> & b)
+std::string diff(const tensor_t<T> & a, const tensor_t<T> & b) 
 {
 	std::stringstream out;
 	tensor_t<bool> diff(a.size);
 	bool found = false;
-
+        bool deltas = tensor_t<float>::diff_prints_deltas;
 	for ( int z = 0; z < diff.size.z; z++ ) {
 		out << "z = " << z << ": \n";
 		for ( int y = 0; y < diff.size.y; y++ ) {
 			for ( int x = 0; x < diff.size.x; x++ ) {
-				if (a(x,y,z) != b(x,y,z)) found = true;
-				out << (a(x,y,z) != b(x,y,z) ? "#" : ".");
+			        if (!almost_equal(a(x,y,z), b(x,y,z))) found = true;
+				if (deltas) {
+				        out  << std::setprecision(2) << a(x,y,z) - b(x,y,z) << " ";
+				} else {
+       				        out << (!almost_equal(a(x,y,z), b(x,y,z)) ? "#" : ".");
+				}
 			}
 			out << "\n";
 		}
@@ -348,10 +366,14 @@ std::string diff(const std::vector<T> & a, const std::vector<T> & b)
 	std::stringstream out;
 	std::vector<bool> diff(a.size());
 	bool found = false;
-
+        bool deltas = tensor_t<float>::diff_prints_deltas;
 	for ( uint x = 0; x < diff.size(); x++ ) {
-		if (a[x] != b[x]) found = true;
-		out << (a[x] != b[x] ? "#" : ".");
+	        if (!almost_equal(a[x], b[x])) found = true;
+	        if (deltas) {
+		       out << std::setprecision(2) <<  a[x] - b[x] << " ";
+		} else {
+     		       out << (!almost_equal(a[x], b[x]) ? "#" : ".");
+		}
 	}
 	out << "\n";
 
@@ -362,7 +384,30 @@ std::string diff(const std::vector<T> & a, const std::vector<T> & b)
 	}
 	
 }
+template<>
+std::string diff(const std::vector<gradient_t> & a, const std::vector<gradient_t> & b)
+{
+	std::stringstream out;
+	std::vector<bool> diff(a.size());
+	bool found = false;
+        bool deltas = tensor_t<float>::diff_prints_deltas;
+	for ( uint x = 0; x < diff.size(); x++ ) {
+	        if (!almost_equal(a[x], b[x])) found = true;
+	        if (deltas) {
+		       out  << std::setprecision(2) << "<" << (a[x].grad - b[x].grad) << ", " << (a[x].oldgrad - b[x].oldgrad) << "> ";
+		} else {
+     		       out << (!almost_equal(a[x], b[x]) ? "#" : ".");
+		}
+	}
+	out << "\n";
 
+	if (found) {
+		return "\n" + out.str();
+	} else {
+		return "<identical>";
+	}
+	
+}
 
 
 #ifdef INCLUDE_TESTS

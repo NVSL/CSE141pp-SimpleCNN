@@ -95,7 +95,7 @@ template<class T>
 					     T * n) {
 	if (*m == *n) return ::testing::AssertionSuccess();
 
-	return ::testing::AssertionFailure() << m->analyze_inequality_with(n);
+	return ::testing::AssertionFailure() << "Here's what's different. '#' denotes a position where your result is incorrect.\n" << m->analyze_inequality_with(n);
 }
 
 #define ASSERT_LAYERS_EQ(T, a,b) ASSERT_PRED_FORMAT2(AssertLayersEqual<T>, a,b)
