@@ -18,7 +18,7 @@ static float rand_f(int maxval) {
 
 template<class T>
 bool almost_equal(T a, T b) {
-        return fabs(a-b) < EPSILON;
+        return std::abs(a-b) < EPSILON;
 }
 template<>
 bool almost_equal(gradient_t a, gradient_t b) {
