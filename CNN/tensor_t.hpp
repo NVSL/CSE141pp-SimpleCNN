@@ -21,7 +21,7 @@ static bool almost_equal(T a, T b) {
         return std::abs(a-b) < EPSILON;
 }
 template<>
-bool almost_equal(gradient_t a, gradient_t b) {
+[[maybe_unused]] bool almost_equal(gradient_t a, gradient_t b) {
         return almost_equal(a.grad, b.grad) || almost_equal(a.oldgrad, b.oldgrad);
 }
 
@@ -385,7 +385,7 @@ static std::string diff(const std::vector<T> & a, const std::vector<T> & b)
 	
 }
 template<>
-std::string diff(const std::vector<gradient_t> & a, const std::vector<gradient_t> & b)
+[[maybe_unused]] std::string diff(const std::vector<gradient_t> & a, const std::vector<gradient_t> & b)
 {
 	std::stringstream out;
 	std::vector<bool> diff(a.size());
