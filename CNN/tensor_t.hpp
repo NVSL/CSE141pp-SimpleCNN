@@ -17,7 +17,7 @@ static float rand_f(int maxval) {
 #define EPSILON 1e-8
 
 template<class T>
-bool almost_equal(T a, T b) {
+static bool almost_equal(T a, T b) {
         return std::abs(a-b) < EPSILON;
 }
 template<>
@@ -332,7 +332,7 @@ static tensor_t<T> to_tensor( std::vector<std::vector<std::vector<T>>> data )
 
 
 template<class T>
-std::string diff(const tensor_t<T> & a, const tensor_t<T> & b) 
+static std::string diff(const tensor_t<T> & a, const tensor_t<T> & b) 
 {
 	std::stringstream out;
 	tensor_t<bool> diff(a.size);
@@ -361,7 +361,7 @@ std::string diff(const tensor_t<T> & a, const tensor_t<T> & b)
 }
 
 template<class T>
-std::string diff(const std::vector<T> & a, const std::vector<T> & b)
+static std::string diff(const std::vector<T> & a, const std::vector<T> & b)
 {
 	std::stringstream out;
 	std::vector<bool> diff(a.size());
