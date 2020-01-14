@@ -2,9 +2,8 @@
 
 ![](https://travis-ci.com/NVSL/CSE141pp-SimpleCNN.svg?branch=master)
 
-Canela is a simple convolutional neural network library.  It's main goal is to
-be easy to understand.  It is, by design, completely unoptimized.  The code is
-easy to understand but pretty slow.
+Canela is a simple convolutional neural network library.  It is, by design, completely unoptimized: The code is
+easy to understand but slow.
 
 ## Setup and Installation
 
