@@ -81,7 +81,7 @@ public:
 		if (o.stride != stride) return false;
 		if (o.kernel_size != kernel_size) return false;
 		if (o.in != in) return false;
-		if (o.grads_in != grads_in) return false;
+		if (o.grads_out != grads_out) return false;
 		if (o.out != out) return false;
 		if (o.filters != filters) return false;
 		if (o.filter_grads != filter_grads) return false;
@@ -163,7 +163,7 @@ public:
 							}
 						}
 					}
-					grads_in( x, y, z ) = sum_error;
+					grads_out( x, y, z ) = sum_error;
 				}
 			}
 		}

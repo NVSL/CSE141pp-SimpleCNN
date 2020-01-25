@@ -19,7 +19,7 @@ public:
 	}
 
 	bool operator==(const softmax_layer_t & o) const {
-		return (o.in == in) && (o.grads_in == grads_in) && (o.out == out);
+		return (o.in == in) && (o.grads_out == grads_out) && (o.out == out);
 	}
 
 	bool operator!=(const softmax_layer_t & o) const {
@@ -46,10 +46,10 @@ public:
 	{
 		throw_assert(grad_next_layer.size == in.size, "mismatched input");
 		TENSOR_FOR(in, ix,iy,iz) {
-			grads_in(ix,iy,iz) = 0;
+			grads_out(ix,iy,iz) = 0;
 			TENSOR_FOR(in, jx,jy,jz) {
 				float k = ix==jx && iy == jy && iz == jz ? 1.0 : 0.0;
-				grads_in(ix,iy,iz) += out(ix,iy,iz)*(k - out(jx,jy,jz))*grad_next_layer(ix,iy,iz);
+				grads_out(ix,iy,iz) += out(ix,iy,iz)*(k - out(jx,jy,jz))*grad_next_layer(ix,iy,iz);
 			}
 		}
 	}

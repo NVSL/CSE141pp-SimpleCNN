@@ -33,7 +33,7 @@ public:
 		if (o.p_activation != p_activation) return false;
 		if (o.hitmap != hitmap) return false;
 		if (o.in != in) return false;
-		if (o.grads_in != grads_in) return false;
+		if (o.grads_out != grads_out) return false;
 		if (o.out != out) return false;
 		return true;
 	}
@@ -60,7 +60,7 @@ public:
 	void calc_grads(const tensor_t<float>& grad_next_layer )
 		{
 			for ( int i = 0; i < in.size.x*in.size.y*in.size.z; i++ )
-				grads_in.data[i] = hitmap.data[i] ? grad_next_layer.data[i] : 0.0f;
+				grads_out.data[i] = hitmap.data[i] ? grad_next_layer.data[i] : 0.0f;
 		}
 };
 

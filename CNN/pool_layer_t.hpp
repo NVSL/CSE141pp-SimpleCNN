@@ -33,7 +33,7 @@ public:
 		if (o.stride != stride) return false;
 		if (o.filter_size != filter_size) return false;
 		if (o.in != in) return false;
-		if (o.grads_in != grads_in) return false;
+		if (o.grads_out != grads_out) return false;
 		if (o.out != out) return false;
 		return true;
 	}
@@ -91,7 +91,7 @@ public:
 							sum_error += is_max * grad_next_layer( i, j, z );
 						}
 					}
-					grads_in( x, y, z ) = sum_error;
+					grads_out( x, y, z ) = sum_error;
 				}
 			}
 		}

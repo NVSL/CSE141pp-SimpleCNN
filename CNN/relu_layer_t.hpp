@@ -19,7 +19,7 @@ public:
 	}
 
 	bool operator==(const relu_layer_t & o) const {
-		return (o.in == in) && (o.grads_in == grads_in) && (o.out == out);
+		return (o.in == in) && (o.grads_out == grads_out) && (o.out == out);
 	}
 
 	bool operator!=(const relu_layer_t & o) const {
@@ -52,7 +52,7 @@ public:
 			for ( int j = 0; j < in.size.y; j++ )
 				for ( int z = 0; z < in.size.z; z++ )
 				{
-					grads_in( i, j, z ) = (in( i, j, z ) < 0) ?
+					grads_out( i, j, z ) = (in( i, j, z ) < 0) ?
 						(0) :
 						(grad_next_layer( i, j, z ));
 				}
@@ -102,10 +102,10 @@ namespace CNNTest{
 
 		layer.calc_grads(grad_next_layer);
 
-		EXPECT_EQ(layer.grads_in(0,0,0), 0.5); 
-		EXPECT_EQ(layer.grads_in(0,1,1), 0.5);
-		EXPECT_EQ(layer.grads_in(2,2,2), 0);
-		EXPECT_EQ(layer.grads_in(3,0,3), 0.5);
+		EXPECT_EQ(layer.grads_out(0,0,0), 0.5); 
+		EXPECT_EQ(layer.grads_out(0,1,1), 0.5);
+		EXPECT_EQ(layer.grads_out(2,2,2), 0);
+		EXPECT_EQ(layer.grads_out(3,0,3), 0.5);
 
 	}
 	

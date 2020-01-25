@@ -13,21 +13,24 @@ public:
 	void add_layer(layer_t & l) {
 		layers.push_back(&l);
 	}
-	
+
+	// Run one instance forward through the model.
 	void forward_one(const tensor_t<float> & data, bool debug) {
+		
 		for ( uint i = 0; i < layers.size(); i++ )
 		{
 			const tensor_t<float> * d;
-			if ( i == 0 ) {
+			if ( i == 0 ) { // First layer gets the input instance
 				d = &data;
-			} else {
+			} else { // the rest get the output of the previous layer.
 				d = &layers[i - 1]->out;
 			}
 			if (debug) {
 				std::cout << layers[i]->spec_str() << "\n" << "Input: " << *d << "\n";
 				std::cout << "Weights: " << layers[i]->internal_state() <<"\n";
 			}
-			layers[i]->activate(*d);
+			layers[i]->activate(*d); // Apply the layer to *d (a tensor).  This sets layer[i]->out
+			
 			if (debug) {
 				std::cout << "Output: " << layers[i]->out << "\n";
 			}
@@ -35,6 +38,10 @@ public:
 	}
 
 	void backward(const tensor_t<float> & error, bool debug) {
+		// Back propagation is in two phases.
+
+		// First we compute gradients for each layer starting
+		// at the output.
 		for (int i = (int)layers.size() - 1; i >= 0; i-- )
 		{
 			const tensor_t<float> * g;
@@ -42,7 +49,7 @@ public:
 			if ( i == (int)layers.size() - 1 ) {
 				g = & error;
 			} else {
-				g = &layers[i + 1]->grads_in;
+				g = &layers[i + 1]->grads_out;
 			}
 			layers[i]->calc_grads( *g );
 			if (debug) {
@@ -50,6 +57,8 @@ public:
 			}
 		}
 
+		// then we adjust the weights (i.e., parameters) in
+		// each layer starting from the input layer.
 		for ( uint i = 0; i < layers.size(); i++ )
 		{
 			layers[i]->fix_weights();
@@ -84,8 +93,10 @@ public:
 
 	float train(const tensor_t<float>& data, const tensor_t<float>& expected, bool debug=false) {
 
+		// Run one instance farward.
 		forward_one(data, debug);
-		
+
+		// Compute the error.
 		tensor_t<float> error = layers.back()->out - expected;
 
 		if (debug) {
@@ -93,8 +104,10 @@ public:
 			std::cout << "Error   : " << error <<"\n";
 		}
 
+		// Run the error back through the network to adjust the parameters.
 		backward(error, debug);
 
+		// Sum up the error tensor.  I think this code might not be needed anymore.
 		float err = 0;
 		for ( int i = 0; i < error.size.x * error.size.y * error.size.z; i++ )
 		{
