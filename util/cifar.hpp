@@ -41,8 +41,8 @@ dataset_t load_cifar(const std::string & file, bool cifar100=false)
 	
 	for ( uint i = 0; i < case_count; i++ )
 	{
-		tensor_t<float> data( 32, 32, 3 );
-		tensor_t<float> label_data( cifar100 ? 100: 10 , 1, 1 );
+		tensor_t<double> data( 32, 32, 3 );
+		tensor_t<double> label_data( cifar100 ? 100: 10 , 1, 1 );
 
 		if (cifar100) {
 			l++; // eat the coarse category

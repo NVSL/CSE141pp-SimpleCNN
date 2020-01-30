@@ -15,7 +15,7 @@
 #undef  EXCLUDE_MAIN
 
 
-void EXPECT_TENSOR_EQ(const tensor_t<float> & a,const tensor_t<float> & b) {
+void EXPECT_TENSOR_EQ(const tensor_t<double> & a,const tensor_t<double> & b) {
 	EXPECT_EQ(a.size, b.size);
 	TENSOR_FOR(a, x,y,z) {
 		EXPECT_FLOAT_EQ(a(x,y,z), b(x,y,z));
@@ -30,8 +30,8 @@ namespace CNNTest {
 		dataset_t rand_ds;
 		void SetUp() override {
 			srand(42);
-			tensor_t<float> data(32, 32, 3);
-			tensor_t<float> label(10,1,1);
+			tensor_t<double> data(32, 32, 3);
+			tensor_t<double> label(10,1,1);
 			for(int i = 0; i < 100; i++) {
 				randomize(data);
 				randomize(label);
@@ -62,8 +62,8 @@ namespace CNNTest {
 
 
 	TEST_F(CNNTest, learning_SLOW) {
-		float accuracy1 = simple("deep", "mnist", 5);
-		float accuracy2 = simple("deep", "mnist", 10);
+		double accuracy1 = simple("deep", "mnist", 5);
+		double accuracy2 = simple("deep", "mnist", 10);
 		EXPECT_NEAR(accuracy2 - accuracy1, 0.222, 0.005);
 	}
 

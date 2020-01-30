@@ -26,13 +26,13 @@ public:
 		return !(*this == o);
 	}
 	
-	void activate(const tensor_t<float>& in ) {
+	void activate(const tensor_t<double>& in ) {
 		copy_input(in);
 		for ( int x = 0; x < in.size.x; x++ )
 			for ( int y = 0; y < in.size.y; y++ )
 				for ( int z = 0; z < in.size.z; z++ )
 				{
-					float v = in( x, y, z );
+					double v = in( x, y, z );
 					if ( v < 0 ) {
 						v = 0;
 					}
@@ -45,7 +45,7 @@ public:
 
 	}
 
-	void calc_grads(const tensor_t<float>& grad_next_layer )
+	void calc_grads(const tensor_t<double>& grad_next_layer )
 	{
 		throw_assert(grad_next_layer.size == in.size, "mismatched input");
 		for ( int i = 0; i < in.size.x; i++ )
@@ -65,9 +65,9 @@ public:
 namespace CNNTest{
 
 	TEST_F(CNNTest, relu_simple) {
-		tensor_t<float> data(4,4,4);
-		tensor_t<float> expected(data.size);
-		tensor_t<float> junk(2,2,2);
+		tensor_t<double> data(4,4,4);
+		tensor_t<double> expected(data.size);
+		tensor_t<double> junk(2,2,2);
 		relu_layer_t layer(data.size);
 		EXPECT_THROW(layer.activate(junk), AssertionFailureException); // mismatched input size.
 		randomize(data);
@@ -79,8 +79,8 @@ namespace CNNTest{
 	}
 	
 	TEST_F(CNNTest, relu_math) {
-		tensor_t<float> data(4,4,4);
-		tensor_t<float> expected(data.size);
+		tensor_t<double> data(4,4,4);
+		tensor_t<double> expected(data.size);
 		data(0,0,0) = 0;
 		data(0,1,1) = 1;
 		data(2,2,2) = -1;
@@ -94,7 +94,7 @@ namespace CNNTest{
 		EXPECT_EQ(layer.out(2,2,2), 0);
 		EXPECT_EQ(layer.out(3,0,3), 42);
 
-		tensor_t<float> grad_next_layer(data.size);
+		tensor_t<double> grad_next_layer(data.size);
 		grad_next_layer(0,0,0) = 0.5;
 		grad_next_layer(0,1,1) = 0.5;
 		grad_next_layer(2,2,2) = 0.5;

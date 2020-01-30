@@ -10,8 +10,8 @@
 #define MIN(x,y) ((x)<(y)? (x) : (y))
 #define CLAMP(x, lower, upper) MAX(MIN((x), (upper)), (lower))
 
-tensor_t<float> point2D(float x, float y){
-	tensor_t<float> p(3, 1, 1);
+tensor_t<double> point2D(double x, double y){
+	tensor_t<double> p(3, 1, 1);
 	p(0, 0, 0) = x;
 	p(1, 0, 0) = y;
 	p(2, 0, 0) = 1.0;
@@ -19,18 +19,18 @@ tensor_t<float> point2D(float x, float y){
 }
 
 
-tensor_t<float> ident2D(){
-	tensor_t<float> r(3,3,1);
+tensor_t<double> ident2D(){
+	tensor_t<double> r(3,3,1);
 	r(0,0,0) = 1;
 	r(1,1,0) = 1;
 	r(2,2,0) = 1;
 	return r;
 }
 
-tensor_t<float> rotate2D(float degrees){
-	float radians = degrees/180.0*M_PI;
+tensor_t<double> rotate2D(double degrees){
+	double radians = degrees/180.0*M_PI;
 	
-	tensor_t<float> r(3,3,1);
+	tensor_t<double> r(3,3,1);
 	r(0,0,0) = cos(radians);
 	r(1,0,0) = -sin(radians);
 	r(0,1,0) = sin(radians);
@@ -39,8 +39,8 @@ tensor_t<float> rotate2D(float degrees){
 	return r;
 }
 
-tensor_t<float> translate2D(float x, float y){
-	tensor_t<float> r(3,3,1);
+tensor_t<double> translate2D(double x, double y){
+	tensor_t<double> r(3,3,1);
 	r(0,0,0) = 1;
 	r(1,1,0) = 1;
 	r(2,2,0) = 1;
@@ -50,22 +50,22 @@ tensor_t<float> translate2D(float x, float y){
 	return r;
 }
 
-tensor_t<float> scale2D(float x, float y) {
-	tensor_t<float> r(3,3,1);
+tensor_t<double> scale2D(double x, double y) {
+	tensor_t<double> r(3,3,1);
 	r(0,0,0) = x;
 	r(1,1,0) = y;
 	r(2,2,0) = 1;
 	return r;
 }
 
-tensor_t<float> shear2D(float x, float y) {
+tensor_t<double> shear2D(double x, double y) {
 	auto r = ident2D();
 	r(0,1,0) = x;
 	r(1,0,0) = y;
 	return r;
 }
 
-tensor_t<float> perspective2D(float d) {
+tensor_t<double> perspective2D(double d) {
 	auto r = ident2D();
 	r(1,2,0) = 1/d;
 	return r;
@@ -74,14 +74,14 @@ tensor_t<float> perspective2D(float d) {
 // This applies the inverse of `trans` to `in`.  It works by generating a set
 // of sample points (one for each point in the output), appling `trans` to
 // them, and then sampling `in` at the resulting points.
-tensor_t<float> inv_2Dtransform_nn(const tensor_t<float> & in, const tensor_t<float> & trans, const tdsize & dst_size) {
+tensor_t<double> inv_2Dtransform_nn(const tensor_t<double> & in, const tensor_t<double> & trans, const tdsize & dst_size) {
 	throw_assert(in.size.z == dst_size.z, "2Dtransform only works with matched z depths in.size = " << in.size
 		     << "; dst_size = " << dst_size);
 	throw_assert(trans.size.x == 3 &&
 		     trans.size.y == 3 &&
 		     trans.size.z == 1, "2Dtransform transform must be 3,3,1.  trans.size = " << trans.size);
 
-	tensor_t<float> dst(dst_size);
+	tensor_t<double> dst(dst_size);
 
 	auto scale = scale2D((in.size.x+0.0)/(dst.size.x+0.0),
 			     (in.size.y+0.0)/(dst.size.y+0.0));
@@ -102,13 +102,13 @@ tensor_t<float> inv_2Dtransform_nn(const tensor_t<float> & in, const tensor_t<fl
 	return dst;
 }
 
-tensor_t<float> scale_nn(const tensor_t<float> & in, const tdsize & dst_size) {
-	tensor_t<float> dst(dst_size);
+tensor_t<double> scale_nn(const tensor_t<double> & in, const tdsize & dst_size) {
+	tensor_t<double> dst(dst_size);
 
 	TENSOR_FOR(dst, dst_x, dst_y, dst_z) {
-		float x_scale = (dst_size.x+0.0)/(in.size.x+0.0);
-		float y_scale = (dst_size.y+0.0)/(in.size.y+0.0);
-		float z_scale = (dst_size.z+0.0)/(in.size.z+0.0);
+		double x_scale = (dst_size.x+0.0)/(in.size.x+0.0);
+		double y_scale = (dst_size.y+0.0)/(in.size.y+0.0);
+		double z_scale = (dst_size.z+0.0)/(in.size.z+0.0);
 
 		dst(dst_x, dst_y, dst_z) = in(CLAMP(round((dst_x+0.0)/x_scale), 0.0, in.size.x-1.0),
 					      CLAMP(round((dst_y+0.0)/y_scale), 0.0, in.size.y-1.0),
@@ -119,9 +119,9 @@ tensor_t<float> scale_nn(const tensor_t<float> & in, const tdsize & dst_size) {
 
 // take `in` and make it's size match `target_size` by cropping or padding it.  If
 // 'letterbox' is true, pad with 0s to match size, otherwise crop.
-tensor_t<float> pad_or_crop(const tensor_t<float> & in, const tdsize & target_size, bool letterbox) {
+tensor_t<double> pad_or_crop(const tensor_t<double> & in, const tdsize & target_size, bool letterbox) {
 	tdsize scaled_size;
-	float scale;
+	double scale;
 	if (letterbox) {
 		scale = MIN((target_size.x + 0.0)/(in.size.x + 0.0),
 			    (target_size.y + 0.0)/(in.size.y + 0.0));
@@ -132,7 +132,7 @@ tensor_t<float> pad_or_crop(const tensor_t<float> & in, const tdsize & target_si
 	auto scaled = inv_2Dtransform_nn(in, ident2D(), tdsize(in.size.x*scale, in.size.y*scale, in.size.z));
 
 	if (letterbox) {
-		tensor_t<float> out(target_size);
+		tensor_t<double> out(target_size);
 		out.paste({
 				(target_size.x-scaled.size.x)/2,
 				(target_size.y-scaled.size.y)/2,
@@ -156,7 +156,7 @@ tensor_t<float> pad_or_crop(const tensor_t<float> & in, const tdsize & target_si
 namespace CNNTest {
 
 	TEST_F(CNNTest, tensor_scale_nn) {
-		tensor_t<float> t1(3,4,5);
+		tensor_t<double> t1(3,4,5);
 		randomize(t1);
 		auto r1 = scale_nn(t1, t1.size);
 		EXPECT_EQ(t1, r1);
@@ -177,7 +177,7 @@ namespace CNNTest {
 	}
 	
 	TEST_F(CNNTest, transform_image) {
-		tensor_t<float> in = load_tensor_from_png("../tests/images/NVSL.png");
+		tensor_t<double> in = load_tensor_from_png("../tests/images/NVSL.png");
 		auto scaled = scale_nn(in, {40,40,in.size.z});
 		write_tensor_to_png(DEBUG_OUTPUT "NVSL-scale1.png", scaled);
 

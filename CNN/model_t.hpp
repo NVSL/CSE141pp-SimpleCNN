@@ -15,11 +15,11 @@ public:
 	}
 
 	// Run one instance forward through the model.
-	void forward_one(const tensor_t<float> & data, bool debug) {
+	void forward_one(const tensor_t<double> & data, bool debug) {
 		
 		for ( uint i = 0; i < layers.size(); i++ )
 		{
-			const tensor_t<float> * d;
+			const tensor_t<double> * d;
 			if ( i == 0 ) { // First layer gets the input instance
 				d = &data;
 			} else { // the rest get the output of the previous layer.
@@ -37,14 +37,14 @@ public:
 		}
 	}
 
-	void backward(const tensor_t<float> & error, bool debug) {
+	void backward(const tensor_t<double> & error, bool debug) {
 		// Back propagation is in two phases.
 
 		// First we compute gradients for each layer starting
 		// at the output.
 		for (int i = (int)layers.size() - 1; i >= 0; i-- )
 		{
-			const tensor_t<float> * g;
+			const tensor_t<double> * g;
 			
 			if ( i == (int)layers.size() - 1 ) {
 				g = & error;
@@ -70,7 +70,7 @@ public:
 
 	int train_batch(const dataset_t & ds, dataset_t::iterator & start, int count, bool debug=false) {
 		throw_assert(false, "THis code doesn't terminate correctly.");
-		tensor_t<float> error(layers.back()->out.size);
+		tensor_t<double> error(layers.back()->out.size);
 		int i = 0;
 		while(start != ds.end() && i < count) {
 			forward_one(start->data, debug);
@@ -87,17 +87,17 @@ public:
 		return i;
 	}
 	
-	float train(const test_case_t & tc, bool debug=false) {
+	double train(const test_case_t & tc, bool debug=false) {
 		return train(tc.data, tc.label, debug);
 	}
 
-	float train(const tensor_t<float>& data, const tensor_t<float>& expected, bool debug=false) {
+	double train(const tensor_t<double>& data, const tensor_t<double>& expected, bool debug=false) {
 
 		// Run one instance farward.
 		forward_one(data, debug);
 
 		// Compute the error.
-		tensor_t<float> error = layers.back()->out - expected;
+		tensor_t<double> error = layers.back()->out - expected;
 
 		if (debug) {
 			std::cout << "Expected: " << expected <<"\n";
@@ -108,10 +108,10 @@ public:
 		backward(error, debug);
 
 		// Sum up the error tensor.  I think this code might not be needed anymore.
-		float err = 0;
+		double err = 0;
 		for ( int i = 0; i < error.size.x * error.size.y * error.size.z; i++ )
 		{
-			float f = expected.data[i];
+			double f = expected.data[i];
 			if ( f > 0.5 )
 				err += abs(error.data[i]);
 		}
@@ -119,7 +119,7 @@ public:
 	}
 
 
-        tensor_t<float> & apply(const tensor_t<float>& data ) const {
+        tensor_t<double> & apply(const tensor_t<double>& data ) const {
 		for ( uint i = 0; i < layers.size(); i++ )
 		{
 			if ( i == 0 )

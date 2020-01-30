@@ -20,8 +20,8 @@ int main()
 	dataset_t toy;
 	model_t model;
 
-	tensor_t<float> d(3,3,1);
-	tensor_t<float> l(2,2,1);
+	tensor_t<double> d(3,3,1);
+	tensor_t<double> l(2,2,1);
 
 	d(0,0,0) = 1;
 	d(0,1,0) = 0;
@@ -45,7 +45,7 @@ int main()
 	toy.add(d, l);
 	
 	conv_layer_t  layer1(2, 2, 1, 0, {3,3,1});
-	layer1.filters[0] = tensor_t<float>(2,2,1);
+	layer1.filters[0] = tensor_t<double>(2,2,1);
 	layer1.filters[0](0,0,0) = 1;
 	layer1.filters[0](0,1,0) = 1;
 	layer1.filters[0](1,0,0) = 1;

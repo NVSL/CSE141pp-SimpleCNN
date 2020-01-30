@@ -4,6 +4,6 @@
 
 struct test_case_t
 {
-	tensor_t<float> data;
-	tensor_t<float> out;
+	tensor_t<double> data;
+	tensor_t<double> out;
 };

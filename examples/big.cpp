@@ -36,7 +36,7 @@ int main()
 	
 	std::cout << model.geometry() << "\n";
 	std::cout << "Training data size: " << (mnist.get_total_memory_size()+0.0)/(1024*1024)  << " MB" << std::endl;
-	float amse = 0;
+	double amse = 0;
 	int ic = 0;
 	int ep = 0;
 #define COUNT 10000
@@ -44,7 +44,7 @@ int main()
 		for ( test_case_t& t : mnist.test_cases )
 
 		{
-			float xerr = model.train(t.data, t.label );
+			double xerr = model.train(t.data, t.label );
 			amse += xerr;
 			
 			ep++;
@@ -62,7 +62,7 @@ int main()
 	ep = 0;
 	for ( test_case_t& t : mnist.test_cases )
 	{
-		tensor_t<float>& out = model.apply(t.data);
+		tensor_t<double>& out = model.apply(t.data);
 		
 		tdsize guess = out.argmax();
 	        tdsize answer = t.label.argmax();

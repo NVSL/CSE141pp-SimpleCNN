@@ -12,7 +12,7 @@ int main()
 	while (std::getline(in, line)) {
 		auto r = load_tensor_from_jpeg(line.c_str());
 		r = pad_or_crop(r, {224,224,3}, true);
-		tensor_t<float> label(1000,1,1);
+		tensor_t<double> label(1000,1,1);
 		label(1,0,0) = 1.0;
 		imagenet.add(r, label);
 	}

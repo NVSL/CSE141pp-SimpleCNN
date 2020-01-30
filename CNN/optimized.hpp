@@ -7,7 +7,7 @@ public:
 	opt_conv_layer_t( uint16_t stride,
 			  uint16_t kernel_size, 
 			  uint16_t kernel_count,
-			  float pad,
+			  double pad,
 			  tdsize in_size
 		) : conv_layer_t(stride, kernel_size, kernel_count, pad, in_size) {}
 
@@ -29,7 +29,7 @@ public:
 class opt_pool_layer_t: public pool_layer_t
 {
 public:
-	opt_pool_layer_t( uint16_t stride, uint16_t filter_size, float pad, tdsize in_size ) : pool_layer_t(stride, filter_size, pad, in_size) {}
+	opt_pool_layer_t( uint16_t stride, uint16_t filter_size, double pad, tdsize in_size ) : pool_layer_t(stride, filter_size, pad, in_size) {}
 };
 
 class opt_relu_layer_t : public relu_layer_t

@@ -6,8 +6,8 @@
 
 struct gradient_t
 {
-	float grad;
-	float oldgrad;
+	double grad;
+	double oldgrad;
 	gradient_t(): grad(0), oldgrad(0)
 	{
 	}

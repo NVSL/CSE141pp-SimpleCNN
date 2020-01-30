@@ -7,8 +7,8 @@
 class fc_layer_t: public layer_t
 {
 public:
-	std::vector<float> activator_input; // Output the sum-the-weights stage.. 
-	tensor_t<float> weights; // 2d array of weight (tensor with depth == 1)
+	std::vector<double> activator_input; // Output the sum-the-weights stage.. 
+	tensor_t<double> weights; // 2d array of weight (tensor with depth == 1)
 	std::vector<gradient_t> gradients; // gradients for back prop.
 
 	fc_layer_t( tdsize in_size, int out_size )
@@ -22,14 +22,14 @@ public:
 
 			for ( int i = 0; i < out_size; i++ )
 				for ( int h = 0; h < in_size.x*in_size.y*in_size.z; h++ )
-					weights( h, i, 0 ) = 2.19722f / maxval * rand() / float( RAND_MAX );
+					weights( h, i, 0 ) = 2.19722f / maxval * rand() / double( RAND_MAX );
 			// 2.19722f = f^-1(0.9) => x where [1 / (1 + exp(-x) ) = 0.9]
 		}
 
 	size_t get_total_memory_size() const {
 		return weights.get_total_memory_size() +
 			gradients.size() * sizeof(gradient_t) +
-			activator_input.size() * sizeof(float) +
+			activator_input.size() * sizeof(double) +
 			layer_t::get_total_memory_size();
 	}
 
@@ -54,14 +54,14 @@ public:
 	}
 
 
-	float activator_function( float x ) {
+	double activator_function( double x ) {
 		// THis is the logistic function.  Detail here: https://en.wikipedia.org/wiki/Logistic_function#Derivative
-		float sig = 1.0f / (1.0f + exp( -x ));
+		double sig = 1.0f / (1.0f + exp( -x ));
 		return sig;
 	}
 
-	float activator_derivative( float x ) {
-		float sig = 1.0f / (1.0f + exp( -x ));
+	double activator_derivative( double x ) {
+		double sig = 1.0f / (1.0f + exp( -x ));
 		return sig * (1 - sig);
 	}
 
@@ -71,7 +71,7 @@ public:
 			x;
 	}
 
-	void activate(const tensor_t<float>& in ) {
+	void activate(const tensor_t<double>& in ) {
 		copy_input(in);
 		// Here's the math we are doing here:
 		//
@@ -91,7 +91,7 @@ public:
 
 		for ( int n = 0; n < out.size.x; n++ )
 		{
-			float inputv = 0;
+			double inputv = 0;
 
 			// Both `in` and `weights` are tensors instead
 			// of vectors in this code.
@@ -113,9 +113,9 @@ public:
 		}
 	}
 
-	void calc_grads( const tensor_t<float>& grad_next_layer ) {
+	void calc_grads( const tensor_t<double>& grad_next_layer ) {
 		
-		memset( grads_out.data, 0, grads_out.size.x * grads_out.size.y * grads_out.size.z * sizeof( float ) );
+		memset( grads_out.data, 0, grads_out.size.x * grads_out.size.y * grads_out.size.z * sizeof( double ) );
 
 		// Using the notation from activate():
 		//
@@ -243,7 +243,7 @@ public:
 					for ( int z = 0; z < in.size.z; z++ )
 					{
 						int m = map(i, j, z);
-						float& w = weights( m, n, 0 );
+						double& w = weights( m, n, 0 );
 						//w = w - grad * input * rate/
 						w = update_weight( w, grad, in( i, j, z ) );
 					}
@@ -283,7 +283,7 @@ class simple_fc_layer_t: public fc_layer_t
 public:
 	simple_fc_layer_t( tdsize in_size, int out_size ) : fc_layer_t(in_size, out_size) {
 	}
-	void activate(const tensor_t<float>& in ) {
+	void activate(const tensor_t<double>& in ) {
 		copy_input(in);
 		// Here's the math we are doing here:
 		//
@@ -321,9 +321,9 @@ public:
 		}
 	}
 	
-	void calc_grads( const tensor_t<float>& grad_next_layer ) {
+	void calc_grads( const tensor_t<double>& grad_next_layer ) {
 		
-		memset( grads_out.data, 0, grads_out.size.x * grads_out.size.y * grads_out.size.z * sizeof( float ) );
+		memset( grads_out.data, 0, grads_out.size.x * grads_out.size.y * grads_out.size.z * sizeof( double ) );
 
 		// Using the notation from activate():
 		//
@@ -428,7 +428,7 @@ namespace CNNTest{
 		int  out_size = 5;
 		fc_layer_t t1(in_size, out_size);
 		fc_layer_t t2(in_size, out_size);
-		tensor_t<float> in(in_size);
+		tensor_t<double> in(in_size);
 		randomize(in);
 		t1.activate(in);
 		EXPECT_EQ(t1,t1);

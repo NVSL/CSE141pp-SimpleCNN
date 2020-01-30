@@ -42,11 +42,11 @@ public:
 		return !(*this == o);
 	}
 
-	void activate(const tensor_t<float>& in ) {
+	void activate(const tensor_t<double>& in ) {
 		copy_input(in);
 		for ( int i = 0; i < in.size.x*in.size.y*in.size.z; i++ )
 		{
-			bool active = (rand() % RAND_MAX) / float( RAND_MAX ) <= p_activation;
+			bool active = (rand() % RAND_MAX) / double( RAND_MAX ) <= p_activation;
 			hitmap.data[i] = active;
 			out.data[i] = active ? in.data[i] : 0.0f;
 		}
@@ -57,7 +57,7 @@ public:
 		
 		}
 
-	void calc_grads(const tensor_t<float>& grad_next_layer )
+	void calc_grads(const tensor_t<double>& grad_next_layer )
 		{
 			for ( int i = 0; i < in.size.x*in.size.y*in.size.z; i++ )
 				grads_out.data[i] = hitmap.data[i] ? grad_next_layer.data[i] : 0.0f;
@@ -97,7 +97,7 @@ namespace CNNTest{
 		tdsize size(10,10,10);
 		dropout_layer_t t1(size, 0.5);
 		dropout_layer_t t2(size, 0.5);
-		tensor_t<float> in(size);
+		tensor_t<double> in(size);
 		randomize(in);
 		t1.activate(in);
 		EXPECT_EQ(t1,t1);

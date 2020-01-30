@@ -6,7 +6,7 @@
 #include <jpeglib.h>
 
 // Adapted from https://gist.github.com/PhirePhly/3080633
-tensor_t<float>
+tensor_t<double>
 load_tensor_from_jpeg(const char * filename)
 {
 	/* This struct contains the JPEG decompression parameters and pointers to
@@ -62,7 +62,7 @@ load_tensor_from_jpeg(const char * filename)
 	/* Step 6: while (scan lines remain to be read) */
 	/*           jpeg_read_scanlines(...); */
 
-	tensor_t<float> out(row_stride/3, cinfo.output_height, 3);
+	tensor_t<double> out(row_stride/3, cinfo.output_height, 3);
 	for (int y=0; y<out.size.y; y++) {
 
 		(void) jpeg_read_scanlines(&cinfo, buffer, 1);

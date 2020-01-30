@@ -11,7 +11,7 @@
 #include <png.h>
 
 
-tensor_t<float> load_tensor_from_png(const char* file_name)
+tensor_t<double> load_tensor_from_png(const char* file_name)
 {
         char header[8];    
 	int width, height;
@@ -75,7 +75,7 @@ tensor_t<float> load_tensor_from_png(const char* file_name)
 	default:
 		throw_assert(false, "Unknown color type in PNG");
 	}
-	tensor_t<float> out(width, height, depth);
+	tensor_t<double> out(width, height, depth);
 
 	for (int y=0; y<height; y++) {
                 png_byte* row = row_pointers[y];
@@ -96,7 +96,7 @@ tensor_t<float> load_tensor_from_png(const char* file_name)
 
 
 
-void write_tensor_to_png(const char* file_name, tensor_t<float> t)
+void write_tensor_to_png(const char* file_name, tensor_t<double> t)
 {
 	png_bytep * row_pointers;
         /* create file */

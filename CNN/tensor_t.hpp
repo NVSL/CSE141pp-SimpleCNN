@@ -213,7 +213,7 @@ struct tensor_t
 		throw_assert(lhs.size.z == 1 && rhs.size.z == 1, "Matmul only works with depth-1 tensors: lhs = " << lhs.size << "; rhs = " << rhs.size);
 		tensor_t<T> n(lhs.size.x, rhs.size.y, 1);
 		TDSIZE_FOR(n.size, x,y,_) {
-			float sum = 0;
+			double sum = 0;
 			for(int i = 0; i < lhs.size.y; i++) {
 				sum += lhs(x, i, 0) * rhs(i, y, 0);
 			}
@@ -223,7 +223,7 @@ struct tensor_t
 	}
 	
 	tdsize argmax() const {
-		T max_value = -std::numeric_limits<float>::max();
+		T max_value = -std::numeric_limits<double>::max();
 		tdsize max_loc;
 		
 		TENSOR_FOR(*this, x,y,z) 
@@ -234,7 +234,7 @@ struct tensor_t
 		return max_loc;
 	}
 	tdsize argmin() const {
-		T min_value = std::numeric_limits<float>::max();
+		T min_value = std::numeric_limits<double>::max();
 		tdsize min_loc;
 		TENSOR_FOR(*this, x,y,z) 
 			if (get(x,y,z) < min_value) {
@@ -282,13 +282,13 @@ const int tensor_t<T>::version;
 template<class T>
 bool tensor_t<T>::diff_prints_deltas = false;
 
-inline void randomize(tensor_t<float> & t, float max = 1.0) {
+inline void randomize(tensor_t<double> & t, double max = 1.0) {
 	TENSOR_FOR(t,x,y,z) {
 		t(x, y, z) = rand_f(max);
 	}
 }
 
-inline void randomize(tensor_t<gradient_t> & t, float max = 1.0) {
+inline void randomize(tensor_t<gradient_t> & t, double max = 1.0) {
 	TENSOR_FOR(t,x,y,z) {
 		t(x, y, z).grad = rand_f(max);
 		t(x, y, z).oldgrad = rand_f(max);
@@ -337,7 +337,7 @@ static std::string diff(const tensor_t<T> & a, const tensor_t<T> & b)
 	std::stringstream out;
 	tensor_t<bool> diff(a.size);
 	bool found = false;
-        bool deltas = tensor_t<float>::diff_prints_deltas;
+        bool deltas = tensor_t<double>::diff_prints_deltas;
 	for ( int z = 0; z < diff.size.z; z++ ) {
 		out << "z = " << z << ": \n";
 		for ( int y = 0; y < diff.size.y; y++ ) {
@@ -366,7 +366,7 @@ static std::string diff(const std::vector<T> & a, const std::vector<T> & b)
 	std::stringstream out;
 	std::vector<bool> diff(a.size());
 	bool found = false;
-        bool deltas = tensor_t<float>::diff_prints_deltas;
+        bool deltas = tensor_t<double>::diff_prints_deltas;
 	for ( uint x = 0; x < diff.size(); x++ ) {
 	        if (!almost_equal(a[x], b[x])) found = true;
 	        if (deltas) {
@@ -390,7 +390,7 @@ template<>
 	std::stringstream out;
 	std::vector<bool> diff(a.size());
 	bool found = false;
-        bool deltas = tensor_t<float>::diff_prints_deltas;
+        bool deltas = tensor_t<double>::diff_prints_deltas;
 	for ( uint x = 0; x < diff.size(); x++ ) {
 	        if (!almost_equal(a[x], b[x])) found = true;
 	        if (deltas) {
@@ -417,7 +417,7 @@ namespace CNNTest {
 
 
 	TEST_F(CNNTest, tensor_matmul) {
-		tensor_t<float> a(2,3,1), b(3,2,1);
+		tensor_t<double> a(2,3,1), b(3,2,1);
 
 		a(0,0,0) = 1;
 		a(0,1,0) = 2;
@@ -433,30 +433,30 @@ namespace CNNTest {
 		b(2,0,0) = 5;
 		b(2,1,0) = 6;
 
-		tensor_t<float> ab(2,2,1);
+		tensor_t<double> ab(2,2,1);
 		ab(0,0,0) = 22;
 		ab(0,1,0) = 28;
 		ab(1,0,0) = 49;
 		ab(1,1,0) = 64;
 
 		EXPECT_EQ(ab, a.matmul(b));
-		tensor_t<float> c(2,3,2), d(3,2,2);
+		tensor_t<double> c(2,3,2), d(3,2,2);
 		EXPECT_THROW(c.matmul(d), AssertionFailureException); // too "thick"
 
-		tensor_t<float> f(2,4,1), g(3,2,1);
+		tensor_t<double> f(2,4,1), g(3,2,1);
 		EXPECT_THROW(f.matmul(g), AssertionFailureException); // mismatch dimensions.
 		
 
 	}
 	
 	TEST_F(CNNTest, tensor_for) {
-		tensor_t<float> t1(3,4,5);
-		float i = 0.0;
+		tensor_t<double> t1(3,4,5);
+		double i = 0.0;
 		TENSOR_FOR(t1, x, y, z) {
 			t1(x,y,z) = i;
 			i += 1.0;
 		}
-		float sum = 0.0;
+		double sum = 0.0;
 		TENSOR_FOR(t1, x, y, z) {
 			sum += t1(x,y,z);
 		}
@@ -464,7 +464,7 @@ namespace CNNTest {
 	}
 
 	TEST_F(CNNTest, tensor_slice) {
-		tensor_t<float> t1(3,4,5);
+		tensor_t<double> t1(3,4,5);
 
 		auto t2 = t1.copy({0,0,0}, {2, 3, 1});
 		TDSIZE_FOR(tdsize(2,3,1), x,y,z)
@@ -496,13 +496,13 @@ namespace CNNTest {
 	}
 	
 	TEST_F(CNNTest, tensor_io) {
-		tensor_t<float> t1(11,14,23);
+		tensor_t<double> t1(11,14,23);
 		randomize(t1);
 		std::ofstream outfile (DEBUG_OUTPUT "t1_out.tensor",std::ofstream::binary);
 		t1.write(outfile);
 		outfile.close();
 		std::ifstream infile (DEBUG_OUTPUT "t1_out.tensor",std::ofstream::binary);
-		auto r = tensor_t<float>::read(infile);
+		auto r = tensor_t<double>::read(infile);
 		EXPECT_EQ(t1, r);
 
 		tensor_t<gradient_t> t2(1,100,3);
@@ -522,9 +522,9 @@ namespace CNNTest {
 		EXPECT_EQ(s1, s1);
 		EXPECT_NE(s1, s2);
 		       
-		tensor_t<float> t1(10, 10, 10);
-		tensor_t<float> t2(10, 10, 10);
-		tensor_t<float> t3(10, 10, 11);
+		tensor_t<double> t1(10, 10, 10);
+		tensor_t<double> t2(10, 10, 10);
+		tensor_t<double> t3(10, 10, 11);
 
 		EXPECT_EQ(t1, t1);
 		EXPECT_EQ(t1, t2);
@@ -536,7 +536,7 @@ namespace CNNTest {
 		t3 = t1;
 		EXPECT_EQ(t3, t1);
 
-		tensor_t<float> m(2,2,2);
+		tensor_t<double> m(2,2,2);
 		m(1,0,0) = -1;
 		m(0,1,0) = 2;
 		m(0,0,1) = 3;
@@ -550,7 +550,7 @@ namespace CNNTest {
 		EXPECT_THROW(m - t1, AssertionFailureException); // mismatched sizes
 		EXPECT_THROW(m + t1, AssertionFailureException); // mismatched sizes
 
-		EXPECT_EQ(m.get_total_memory_size(), 2*2*2*sizeof(float));
+		EXPECT_EQ(m.get_total_memory_size(), 2*2*2*sizeof(double));
 		
 	}
 

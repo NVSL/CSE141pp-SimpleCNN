@@ -35,8 +35,8 @@ dataset_t load_mnist(const std::string & images, const std::string & labels, boo
 	
 	for ( uint i = 0; i < case_count; i++ )
 	{
-		tensor_t<float> data( 28, 28, 1 );
-		tensor_t<float> label_data( classes, 1, 1 );
+		tensor_t<double> data( 28, 28, 1 );
+		tensor_t<double> label_data( classes, 1, 1 );
 
 		uint8_t* img = train_image + 16 + i * (28 * 28);
 		uint8_t* label = train_labels + 8 + i;

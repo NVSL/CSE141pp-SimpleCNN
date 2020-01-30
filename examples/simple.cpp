@@ -93,7 +93,7 @@ model_t * build_cache_1(const dataset_t & ds)  {
 	return model;
 }
 
-float simple(const std::string &model_name, const std::string & ds, int scale_factor) 
+double simple(const std::string &model_name, const std::string & ds, int scale_factor) 
 {
 	
 	dataset_t *train = new dataset_t;
@@ -155,7 +155,7 @@ float simple(const std::string &model_name, const std::string & ds, int scale_fa
 
 	int correct  = 0, incorrect = 0;
 	for ( test_case_t& t : *test ) {
-		tensor_t<float>& out = model->apply(t.data);
+		tensor_t<double>& out = model->apply(t.data);
 		
 		tdsize guess = out.argmax();
 	        tdsize answer = t.label.argmax();
@@ -166,7 +166,7 @@ float simple(const std::string &model_name, const std::string & ds, int scale_fa
 		}
 	}
 
-	float total_error = (correct+0.0)/(correct+ incorrect +0.0);
+	double total_error = (correct+0.0)/(correct+ incorrect +0.0);
 	std::cout << "Accuracy: " << total_error << ": " << correct << "/" << correct + incorrect << "\n";
 	return total_error;
 }

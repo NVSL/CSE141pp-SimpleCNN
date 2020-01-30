@@ -26,9 +26,9 @@ public:
 		return !(*this == o);
 	}
 	
-	void activate(const tensor_t<float>& in ) {
+	void activate(const tensor_t<double>& in ) {
 		copy_input(in);
-		float s = 0;
+		double s = 0;
 		TENSOR_FOR(in, x,y,z) {
 			s += exp(in(x,y,z));
 		}
@@ -42,13 +42,13 @@ public:
 
 	}
 
-	void calc_grads(const tensor_t<float>& grad_next_layer )
+	void calc_grads(const tensor_t<double>& grad_next_layer )
 	{
 		throw_assert(grad_next_layer.size == in.size, "mismatched input");
 		TENSOR_FOR(in, ix,iy,iz) {
 			grads_out(ix,iy,iz) = 0;
 			TENSOR_FOR(in, jx,jy,jz) {
-				float k = ix==jx && iy == jy && iz == jz ? 1.0 : 0.0;
+				double k = ix==jx && iy == jy && iz == jz ? 1.0 : 0.0;
 				grads_out(ix,iy,iz) += out(ix,iy,iz)*(k - out(jx,jy,jz))*grad_next_layer(ix,iy,iz);
 			}
 		}
@@ -60,7 +60,7 @@ public:
 namespace CNNTest{
 
 	TEST_F(CNNTest, softmax_simple) {
-		tensor_t<float> data(4,1,1);
+		tensor_t<double> data(4,1,1);
 
 		randomize(data);
 
@@ -68,12 +68,12 @@ namespace CNNTest{
 		layer.activate(data);
 		EXPECT_LE(data.max(), 1.0);
 		EXPECT_GE(data.min(), 0.0);
-		float s = 0;
+		double s = 0;
 		TENSOR_FOR(layer.out, x,y,z) s += layer.out(x,y,z);
 		EXPECT_FLOAT_EQ(s, 1.0);
 
 		
-		tensor_t<float> next_grads(4,1,1);
+		tensor_t<double> next_grads(4,1,1);
 		layer.calc_grads(next_grads);
 	}
 

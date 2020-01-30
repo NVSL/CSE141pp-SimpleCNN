@@ -6,8 +6,8 @@
 struct test_case_t
 {
         enum {VERSION = 1};
-	tensor_t<float> data;
-	tensor_t<float> label;
+	tensor_t<double> data;
+	tensor_t<double> label;
 
 	size_t get_total_memory_size() const {
 		return data.get_total_memory_size() + label.get_total_memory_size();
@@ -34,8 +34,8 @@ struct test_case_t
 		int file_version;
 		in.read((char*)&file_version, sizeof(file_version));
 		throw_assert(VERSION == file_version, "Reloading from old test_case version is not supported.  Current version: " << VERSION << ";  file version: " << file_version);
-		auto data = tensor_t<float>::read(in);
-		auto label = tensor_t<float>::read(in);
+		auto data = tensor_t<double>::read(in);
+		auto label = tensor_t<double>::read(in);
 		return {data, label};
 	}
 
@@ -72,7 +72,7 @@ struct dataset_t
 	size_t size() const {
 		return test_cases.size();
 	}
-	void add(const tensor_t<float> & data, const tensor_t<float> & label) {
+	void add(const tensor_t<double> & data, const tensor_t<double> & label) {
 		add(test_case_t {data, label});
 		//test_cases.push_back({data, label});
 	}
@@ -151,7 +151,7 @@ namespace CNNTest {
 	TEST_F(CNNTest, dataset_io) {
 
 		
-		test_case_t t {tensor_t<float>(2,2,2), tensor_t<float>(1,10,1)};
+		test_case_t t {tensor_t<double>(2,2,2), tensor_t<double>(1,10,1)};
 		randomize(t.data);
 		randomize(t.label);
 		std::ofstream outfile (DEBUG_OUTPUT "t1_out.test_case",std::ofstream::binary);
@@ -163,7 +163,7 @@ namespace CNNTest {
 
 		dataset_t ds;
 		for(int i = 0; i < 11;i++){
-			test_case_t t {tensor_t<float>(2,2,2), tensor_t<float>(10,1,1)};
+			test_case_t t {tensor_t<double>(2,2,2), tensor_t<double>(10,1,1)};
 			ds.add(t);
 		}
 
@@ -176,7 +176,7 @@ namespace CNNTest {
 		EXPECT_EQ(ds, dsr);
 
 		
-		EXPECT_THROW(ds.add(test_case_t {tensor_t<float>(3,3,3), tensor_t<float>(1,10,1)}), AssertionFailureException);
+		EXPECT_THROW(ds.add(test_case_t {tensor_t<double>(3,3,3), tensor_t<double>(1,10,1)}), AssertionFailureException);
 	}
 }
 #endif

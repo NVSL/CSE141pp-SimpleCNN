@@ -10,9 +10,9 @@ namespace PREFIX(Tests) {
 	};
 
 	void run_layer(layer_t & l) {
-		tensor_t<float> in(l.in.size);
+		tensor_t<double> in(l.in.size);
 		randomize(in);
-		tensor_t<float> next_grads(l.out.size);
+		tensor_t<double> next_grads(l.out.size);
 		randomize(next_grads);
 		l.activate(in);
 		l.calc_grads(next_grads);
@@ -223,7 +223,7 @@ namespace PREFIX(Tests) {
 			model_o.train(c.data, c.label); 
 		}
 		
-		tensor_t<float> t(rand_ds.data_size);
+		tensor_t<double> t(rand_ds.data_size);
 		for(int i = 0;i < 10; i++) {
 			randomize(t);
 			EXPECT_TENSOR_EQ(model.apply(t), model_o.apply(t));

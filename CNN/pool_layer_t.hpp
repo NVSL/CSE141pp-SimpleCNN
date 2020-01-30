@@ -7,8 +7,8 @@ class pool_layer_t: public layer_t
 public:
 	const uint16_t stride;
 	const uint16_t filter_size;
-	float pad;
-	pool_layer_t( uint16_t stride, uint16_t filter_size, float pad, tdsize in_size )
+	double pad;
+	pool_layer_t( uint16_t stride, uint16_t filter_size, double pad, tdsize in_size )
 		:
 		layer_t(in_size, tdsize(ROUND_UP_IDIV(in_size.x, stride),
 					ROUND_UP_IDIV(in_size.y, stride),
@@ -47,16 +47,16 @@ public:
 		return map_to_output_impl(x, y, filter_size, stride, out.size.z, out.size);
 	}
 
-	void activate(const tensor_t<float>& in ) {
+	void activate(const tensor_t<double>& in ) {
 		copy_input(in);
 		for ( int x = 0; x < out.size.x; x++ ) {
 			for ( int y = 0; y < out.size.y; y++ ) {
 				for ( int z = 0; z < out.size.z; z++ ) {
 					point_t mapped(x*stride, y*stride, 0);
-					float mval = -FLT_MAX;
+					double mval = -FLT_MAX;
 					for ( int i = 0; i < filter_size; i++ )
 						for ( int j = 0; j < filter_size; j++ ) {
-							float v;
+							double v;
 							if (mapped.x + i >= in.size.x ||
 							    mapped.y + j >= in.size.y) {
 								v = pad;
@@ -78,13 +78,13 @@ public:
 
 	}
 
-	void calc_grads(const tensor_t<float>& grad_next_layer )
+	void calc_grads(const tensor_t<double>& grad_next_layer )
 	{
 		for ( int x = 0; x < in.size.x; x++ ) {
 			for ( int y = 0; y < in.size.y; y++ ) {
 				range_t rn = map_to_output( x, y );
 				for ( int z = 0; z < in.size.z; z++ ) {
-					float sum_error = 0;
+					double sum_error = 0;
 					for ( int i = rn.min_x; i <= rn.max_x; i++ ) {
 						for ( int j = rn.min_y; j <= rn.max_y; j++ ) {
 							int is_max = in( x, y, z ) == out( i, j, z ) ? 1 : 0;
@@ -107,7 +107,7 @@ namespace CNNTest{
 		tdsize size(10,10,10);
 		pool_layer_t t1(2, 4, 0, size);
 		pool_layer_t t2(2, 4, 0, size);
-		tensor_t<float> in(size);
+		tensor_t<double> in(size);
 		randomize(in);
 		t1.activate(in);
 		EXPECT_EQ(t1,t1);

@@ -5,9 +5,9 @@
 #define MOMENTUM 0.6
 #define WEIGHT_DECAY 0.001
 
-static float update_weight( float w, gradient_t& grad, float multp = 1 )
+static double update_weight( double w, gradient_t& grad, double multp = 1 )
 {
-	float m = (grad.grad + grad.oldgrad * MOMENTUM);
+	double m = (grad.grad + grad.oldgrad * MOMENTUM);
 	w -= LEARNING_RATE * m * multp + LEARNING_RATE * WEIGHT_DECAY * w;
 	return w;
 }

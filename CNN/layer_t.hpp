@@ -19,18 +19,18 @@ enum class layer_type
 class layer_t
 {
 public:
-	tensor_t<float> in;
-	tensor_t<float> out;
-	tensor_t<float> grads_out;
+	tensor_t<double> in;
+	tensor_t<double> out;
+	tensor_t<double> grads_out;
 
-	void copy_input(const tensor_t<float>& in ) {
+	void copy_input(const tensor_t<double>& in ) {
 		throw_assert(this->in.size == in.size, "Passed incorrectly-sized inputs to layer");
 		this->in = in;
 	}
 
-	virtual void activate(const tensor_t<float>& in) = 0;
+	virtual void activate(const tensor_t<double>& in) = 0;
 	virtual void fix_weights() = 0;
-	virtual void calc_grads(const tensor_t<float>& grad_next_layer ) = 0;
+	virtual void calc_grads(const tensor_t<double>& grad_next_layer ) = 0;
 
 	virtual size_t get_total_memory_size() const {
 		return in.get_total_memory_size() + out.get_total_memory_size() + grads_out.get_total_memory_size();
@@ -47,8 +47,8 @@ public:
 	}
 
 	virtual void configure(const tdsize & in_size) {
-		in = tensor_t<float>(in_size);
-		grads_out = tensor_t<float>(in_size);
+		in = tensor_t<double>(in_size);
+		grads_out = tensor_t<double>(in_size);
 	}
 
 	layer_t(const tdsize & in_size, const tdsize & out_size) :  in(in_size), out(out_size), grads_out(in_size) {}
@@ -75,9 +75,9 @@ public:
 	
 	
 	void test_me() {
-		tensor_t<float> in(this->in.size);
+		tensor_t<double> in(this->in.size);
 		randomize(in);
-		tensor_t<float> next_grads(this->out.size);
+		tensor_t<double> next_grads(this->out.size);
 		randomize(next_grads);
 		activate(in);
 		calc_grads(next_grads);
@@ -102,9 +102,9 @@ template<class T>
 #define EXPECT_LAYERS_EQ(T, a,b) EXPECT_PRED_FORMAT2(AssertLayersEqual<T>, a,b)
 	
 static inline void run_layer(layer_t & l) {
-	tensor_t<float> in(l.in.size);
+	tensor_t<double> in(l.in.size);
 	randomize(in);
-	tensor_t<float> next_grads(l.out.size);
+	tensor_t<double> next_grads(l.out.size);
 	randomize(next_grads);
 	l.activate(in);
 	l.calc_grads(next_grads);
