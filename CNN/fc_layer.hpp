@@ -39,6 +39,11 @@ public:
 
 	void activate(const tensor_t<double>& in ) {
 		copy_input(in);
+
+		for ( int n = 0; n < out.size.x; n++ ) {
+			activator_input[n] = 0;
+		}
+		
 		// Here's the math we are doing here:
 		//
 		// We'll use some short hand:
@@ -55,7 +60,7 @@ public:
 		// f(x,w) = x*w is vector-matrix product which yields a vector.
 		// We apply L to each element to get the output vector.
 		for ( int n = 0; n < out.size.x; n++ ) {
-			activator_input[n] = 0;
+
 
 			// Both `in` and `weights` are tensors instead
 			// of vectors in this code.
@@ -64,9 +69,13 @@ public:
 			for ( uint i = 0; i < in.element_count(); i++ ) {
 				activator_input[n] += in.as_vector(i) * weights( i, n, 0 );
 			}
-			
+		}
+
+		// finally, apply the activator function.
+		for ( int n = 0; n < out.size.x; n++ ) {
 			out( n, 0, 0 ) = activator_function( activator_input[n]);
 		}
+
 	}
 	
 	void calc_grads( const tensor_t<double>& grad_next_layer ) {
@@ -197,6 +206,7 @@ public:
 		}
 	}
 
+	// The rest is just utility functions
 	size_t get_total_memory_size() const {
 		return weights.get_total_memory_size() +
 			gradients.size() * sizeof(gradient_t) +

@@ -19,18 +19,21 @@ enum class layer_type
 class layer_t
 {
 public:
+	// All Layers have these inputs/outputs.
 	tensor_t<double> in;
 	tensor_t<double> out;
 	tensor_t<double> grads_out;
 
+	// These are key methods a layer must implement.
+	virtual void activate(const tensor_t<double>& in) = 0;
+	virtual void fix_weights() = 0;
+	virtual void calc_grads(const tensor_t<double>& grad_next_layer ) = 0;
+
+	// Everything else is utility functions.
 	void copy_input(const tensor_t<double>& in ) {
 		throw_assert(this->in.size == in.size, "Passed incorrectly-sized inputs to layer");
 		this->in = in;
 	}
-
-	virtual void activate(const tensor_t<double>& in) = 0;
-	virtual void fix_weights() = 0;
-	virtual void calc_grads(const tensor_t<double>& grad_next_layer ) = 0;
 
 	virtual size_t get_total_memory_size() const {
 		return in.get_total_memory_size() + out.get_total_memory_size() + grads_out.get_total_memory_size();
