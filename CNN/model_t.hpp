@@ -8,8 +8,18 @@
 class model_t
 {
 public:
+
+	/* 
+	   model_t holds a collection of layers (in the `layers`
+	   std::vector) that make up a CNN model.
+
+	   It also holds the basic algorithms for classification and
+	   back propagation.
+	*/
+
 	std::vector<layer_t*> layers;
-	
+
+	// Add a layer to the model.  We start at the input end.
 	void add_layer(layer_t & l) {
 		layers.push_back(&l);
 	}
@@ -37,6 +47,7 @@ public:
 		}
 	}
 
+	//  Back propogate an error vector through the layers.
 	void backward(const tensor_t<double> & error, bool debug) {
 		// Back propagation is in two phases.
 
@@ -68,29 +79,11 @@ public:
 		}
 	}
 
-	int train_batch(const dataset_t & ds, dataset_t::iterator & start, int count, bool debug=false) {
-		throw_assert(false, "THis code doesn't terminate correctly.");
-		tensor_t<double> error(layers.back()->out.size);
-		int i = 0;
-		while(start != ds.end() && i < count) {
-			forward_one(start->data, debug);
-			error = error + layers.back()->out - start->label;
-			i++;
-			start++;
-		}
-		
-		if (debug) {
-			std::cout << "Error   : " << error <<"\n";
-		}
-
-		backward(error, debug);
-		return i;
-	}
-	
 	double train(const test_case_t & tc, bool debug=false) {
 		return train(tc.data, tc.label, debug);
 	}
-
+	
+	// Train on one input/lable pair.
 	double train(const tensor_t<double>& data, const tensor_t<double>& expected, bool debug=false) {
 
 		// Run one instance farward.
@@ -138,6 +131,26 @@ public:
 		}
 		return sum;
 	}
+
+	int train_batch(const dataset_t & ds, dataset_t::iterator & start, int count, bool debug=false) {
+		throw_assert(false, "THis code doesn't terminate correctly.");
+		tensor_t<double> error(layers.back()->out.size);
+		int i = 0;
+		while(start != ds.end() && i < count) {
+			forward_one(start->data, debug);
+			error = error + layers.back()->out - start->label;
+			i++;
+			start++;
+		}
+		
+		if (debug) {
+			std::cout << "Error   : " << error <<"\n";
+		}
+
+		backward(error, debug);
+		return i;
+	}
+	
 
 	std::string geometry() const {
 		std::stringstream ss;

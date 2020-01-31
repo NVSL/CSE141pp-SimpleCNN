@@ -28,11 +28,86 @@ template<>
 template<typename T>
 struct tensor_t
 {
-	static const int version = 1;
-        static bool diff_prints_deltas;
+	/* tensor_t is a 3D array of values.  It is the main input and
+	   output type for the layers in our CNN models.  In almost
+	   all cases, it holds floating point values of type float or
+	   double.
+
+	   The class has two key members: 
+	   
+	   - size : is of type tdsize and represents the size of the tensor (x,y,z)
+	   
+	   - data : data is a pointer to the data in the tensor.  
+
+	   data is a liner (1D) array.
+
+	   tensor_t provides two ways of accessing its contents. 
+
+	   The first is via the () operator that lets you specify the
+	   x, y, and z coordinates of the item you wish to access.
+	   This is the most common access method. 
+
+	   The code for the () operator (see below) defines how the
+	   three dimensions map onto the `data` array.  This mapping
+	   has important implications for how looping over the tensor
+	   translates into memory accesses.
+
+	   Alternately, you can call `as_vector()` to access it as a
+	   linear array.  This method is mostly used in fc_layer_t.
+
+	   The code for both of them is below.  Examine it carefully.
+	*/
+
 	tdsize size;
 	T * data;
+	
+	T & as_vector(size_t i) {
+		return data[i];
+	}
+	
+	const  T & as_vector(size_t i) const {
+		return data[i];
+	}
 
+	size_t element_count() const {
+		return size.x * size.y * size.z;
+	}
+
+	inline T& operator()( int _x, int _y, int _z )
+	{
+		return this->get( _x, _y, _z );
+	}
+
+	inline const T& operator()( int _x, int _y, int _z ) const
+	{
+		return this->get( _x, _y, _z );
+	}
+
+	T& get( int _x, int _y, int _z ) {
+		throw_assert_debug( _x >= 0 && _y >= 0 && _z >= 0, "Tried to read tensor at negative coordinates" );
+		throw_assert_debug( _x < size.x && _y < size.y && _z < size.z, "Tried to read tensor out of bounds " << tdsize(_x, _y, _z) << ". But tensor is " << size );
+		
+		return data[
+			_z * (size.x * size.y) +
+			_y * (size.x) +
+			_x
+			];
+	}
+
+	const T & get( int _x, int _y, int _z ) const {
+		throw_assert_debug( _x >= 0 && _y >= 0 && _z >= 0 , "Tried to read tensor at negative coordinates" );
+		throw_assert_debug( _x < size.x && _y < size.y && _z < size.z, "Tried to read tensor out of bounds: read at " << tdsize(_x, _y, _z) << "; bound = " << size );
+		
+		return data[
+			_z * (size.x * size.y) +
+			_y * (size.x) +
+			_x
+			];
+	}
+
+	
+	static const int version = 1;
+        static bool diff_prints_deltas;
 
 	size_t calculate_data_size() const {
 		return size.x *size.y *size.z * sizeof( T );
@@ -69,6 +144,7 @@ struct tensor_t
 		delete[] data;
 	}
 
+	
 	size_t get_total_memory_size() const {
 		return calculate_data_size();
 	}
@@ -118,37 +194,6 @@ struct tensor_t
 		return clone;
 	}
 	
-	inline T& operator()( int _x, int _y, int _z )
-	{
-		return this->get( _x, _y, _z );
-	}
-
-	inline const T& operator()( int _x, int _y, int _z ) const
-	{
-		return this->get( _x, _y, _z );
-	}
-
-	T& get( int _x, int _y, int _z ) {
-		throw_assert_debug( _x >= 0 && _y >= 0 && _z >= 0, "Tried to read tensor at negative coordinates" );
-		throw_assert_debug( _x < size.x && _y < size.y && _z < size.z, "Tried to read tensor out of bounds " << tdsize(_x, _y, _z) << ". But tensor is " << size );
-		
-		return data[
-			_z * (size.x * size.y) +
-			_y * (size.x) +
-			_x
-			];
-	}
-
-	const T & get( int _x, int _y, int _z ) const {
-		throw_assert_debug( _x >= 0 && _y >= 0 && _z >= 0 , "Tried to read tensor at negative coordinates" );
-		throw_assert_debug( _x < size.x && _y < size.y && _z < size.z, "Tried to read tensor out of bounds: read at " << tdsize(_x, _y, _z) << "; bound = " << size );
-		
-		return data[
-			_z * (size.x * size.y) +
-			_y * (size.x) +
-			_x
-			];
-	}
 
 	bool operator==(const tensor_t<T> & other) const
 	{

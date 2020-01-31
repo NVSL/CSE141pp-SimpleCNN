@@ -3,6 +3,7 @@
 #include"tensor_t.hpp"
 #include <fstream>
 
+// test_case_t holds an input and it's label, both as tensors.
 struct test_case_t
 {
         enum {VERSION = 1};
@@ -42,6 +43,8 @@ struct test_case_t
 };
 
 
+// dataset_t holds an array of test_case_t objects and provides the
+// means to iterate over them.
 struct dataset_t
 {
         enum {VERSION = 1};

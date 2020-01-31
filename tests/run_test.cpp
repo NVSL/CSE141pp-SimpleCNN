@@ -67,7 +67,8 @@ namespace CNNTest {
 		EXPECT_NEAR(accuracy2 - accuracy1, 0.222, 0.005);
 	}
 
-      	
+
+#if (0)
 	class SimplificationTests :  public ::testing::Test {
 		
 	};
@@ -111,7 +112,8 @@ namespace CNNTest {
 		}
 		
 	}
-
+#endif
+	
 }
 
 #if(0)

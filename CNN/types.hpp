@@ -4,8 +4,19 @@
 #include <iomanip>
 #include "throw_assert.hpp"
 
+
 struct gradient_t
 {
+	/* 
+	   gradient_t is a convenience structure for storing the old
+	   value of the gradient along with the current value.
+
+	   `oldgrad` is only used for the "momentum" term in the
+	   weight updating code (see optimization_method.hpp).
+
+	   `grad` stores the gradient for the current round of back
+	   propagation.
+	*/
 	double grad;
 	double oldgrad;
 	gradient_t(): grad(0), oldgrad(0)
@@ -19,15 +30,13 @@ struct gradient_t
 	}
 };
 
-inline std::ostream& operator<<(std::ostream& os, const gradient_t & g)
-{
-	os << std::setw(2) << std::setprecision(2);
-	os << "[" << g.grad << ", " << g.oldgrad << "]";
-	return os;
-}
 
 struct point_t
 {
+	/* 
+	   point_t stores the coordinates of an item in a tensor_t.
+	*/
+	
 	int x, y, z;
 	point_t(int x, int y, int z) : x(x), y(y), z(z){}
 	point_t(): x(0), y(0), z(0){}
@@ -39,6 +48,18 @@ struct point_t
 	}
 };
 
+/* tdsize is an alias for point_t.  It is used to specify the size of
+   tensor_t objects. */
+using tdsize = point_t;
+
+
+inline std::ostream& operator<<(std::ostream& os, const gradient_t & g)
+{
+	os << std::setw(2) << std::setprecision(2);
+	os << "[" << g.grad << ", " << g.oldgrad << "]";
+	return os;
+}
+
 inline std::ostream& operator<<(std::ostream& os, const point_t & g)
 {
 	os << std::setw(2) << std::setprecision(2);
@@ -46,8 +67,6 @@ inline std::ostream& operator<<(std::ostream& os, const point_t & g)
 	return os;
 }
 
-
-using tdsize = point_t;
 
 
 #ifdef INCLUDE_TESTS
