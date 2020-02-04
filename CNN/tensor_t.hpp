@@ -6,7 +6,7 @@
 #include <fstream>
 #include <limits>
 
-
+#include <gtest/gtest.h>
 static float rand_f(int maxval) {
 	return 1.0f / maxval * rand() / float( RAND_MAX );
 }

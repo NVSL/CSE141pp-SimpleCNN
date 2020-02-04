@@ -1,5 +1,6 @@
 #-*- Makefile -*-
 include $(ARCHLAB_ROOT)/compile.make
+USER_CFLAGS += -I$(GOOGLE_TEST_ROOT)/googletest/include/ -I..
 
 SRCS?=$(wildcard *.cpp)
 

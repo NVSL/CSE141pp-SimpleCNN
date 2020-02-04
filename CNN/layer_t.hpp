@@ -1,6 +1,6 @@
 #pragma once
 #include "tensor_t.hpp"
-
+#include <gtest/gtest.h>
 enum class layer_type
 {
 	none = 0,
