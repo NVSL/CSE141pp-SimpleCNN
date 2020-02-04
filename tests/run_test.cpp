@@ -68,6 +68,22 @@ namespace CNNTest {
 	}
 
 
+	// These are tests of the per-function test functions
+	class FunctionTests :  public ::testing::Test {
+	};
+	
+	TEST_F(FunctionTests, fc_activate) {
+		fc_test_activate<fc_layer_t>(1,1,1,1,1);
+	}
+			  
+	TEST_F(FunctionTests, fc_calc_grads) {
+		fc_test_calc_grads<fc_layer_t>(1,1,1,1,1);
+	}
+
+	TEST_F(FunctionTests, fc_fix_weights) {
+		fc_test_fix_weights<fc_layer_t>(1,1,1,1,1);
+	}
+
 #if (0)
 	class SimplificationTests :  public ::testing::Test {
 		

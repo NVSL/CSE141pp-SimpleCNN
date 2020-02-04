@@ -75,8 +75,8 @@ public:
 		out << "Diff of ->grads_out: " << diff(this->grads_out, other->grads_out) << "\n";
 		return out.str();
 	}
-	
-	
+
+
 	void test_me() {
 		tensor_t<double> in(this->in.size);
 		randomize(in);
@@ -84,6 +84,23 @@ public:
 		randomize(next_grads);
 		activate(in);
 		calc_grads(next_grads);
+		fix_weights();
+	}
+
+	void test_activate() {
+		tensor_t<double> _in(this->in.size);
+		randomize(_in);
+		activate(_in);
+	}
+
+	void test_calc_grads() {
+		tensor_t<double> _out(this->out.size);
+		randomize(_out);
+		calc_grads(_out);
+	}
+
+	void test_fix_weights() {
+		randomize(this->grads_out);
 		fix_weights();
 	}
 

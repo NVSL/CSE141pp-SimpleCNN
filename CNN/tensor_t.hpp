@@ -454,6 +454,20 @@ template<>
 	
 }
 
+// Customized assertion formatter for googletest
+template<class T>
+::testing::AssertionResult AssertTensorsEqual(const char* m_expr,
+					      const char* n_expr,
+					      const tensor_t<T> & m,
+					      const tensor_t<T> & n) {
+	if (m == n) return ::testing::AssertionSuccess();
+
+	return ::testing::AssertionFailure() << "Here's what's different. '#' denotes a position where your result is incorrect.\n" << diff(m, n);
+}
+
+#define ASSERT_TENSORS_EQ(T, a,b) ASSERT_PRED_FORMAT2(AssertTensorsEqual<T>, a,b)
+#define EXPECT_TENSORS_EQ(T, a,b) EXPECT_PRED_FORMAT2(AssertTensorsEqual<T>, a,b)
+
 
 #ifdef INCLUDE_TESTS
 #include <gtest/gtest.h>
