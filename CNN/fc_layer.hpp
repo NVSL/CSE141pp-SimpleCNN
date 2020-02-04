@@ -274,12 +274,69 @@ template<class T> T* run_fc(int x, int y, int z,
 	return l;
 }
 
+template<class T> T* run_fc_activate(int x, int y, int z,
+				     int out_size,
+				     int seed) {
+	srand(seed);
+	tdsize size(x,y,z);
+	T * l = new T( size, out_size);
+	l->test_activate();
+	return l;
+}
+template<class T> T* run_fc_calc_grads(int x, int y, int z,
+				       int out_size,
+				       int seed) {
+	srand(seed);
+	tdsize size(x,y,z);
+	T * l = new T( size, out_size);
+	l->test_calc_grads();
+	return l;
+}
+
+template<class T> T* run_fc_fix_weights(int x, int y, int z,
+					int out_size,
+					int seed) {
+	srand(seed);
+	tdsize size(x,y,z);
+	T * l = new T( size, out_size);
+	l->test_fix_weights();
+	return l;
+}
 
 template<class T>
 void fc_test(int x, int y, int z, int out, int seed) {					
 	fc_layer_t * reference = run_fc<fc_layer_t>(x,y,z,out,seed); 
 	fc_layer_t * optimized = run_fc<T>(x,y,z,out,seed); 
 	EXPECT_LAYERS_EQ(fc_layer_t, reference, optimized) << "Failure: fc_test("<< x << ", " << y<< ", " << z<< ", " << out << ", " << seed << ");\n";
+	delete reference;					
+	delete optimized;
+}
+
+
+template<class T>
+void fc_test_activate(int x, int y, int z, int out, int seed) {
+	fc_layer_t * reference = run_fc_activate<fc_layer_t>(x,y,z,out,seed); 
+	fc_layer_t * optimized = run_fc_activate<T>(x,y,z,out,seed); 
+	EXPECT_TENSORS_EQ(double, reference->out, optimized->out) << "Failure: fc_test_activate("<< x << ", " << y<< ", " << z<< ", " << out << ", " << seed << ");\n";
+	delete reference;					
+	delete optimized;
+}
+
+
+template<class T>
+void fc_test_calc_grads(int x, int y, int z, int out, int seed) {					
+	fc_layer_t * reference = run_fc_calc_grads<fc_layer_t>(x,y,z,out,seed); 
+	fc_layer_t * optimized = run_fc_calc_grads<T>(x,y,z,out,seed); 
+	EXPECT_TENSORS_EQ(double, reference->grads_out, optimized->grads_out) << "Failure: fc_test_calc_grads("<< x << ", " << y<< ", " << z<< ", " << out << ", " << seed << ");\n";
+	delete reference;					
+	delete optimized;
+}
+
+template<class T>
+void fc_test_fix_weights(int x, int y, int z, int out, int seed) {
+	fc_layer_t * reference = run_fc_fix_weights<fc_layer_t>(x,y,z,out,seed); 
+	fc_layer_t * optimized = run_fc_fix_weights<T>(x,y,z,out,seed); 
+	EXPECT_TENSORS_EQ(double, reference->weights, optimized->weights) << "Failure: fc_test_fix_weights("<< x << ", " << y<< ", " << z<< ", " << out << ", " << seed << ");\n";
 	delete reference;					
 	delete optimized;
 }
