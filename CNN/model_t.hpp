@@ -25,11 +25,11 @@ public:
 	}
 
 	// Run one instance forward through the model.
-	void forward_one(const tensor_t<double> & data, bool debug) {
+	void forward_one(tensor_t<double> & data, bool debug) {
 		
 		for ( uint i = 0; i < layers.size(); i++ )
 		{
-			const tensor_t<double> * d;
+			tensor_t<double> * d;
 			if ( i == 0 ) { // First layer gets the input instance
 				d = &data;
 			} else { // the rest get the output of the previous layer.
@@ -79,12 +79,12 @@ public:
 		}
 	}
 
-	double train(const test_case_t & tc, bool debug=false) {
+	double train(test_case_t & tc, bool debug=false) {
 		return train(tc.data, tc.label, debug);
 	}
 	
 	// Train on one input/lable pair.
-	double train(const tensor_t<double>& data, const tensor_t<double>& expected, bool debug=false) {
+	double train(tensor_t<double>& data, const tensor_t<double>& expected, bool debug=false) {
 
 		// Run one instance farward.
 		forward_one(data, debug);
@@ -112,7 +112,7 @@ public:
 	}
 
 
-        tensor_t<double> & apply(const tensor_t<double>& data ) const {
+        tensor_t<double> & apply(tensor_t<double>& data ) const {
 		for ( uint i = 0; i < layers.size(); i++ )
 		{
 			if ( i == 0 )
@@ -121,6 +121,12 @@ public:
 				layers[i]->activate(layers[i - 1]->out );
 		}
 		return layers.back()->out;
+	}
+
+	void change_batch_size(int new_batch_size) {
+		for (uint i = 0; i < layers.size(); i ++ ) {
+			layers[i]->change_batch_size(new_batch_size);
+		}
 	}
 
 	size_t get_total_memory_size() const {
@@ -132,7 +138,7 @@ public:
 		return sum;
 	}
 
-	int train_batch(const dataset_t & ds, dataset_t::iterator & start, int count, bool debug=false) {
+	int train_batch(dataset_t & ds, dataset_t::iterator & start, int count, bool debug=false) {
 		throw_assert(false, "THis code doesn't terminate correctly.");
 		tensor_t<double> error(layers.back()->out.size);
 		int i = 0;

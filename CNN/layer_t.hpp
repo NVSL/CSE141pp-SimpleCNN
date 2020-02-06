@@ -1,6 +1,6 @@
 #pragma once
 #include "tensor_t.hpp"
-#include <gtest/gtest.h>
+
 enum class layer_type
 {
 	none = 0,
@@ -25,13 +25,25 @@ public:
 	tensor_t<double> grads_out;
 
 	// These are key methods a layer must implement.
-	virtual void activate(const tensor_t<double>& in) = 0;
+	virtual void activate(tensor_t<double>& in) = 0;
 	virtual void fix_weights() = 0;
 	virtual void calc_grads(const tensor_t<double>& grad_next_layer ) = 0;
 
 	// Everything else is utility functions.
+	void change_batch_size(int new_batch_size) {
+		//only valid after training
+		tdsize new_in_size = in.size;
+		tdsize new_out_size = out.size;
+		new_in_size.b = new_batch_size;
+		new_out_size.b = new_batch_size;
+		std::cout << "this->in.size: " << in.size << std::endl;
+		in.resize(new_in_size);
+		std::cout << "Resized this->in to " << in.size << std::endl;
+		out.resize(new_out_size);
+	}
+
 	void copy_input(const tensor_t<double>& in ) {
-		throw_assert(this->in.size == in.size, "Passed incorrectly-sized inputs to layer");
+		throw_assert(this->in.size == in.size, "Passed incorrectly-sized inputs to layer " << this->in.size << " == " << in.size);
 		this->in = in;
 	}
 
@@ -75,8 +87,8 @@ public:
 		out << "Diff of ->grads_out: " << diff(this->grads_out, other->grads_out) << "\n";
 		return out.str();
 	}
-
-
+	
+	
 	void test_me() {
 		tensor_t<double> in(this->in.size);
 		randomize(in);
@@ -84,23 +96,6 @@ public:
 		randomize(next_grads);
 		activate(in);
 		calc_grads(next_grads);
-		fix_weights();
-	}
-
-	void test_activate() {
-		tensor_t<double> _in(this->in.size);
-		randomize(_in);
-		activate(_in);
-	}
-
-	void test_calc_grads() {
-		tensor_t<double> _out(this->out.size);
-		randomize(_out);
-		calc_grads(_out);
-	}
-
-	void test_fix_weights() {
-		randomize(this->grads_out);
 		fix_weights();
 	}
 

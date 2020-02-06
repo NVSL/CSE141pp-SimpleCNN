@@ -37,11 +37,11 @@ struct point_t
 	   point_t stores the coordinates of an item in a tensor_t.
 	*/
 	
-	int x, y, z;
-	point_t(int x, int y, int z) : x(x), y(y), z(z){}
-	point_t(): x(0), y(0), z(0){}
+	int x, y, z, b;
+	point_t(int x, int y, int z, int b=0) : x(x), y(y), z(z), b(b){}
+	point_t(): x(0), y(0), z(0), b(0){}
 	bool operator==(const point_t &o) const {
-		return (x == o.x && y == o.y && z == o.z);
+		return (x == o.x && y == o.y && z == o.z && b == o.b);
 	}
 	bool operator!=(const point_t &o) const {
 		return !(*this == o);
@@ -63,7 +63,7 @@ inline std::ostream& operator<<(std::ostream& os, const gradient_t & g)
 inline std::ostream& operator<<(std::ostream& os, const point_t & g)
 {
 	os << std::setw(2) << std::setprecision(2);
-	os << "(" << g.x << ", " << g.y << ", " << g.z << ")";
+	os << "(" << g.x << ", " << g.y << ", " << g.z << ", " << g.b << ")";
 	return os;
 }
 
@@ -106,3 +106,4 @@ namespace CNNTest {
 		       
 }	
 #endif
+

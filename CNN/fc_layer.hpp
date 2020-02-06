@@ -7,14 +7,15 @@
 class fc_layer_t: public layer_t
 {
 public:
-	std::vector<double> activator_input; // Output the sum-the-weights stage.. 
+	//std::vector<double> activator_input; // Output the sum-the-weights stage.. 
+	tensor_t<double> activator_input; // Output the sum-the-weights stage.. 
 	tensor_t<double> weights; // 2d array of weight (tensor with depth == 1)
 	std::vector<gradient_t> gradients; // gradients for back prop.
 
-	fc_layer_t( tdsize in_size, int out_size )
+	fc_layer_t( tdsize in_size, int out_size)
 		:
-		layer_t(in_size, tdsize(out_size, 1, 1)),
-		activator_input(out_size),
+		layer_t(in_size, tdsize(out_size, 1, 1, in_size.b)),
+		activator_input(tdsize(out_size, 1, 1, in_size.b)),
 		weights( in_size.x*in_size.y*in_size.z, out_size, 1 ),
 		gradients(out_size)
 		{
@@ -37,11 +38,14 @@ public:
 		return sig * (1 - sig);
 	}
 
-	void activate(const tensor_t<double>& in ) {
+	void activate(tensor_t<double>& in ) {
 		copy_input(in);
 
-		for ( int n = 0; n < out.size.x; n++ ) {
-			activator_input[n] = 0;
+		//for ( int n = 0; n < out.size.x; n++ ) {
+		//	activator_input.as_vector(n) = 0;
+		//}
+		for ( int n = 0; n < activator_input.element_count(); n++ ) {
+			activator_input.data[n] = 0;
 		}
 		
 		// Here's the math we are doing here:
@@ -67,13 +71,13 @@ public:
 
 			// compute the dot product.
 			for ( uint i = 0; i < in.element_count(); i++ ) {
-				activator_input[n] += in.as_vector(i) * weights( i, n, 0 );
+				activator_input.as_vector(n) += in.as_vector(i) * weights( i, n, 0 );
 			}
 		}
 
 		// finally, apply the activator function.
 		for ( int n = 0; n < out.size.x; n++ ) {
-			out( n, 0, 0 ) = activator_function( activator_input[n]);
+			out( n, 0, 0 ) = activator_function( activator_input.as_vector(n) );
 		}
 
 	}
@@ -130,7 +134,7 @@ public:
 			// In `activator()` we saved the value of
 			// f(x,w) as `activator_input`, so we are
 			// reusing it here to compute L'(f(x,w))
-			grad.grad = grad_next_layer( n, 0, 0 ) * activator_derivative( activator_input[n] );
+			grad.grad = grad_next_layer( n, 0, 0 ) * activator_derivative( activator_input.as_vector(n) );
 		}
 		
 		// We are calculating how much each input
@@ -210,7 +214,7 @@ public:
 	size_t get_total_memory_size() const {
 		return weights.get_total_memory_size() +
 			gradients.size() * sizeof(gradient_t) +
-			activator_input.size() * sizeof(double) +
+			activator_input.element_count() * sizeof(double) +
 			layer_t::get_total_memory_size();
 	}
 
@@ -240,8 +244,8 @@ public:
 		auto _other = dynamic_cast<fc_layer_t*>(other);
 		throw_assert(_other, "You called 'analyze_inequality_with' without a mismatched layer type")
 		std::stringstream out;
-		if (this->activator_input.size() != _other->activator_input.size()) {
-			out << "Activator_Input sizes don't match: " << DUMP(this->activator_input.size()) << " != " << DUMP(_other->activator_input.size()) << "\n";
+		if (this->activator_input.size != _other->activator_input.size) {
+			out << "Activator_Input sizes don't match: " << DUMP(this->activator_input.size) << " != " << DUMP(_other->activator_input.size) << "\n";
 		}
 		if (this->weights.size != _other->weights.size) {
 			out << "Weights sizes don't match: " << DUMP(this->weights.size) << " != " << DUMP(_other->weights.size) << "\n";
@@ -270,69 +274,12 @@ template<class T> T* run_fc(int x, int y, int z,
 	return l;
 }
 
-template<class T> T* run_fc_activate(int x, int y, int z,
-				     int out_size,
-				     int seed) {
-	srand(seed);
-	tdsize size(x,y,z);
-	T * l = new T( size, out_size);
-	l->test_activate();
-	return l;
-}
-template<class T> T* run_fc_calc_grads(int x, int y, int z,
-				       int out_size,
-				       int seed) {
-	srand(seed);
-	tdsize size(x,y,z);
-	T * l = new T( size, out_size);
-	l->test_calc_grads();
-	return l;
-}
-
-template<class T> T* run_fc_fix_weights(int x, int y, int z,
-					int out_size,
-					int seed) {
-	srand(seed);
-	tdsize size(x,y,z);
-	T * l = new T( size, out_size);
-	l->test_fix_weights();
-	return l;
-}
 
 template<class T>
 void fc_test(int x, int y, int z, int out, int seed) {					
 	fc_layer_t * reference = run_fc<fc_layer_t>(x,y,z,out,seed); 
 	fc_layer_t * optimized = run_fc<T>(x,y,z,out,seed); 
 	EXPECT_LAYERS_EQ(fc_layer_t, reference, optimized) << "Failure: fc_test("<< x << ", " << y<< ", " << z<< ", " << out << ", " << seed << ");\n";
-	delete reference;					
-	delete optimized;
-}
-
-
-template<class T>
-void fc_test_activate(int x, int y, int z, int out, int seed) {
-	fc_layer_t * reference = run_fc_activate<fc_layer_t>(x,y,z,out,seed); 
-	fc_layer_t * optimized = run_fc_activate<T>(x,y,z,out,seed); 
-	EXPECT_TENSORS_EQ(double, reference->out, optimized->out) << "Failure: fc_test_activate("<< x << ", " << y<< ", " << z<< ", " << out << ", " << seed << ");\n";
-	delete reference;					
-	delete optimized;
-}
-
-
-template<class T>
-void fc_test_calc_grads(int x, int y, int z, int out, int seed) {					
-	fc_layer_t * reference = run_fc_calc_grads<fc_layer_t>(x,y,z,out,seed); 
-	fc_layer_t * optimized = run_fc_calc_grads<T>(x,y,z,out,seed); 
-	EXPECT_TENSORS_EQ(double, reference->grads_out, optimized->grads_out) << "Failure: fc_test_calc_grads("<< x << ", " << y<< ", " << z<< ", " << out << ", " << seed << ");\n";
-	delete reference;					
-	delete optimized;
-}
-
-template<class T>
-void fc_test_fix_weights(int x, int y, int z, int out, int seed) {
-	fc_layer_t * reference = run_fc_fix_weights<fc_layer_t>(x,y,z,out,seed); 
-	fc_layer_t * optimized = run_fc_fix_weights<T>(x,y,z,out,seed); 
-	EXPECT_TENSORS_EQ(double, reference->weights, optimized->weights) << "Failure: fc_test_fix_weights("<< x << ", " << y<< ", " << z<< ", " << out << ", " << seed << ");\n";
 	delete reference;					
 	delete optimized;
 }

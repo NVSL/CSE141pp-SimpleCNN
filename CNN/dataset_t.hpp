@@ -6,7 +6,7 @@
 // test_case_t holds an input and it's label, both as tensors.
 struct test_case_t
 {
-        enum {VERSION = 1};
+    enum {VERSION = 1};
 	tensor_t<double> data;
 	tensor_t<double> label;
 
@@ -24,7 +24,7 @@ struct test_case_t
 	}
 
 	void write(std::ofstream & out) {
-	        int v = VERSION;
+		int v = VERSION;
 		out.write((char*)&v, sizeof(v));
 		data.write(out);
 		label.write(out);
@@ -47,7 +47,7 @@ struct test_case_t
 // means to iterate over them.
 struct dataset_t
 {
-        enum {VERSION = 1};
+    enum {VERSION = 1};
 	tdsize data_size;
 	tdsize label_size;
 
@@ -62,7 +62,7 @@ struct dataset_t
 		}
 		return s;
 	}
-	
+
 	bool operator==(const dataset_t & other) const
 	{
 		return other.test_cases == test_cases;
@@ -111,13 +111,51 @@ struct dataset_t
 	}
 	
 	void write(std::ofstream & out) {
-             	int v = VERSION;
+		int v = VERSION;
 		out.write((char*)&v, sizeof(v));
 		size_t count = test_cases.size();
 		out.write((char*)&count, sizeof(count));
 		for(auto &c: test_cases) {
 			c.write(out);
 		}
+	}
+
+	dataset_t batched_copy(int new_batch_size) {
+		throw_assert(data_size.b==1, "Trying to batch an already batched dataset.");
+		dataset_t n;
+
+		// new sizes
+		tdsize new_data_size = data_size;
+		new_data_size.b = new_batch_size;
+
+		tdsize new_label_size = label_size;
+		new_label_size.b = new_batch_size;
+
+		// batches
+		int batch_index = 0;
+		for (auto& t : test_cases ) {
+			tensor_t<double>* batch_data = new tensor_t<double>(new_data_size);
+			tensor_t<double>* batch_label = new tensor_t<double>(new_data_size);
+			for (int x = 0; x < data_size.x; x++ )
+				for (int y = 0; y < data_size.y; y++ )
+					for (int z = 0; z < data_size.z; z++ )
+						(*batch_data)(x, y, z, batch_index) = t.data(x, y, z);
+
+			for (int x = 0; x < label_size.x; x++ )
+				for (int y = 0; y < label_size.y; y++ )
+					for (int z = 0; z < label_size.z; z++ )
+						(*batch_label)(x, y, z, batch_index) = t.label(x, y, z);
+
+			batch_index += 1;
+
+			if (batch_index >= new_batch_size) {
+				n.add(*batch_data, *batch_label);
+				batch_index = 0;
+			}
+		}
+
+		return n;
+
 	}
 
 	static dataset_t read(const std::string & s, std::vector<test_case_t>::size_type max_count = std::numeric_limits<std::vector<test_case_t>::size_type>::max()) {
@@ -183,3 +221,4 @@ namespace CNNTest {
 	}
 }
 #endif
+
