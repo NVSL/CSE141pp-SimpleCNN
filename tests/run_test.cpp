@@ -15,10 +15,10 @@
 #undef  EXCLUDE_MAIN
 
 
-void EXPECT_TENSOR_EQ(const tensor_t<double> & a,const tensor_t<double> & b) {
-	EXPECT_EQ(a.size, b.size);
-	TENSOR_FOR(a, x,y,z) {
-		EXPECT_FLOAT_EQ(a(x,y,z), b(x,y,z));
+void EXPECT_TENSOR_EQ(const tensor_t<double> & a,const tensor_t<double> & c) {
+	EXPECT_EQ(a.size, c.size);
+	TENSOR_FOR(a, x,y,z,b) {
+		EXPECT_FLOAT_EQ(a(x,y,z,b), c(x,y,z,b));
 	}
 }		
 

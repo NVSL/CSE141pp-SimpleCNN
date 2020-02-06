@@ -38,13 +38,13 @@ public:
 		return sig * (1 - sig);
 	}
 
-	void activate(tensor_t<double>& in ) {
+	void activate(const tensor_t<double>& in ) {
 		copy_input(in);
 
 		//for ( int n = 0; n < out.size.x; n++ ) {
 		//	activator_input.as_vector(n) = 0;
 		//}
-		for ( int n = 0; n < activator_input.element_count(); n++ ) {
+		for ( uint n = 0; n < activator_input.element_count(); n++ ) {
 			activator_input.data[n] = 0;
 		}
 		

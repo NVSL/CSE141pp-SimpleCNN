@@ -98,8 +98,8 @@ namespace CNNTest {
 		write_tensor_to_png(DEBUG_OUTPUT "bear.png", r);
 		auto reload = load_tensor_from_png(DEBUG_OUTPUT "bear.png");
 		auto d = r - reload;
-		TENSOR_FOR(d, x,y,z)
-			d(x,y,z) = fabs(d(x,y,z));
+		TENSOR_FOR(d, x,y,z,b)
+			d(x,y,z,b) = fabs(d(x,y,z));
 		EXPECT_LT(d.max(), 0.01);
 	}
 }

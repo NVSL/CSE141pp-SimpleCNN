@@ -79,7 +79,8 @@ tensor_t<double> inv_2Dtransform_nn(const tensor_t<double> & in, const tensor_t<
 		     << "; dst_size = " << dst_size);
 	throw_assert(trans.size.x == 3 &&
 		     trans.size.y == 3 &&
-		     trans.size.z == 1, "2Dtransform transform must be 3,3,1.  trans.size = " << trans.size);
+		     trans.size.z == 1 &&
+		     trans.size.b == 1, "2Dtransform transform must be 3x3x1x1.  trans.size = " << trans.size);
 
 	tensor_t<double> dst(dst_size);
 
@@ -87,7 +88,7 @@ tensor_t<double> inv_2Dtransform_nn(const tensor_t<double> & in, const tensor_t<
 			     (in.size.y+0.0)/(dst.size.y+0.0));
 
 	
-	TENSOR_FOR(dst, dst_x, dst_y, z) {
+	TENSOR_FOR(dst, dst_x, dst_y, z, b) {
 		auto p = point2D(dst_x, dst_y);
 		auto i = scale.matmul(trans).matmul(p);
 		//std::cerr << i << "\n";
@@ -105,14 +106,15 @@ tensor_t<double> inv_2Dtransform_nn(const tensor_t<double> & in, const tensor_t<
 tensor_t<double> scale_nn(const tensor_t<double> & in, const tdsize & dst_size) {
 	tensor_t<double> dst(dst_size);
 
-	TENSOR_FOR(dst, dst_x, dst_y, dst_z) {
+	TENSOR_FOR(dst, dst_x, dst_y, dst_z,b) {
 		double x_scale = (dst_size.x+0.0)/(in.size.x+0.0);
 		double y_scale = (dst_size.y+0.0)/(in.size.y+0.0);
 		double z_scale = (dst_size.z+0.0)/(in.size.z+0.0);
 
-		dst(dst_x, dst_y, dst_z) = in(CLAMP(round((dst_x+0.0)/x_scale), 0.0, in.size.x-1.0),
-					      CLAMP(round((dst_y+0.0)/y_scale), 0.0, in.size.y-1.0),
-					      CLAMP(round((dst_z+0.0)/z_scale), 0.0, in.size.z-1.0));
+		dst(dst_x, dst_y, dst_z,b) = in(CLAMP(round((dst_x+0.0)/x_scale), 0.0, in.size.x-1.0),
+						CLAMP(round((dst_y+0.0)/y_scale), 0.0, in.size.y-1.0),
+						CLAMP(round((dst_z+0.0)/z_scale), 0.0, in.size.z-1.0),
+						0);
 	}
 	return dst;
 }
@@ -122,6 +124,7 @@ tensor_t<double> scale_nn(const tensor_t<double> & in, const tdsize & dst_size) 
 tensor_t<double> pad_or_crop(const tensor_t<double> & in, const tdsize & target_size, bool letterbox) {
 	tdsize scaled_size;
 	double scale;
+	in.assert3D();
 	if (letterbox) {
 		scale = MIN((target_size.x + 0.0)/(in.size.x + 0.0),
 			    (target_size.y + 0.0)/(in.size.y + 0.0));

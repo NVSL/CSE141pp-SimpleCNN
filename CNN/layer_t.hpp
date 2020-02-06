@@ -25,7 +25,7 @@ public:
 	tensor_t<double> grads_out;
 
 	// These are key methods a layer must implement.
-	virtual void activate(tensor_t<double>& in) = 0;
+	virtual void activate(const tensor_t<double>& in) = 0;
 	virtual void fix_weights() = 0;
 	virtual void calc_grads(const tensor_t<double>& grad_next_layer ) = 0;
 

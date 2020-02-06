@@ -128,8 +128,8 @@ struct dataset_t
 		tdsize new_data_size = data_size;
 		new_data_size.b = new_batch_size;
 
-		tdsize new_label_size = label_size;
-		new_label_size.b = new_batch_size;
+		//tdsize new_label_size = label_size;
+		//new_label_size.b = new_batch_size;
 
 		// batches
 		int batch_index = 0;

@@ -86,6 +86,22 @@ struct tensor_t
                 data = new T[size.x * size.y * size.z * size.b]();
 	}
 
+	inline void assert1D() const {
+		throw_assert(
+			     size.y == 1 &&
+			     size.z == 1 &&
+			     size.b == 1, "This matrix is not 1-dimensional")
+	}
+	inline void assert2D() const {
+		throw_assert(
+			     
+			     size.z == 1 &&
+			     size.b == 1, "This matrix is not 2-dimensional")
+	}
+	inline void assert3D() const {
+		throw_assert(
+			     size.b == 1, "This matrix is not 3-dimensional")
+	}
 	inline T& operator()( int _x, int _y, int _z, int _b=0 )
 	{
 		return this->get( _x, _y, _z, _b );
