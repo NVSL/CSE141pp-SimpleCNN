@@ -352,7 +352,7 @@ struct tensor_t
 		// std::cout << "Reading size: " << sizeof(size) << std::endl;
 		// std::cout << "Reading size: " << sizeof(int)*3 << std::endl;
 		// in.read((char*)&size, sizeof(size));
-		in.read((char*)&size, sizeof(int)*3);
+		in.read((char*)&size, sizeof(size));
 		tensor_t<T> n(size);
 		// std::cout << "Reading with size: " << n << " " << size << std::endl;
 		throw_assert(version == n.version, "Reloading from old tensor version is not supported.  Current version: " << n.version << ";  file version: " << version);
