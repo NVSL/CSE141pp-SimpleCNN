@@ -98,7 +98,7 @@ public:
 		return map_to_output_impl(x,y, kernel_size, stride, filters.size(), out.size);
 	}
 
-	void activate(const tensor_t<double>& in ) {
+	void activate( tensor_t<double>& in ) {
 		copy_input(in);
 		for ( uint filter = 0; filter < filters.size(); filter++ ) {
 			tensor_t<double>& filter_data = filters[filter];

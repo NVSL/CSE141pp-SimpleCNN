@@ -26,7 +26,7 @@ public:
 		return !(*this == o);
 	}
 	
-	void activate(const tensor_t<double>& in ) {
+	void activate(tensor_t<double>& in ) {
 		copy_input(in);
 		for ( int x = 0; x < in.size.x; x++ )
 			for ( int y = 0; y < in.size.y; y++ )

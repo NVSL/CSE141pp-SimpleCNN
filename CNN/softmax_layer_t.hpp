@@ -26,7 +26,7 @@ public:
 		return !(*this == o);
 	}
 	
-	void activate(const tensor_t<double>& in ) {
+	void activate(tensor_t<double>& in ) {
 		copy_input(in);
 		double s = 0;
 		TENSOR_FOR(in, x,y,z,b) {

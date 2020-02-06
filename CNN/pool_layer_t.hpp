@@ -47,7 +47,7 @@ public:
 		return map_to_output_impl(x, y, filter_size, stride, out.size.z, out.size);
 	}
 
-	void activate(const tensor_t<double>& in ) {
+	void activate(tensor_t<double>& in ) {
 		copy_input(in);
 		for ( int x = 0; x < out.size.x; x++ ) {
 			for ( int y = 0; y < out.size.y; y++ ) {

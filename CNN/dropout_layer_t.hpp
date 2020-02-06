@@ -42,7 +42,7 @@ public:
 		return !(*this == o);
 	}
 
-	void activate(const tensor_t<double>& in ) {
+	void activate(tensor_t<double>& in ) {
 		copy_input(in);
 		for ( int i = 0; i < in.size.x*in.size.y*in.size.z; i++ )
 		{
