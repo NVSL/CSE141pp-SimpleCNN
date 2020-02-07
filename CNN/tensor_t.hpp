@@ -112,6 +112,18 @@ struct tensor_t
 		return this->get( _x, _y, _z, _b );
 	}
 
+	uint linearize(int x, int y, int z, int b = 0) const {
+		return 	b * (size.x * size.y * size.z) +
+			z * (size.x * size.y) +
+			y * (size.x) +
+			x;
+	}
+	uint linearize(const tdsize &s) const {
+		return 	s.b * (size.x * size.y * size.z) +
+			s.z * (size.x * size.y) +
+			s.y * (size.x) +
+			s.x;
+	}
 	T& get( int _x, int _y, int _z, int _b=0 ) {
 		throw_assert_debug( _x >= 0 && _y >= 0 && _z >= 0 && _b >= 0, "Tried to read tensor at negative coordinates" );
 		throw_assert_debug( _x < size.x && _y < size.y && _z < size.z && _b < size.b, "Tried to read tensor out of bounds " << tdsize(_x, _y, _z, _b) << ". But tensor is " << size );
@@ -245,6 +257,13 @@ struct tensor_t
 		return !(*this == o);
 	}
 
+	void clear() {
+		memset(
+		       data,
+		       0,
+		       calculate_data_size()
+		       );
+	}
 	tensor_t<T> & paste(const tdsize & where, const tensor_t<T> & in,  bool grow=false) {
 		if (grow) {
 			throw_assert(false, "Grow not implemented");
@@ -284,7 +303,7 @@ struct tensor_t
 		return get(l.x,l.y,l.z,l.b);
 	}
 	
-    T min() const {
+	T min() const {
 		auto l = argmin();
 		return get(l.x,l.y,l.z,l.b);
 	}
@@ -428,19 +447,20 @@ static std::string diff(const tensor_t<T> & first, const tensor_t<T> & second)
 	std::stringstream out;
 	tensor_t<bool> diff(first.size);
 	bool found = false;
-    bool deltas = tensor_t<double>::diff_prints_deltas;
-
-    for ( int b = 0; b < diff.size.b; b ++ ) {
+	bool deltas = tensor_t<double>::diff_prints_deltas;
+	
+	for ( int b = 0; b < diff.size.b; b ++ ) {
 		out << "b = " << b << ": \n";
 		for ( int z = 0; z < diff.size.z; z++ ) {
 			out << "z = " << z << ": \n";
 			for ( int y = 0; y < diff.size.y; y++ ) {
 				for ( int x = 0; x < diff.size.x; x++ ) {
-				        if (!almost_equal(first(x,y,z), second(x,y,z))) found = true;
+				        if (!almost_equal(first(x,y,z,b), second(x,y,z,b)))
+						found = true;
 					if (deltas) {
 					        out  << std::setprecision(2) << first(x,y,z,b) - second(x,y,z,b) << " ";
 					} else {
-	       				    out << (!almost_equal(first(x,y,z,b), second(x,y,z,b)) ? "#" : ".");
+						out << (!almost_equal(first(x,y,z,b), second(x,y,z,b)) ? "#" : ".");
 					}
 				}
 				out << "\n";
