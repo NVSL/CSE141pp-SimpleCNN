@@ -328,12 +328,33 @@ struct tensor_t
 		tdsize max_loc;
 		
 		TENSOR_FOR(*this, x,y,z,b) 
-			if (get(x,y,z) > max_value) {
+			if (get(x,y,z,b) > max_value) {
 				max_value = get(x,y,z,b);
 				max_loc = tdsize(x,y,z,b);
 			}
 		return max_loc;
 	}
+
+	std::vector<tdsize> argmax_b() const {
+		std::vector<tdsize> maxes;
+		for (int b = 0; b < size.b; b += 1) {
+			T max_value = -std::numeric_limits<double>::max();
+			tdsize max_loc;
+			for (int z = 0; z < size.z; z += 1) {
+				for (int y = 0; y < size.y; y += 1) {
+					for (int x = 0; x < size.x; x += 1) {
+						if (get(x, y, z, b) > max_value) {
+							max_value = get(x, y, z, b);
+							max_loc = tdsize(x,y,z,b);
+						}
+					}
+				}
+			}
+			maxes.push_back(max_loc);
+		}
+		return maxes;
+	}
+
 	tdsize argmin() const {
 		T min_value = std::numeric_limits<double>::max();
 		tdsize min_loc;
