@@ -27,6 +27,13 @@ public:
 			// 2.19722f = f^-1(0.9) => x where [1 / (1 + exp(-x) ) = 0.9]
 		}
 
+	void change_batch_size(int new_batch_size) {
+		std::cout << "Changing fc_layer batch_size" << std::endl;
+		layer_t::change_batch_size(new_batch_size);
+                tensor_t<double> new_act(tdsize(activator_input.size.x, 1, 1, new_batch_size));
+                activator_input = new_act;
+	}
+
 	double activator_function( double x ) {
 		// THis is the logistic function.  Detail here: https://en.wikipedia.org/wiki/Logistic_function#Derivative
 		double sig = 1.0f / (1.0f + exp( -x ));
@@ -55,14 +62,20 @@ public:
 		out.size.z = 1;
 		out.size.b = 1;
 
-		for ( unsigned int n = 0; n < activator_input.element_count(); n++ ) {
-			activator_input.as_vector(n) = 0;
+		for ( int b = 0; b < activator_input.size.b; b += 1)
+		for ( int n = 0; n < activator_input.size.x; n++ ) {
+			activator_input(n, 0, 0, b) = 0;
 		}
+
 
 		for ( int b = 0; b < in.size.y; b++ ) {
 			for ( int n = 0; n < out.size.x; n++ ) {
-				for ( uint i = 0; i < in.element_count(); i++ ) {
-					activator_input(n, b, 0) += in(i, b, 0) * weights( i, n, 0 );
+				for ( int i = 0; i < in.size.x; i++ ) {
+					double in_val = in(i, b, 0);
+					double weight_val = weights( i, n, 0 );
+					double mul_val = in_val * weight_val;
+					double acc_val = activator_input(n, 0, 0, b) + mul_val;
+					activator_input(n, 0, 0, b) = acc_val;
 				}
 			}
 		}

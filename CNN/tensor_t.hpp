@@ -339,7 +339,7 @@ struct tensor_t
 		std::vector<tdsize> maxes;
 		for (int b = 0; b < size.b; b += 1) {
 			T max_value = -std::numeric_limits<double>::max();
-			tdsize max_loc;
+			point_t max_loc;
 			for (int z = 0; z < size.z; z += 1) {
 				for (int y = 0; y < size.y; y += 1) {
 					for (int x = 0; x < size.x; x += 1) {

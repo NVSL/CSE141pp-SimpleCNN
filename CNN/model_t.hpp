@@ -115,11 +115,15 @@ public:
         tensor_t<double> & apply(tensor_t<double>& data ) const {
 		for ( uint i = 0; i < layers.size(); i++ )
 		{
-			if ( i == 0 )
+			if ( i == 0 ) {
+				//std::cout << "Initial layer activating in: " << layers[i]->in.size << " out: " << layers[i]->out.size << std::endl;
 				layers[i]->activate(data );
-			else
+			} else {
+				//std::cout << "Initial layer activating in: " << layers[i]->in.size << " out: " << layers[i]->out.size << std::endl;
 				layers[i]->activate(layers[i - 1]->out );
+			}
 		}
+		//std::cout << "Final output: " << layers.back()->out.size << std::endl;
 		return layers.back()->out;
 	}
 

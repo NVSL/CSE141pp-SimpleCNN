@@ -30,20 +30,19 @@ public:
 	virtual void calc_grads(const tensor_t<double>& grad_next_layer ) = 0;
 
 	// Everything else is utility functions.
-	void change_batch_size(int new_batch_size) {
-		//only valid after training
+	virtual void change_batch_size(int new_batch_size) {
 		tdsize new_in_size = in.size;
 		tdsize new_out_size = out.size;
 		new_in_size.b = new_batch_size;
 		new_out_size.b = new_batch_size;
-		std::cout << "this->in.size: " << in.size << std::endl;
-		in.resize(new_in_size);
-		std::cout << "Resized this->in to " << in.size << std::endl;
-		out.resize(new_out_size);
+		tensor_t<double> new_in(new_in_size);
+		in = new_in; 
+		tensor_t<double> new_out(new_out_size);
+		out = new_out;
 	}
 
 	void copy_input(const tensor_t<double>& in ) {
-		throw_assert(this->in.size == in.size, "Passed incorrectly-sized inputs to layer " << this->in.size << " == " << in.size);
+		throw_assert(this->in.size == in.size, "Passed incorrectly-sized inputs to layer. Expected: " << this->in.size << " Got: " << in.size);
 		this->in = in;
 	}
 
