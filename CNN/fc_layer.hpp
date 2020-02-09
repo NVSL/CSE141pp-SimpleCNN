@@ -69,8 +69,8 @@ public:
 
 
 		for ( int b = 0; b < in.size.y; b++ ) {
-			for ( int n = 0; n < out.size.x; n++ ) {
-				for ( int i = 0; i < in.size.x; i++ ) {
+			for ( int i = 0; i < in.size.x; i++ ) {
+				for ( int n = 0; n < out.size.x; n++ ) {
 					double in_val = in(i, b, 0);
 					double weight_val = weights( i, n, 0 );
 					double mul_val = in_val * weight_val;

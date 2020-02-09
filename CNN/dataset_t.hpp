@@ -6,7 +6,7 @@
 // test_case_t holds an input and it's label, both as tensors.
 struct test_case_t
 {
-    enum {VERSION = 1};
+	enum {VERSION = 1};
 	tensor_t<double> data;
 	tensor_t<double> label;
 
