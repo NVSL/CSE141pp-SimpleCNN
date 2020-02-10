@@ -1,9 +1,9 @@
 #pragma once
 #include "types.hpp"
 
-#define LEARNING_RATE 0.01
-#define MOMENTUM 0.6
-#define WEIGHT_DECAY 0.001
+#define LEARNING_RATE 0.1
+#define MOMENTUM 0.01
+#define WEIGHT_DECAY 0.0001
 
 static double update_weight( double w, gradient_t& grad, double multp = 1 )
 {
