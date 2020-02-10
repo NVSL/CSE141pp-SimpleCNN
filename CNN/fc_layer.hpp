@@ -7,11 +7,9 @@
 class fc_layer_t: public layer_t
 {
 public:
-	//std::vector<double> activator_input; // Output the sum-the-weights stage.. 
 	tensor_t<double> activator_input; // Output the sum-the-weights stage.. 
 	tensor_t<double> weights; // 2d array of weight (tensor with depth == 1)
-	std::vector<gradient_t> gradients; // gradients for back prop.
-	tensor_t<double> act_grad;
+	tensor_t<double> act_grad; // gradients for back prop.
         tensor_t<double> old_act_grad;
 
 	fc_layer_t( tdsize in_size, int out_size)
@@ -19,7 +17,6 @@ public:
 		layer_t(in_size, tdsize(out_size, 1, 1, in_size.b)),
 		activator_input(tdsize(out_size, 1, 1, in_size.b)),
 		weights( in_size.x*in_size.y*in_size.z, out_size, 1 ),
-		gradients(out_size),
         	act_grad(tdsize(out_size, 1, 1, in_size.b)),
         	old_act_grad(act_grad.size)
 		{
@@ -298,7 +295,8 @@ public:
 	// The rest is just utility functions
 	size_t get_total_memory_size() const {
 		return weights.get_total_memory_size() +
-			gradients.size() * sizeof(gradient_t) +
+			act_grad.element_count() * sizeof(double) +
+			old_act_grad.element_count() * sizeof(double) +
 			activator_input.element_count() * sizeof(double) +
 			layer_t::get_total_memory_size();
 	}
@@ -335,15 +333,23 @@ public:
 		if (this->weights.size != _other->weights.size) {
 			out << "Weights sizes don't match: " << DUMP(this->weights.size) << " != " << DUMP(_other->weights.size) << "\n";
 		}
-		if (this->gradients.size() != _other->gradients.size()) {
-			out << "Gradients sizes don't match: " << DUMP(this->gradients.size()) << " != " << DUMP(_other->gradients.size()) << "\n";
+		if (this->act_grad.size != _other->act_grad.size) {
+			out << "Act_grad sizes don't match: " << DUMP(this->act_grad.size) << " != " << DUMP(_other->act_grad.size) << "\n";
 		}
+		if (this->old_act_grad.size != _other->old_act_grad.size) {
+			out << "Old_act_grad sizes don't match: " << DUMP(this->old_act_grad.size) << " != " << DUMP(_other->old_act_grad.size) << "\n";
+		}
+		//if (this->gradients.size() != _other->gradients.size()) {
+		//	out << "Gradients sizes don't match: " << DUMP(this->gradients.size()) << " != " << DUMP(_other->gradients.size()) << "\n";
+		//}
 		
 		out << this->layer_t::analyze_inequality_with(_other);
 	
 		out << "Diff of ->activator_input: " << diff(this->activator_input, _other->activator_input) << "\n";
 		out << "Diff of ->weights: " << diff(this->weights, _other->weights) << "\n";
-		out << "Diff of ->gradients: " << diff(this->gradients, _other->gradients) << "\n";
+		out << "Diff of ->act_grad: " << diff(this->act_grad, _other->act_grad) << "\n";
+		out << "Diff of ->old_act_grad: " << diff(this->old_act_grad, _other->old_act_grad) << "\n";
+		//out << "Diff of ->gradients: " << diff(this->gradients, _other->gradients) << "\n";
 		return out.str();
 	}
 	
