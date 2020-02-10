@@ -39,6 +39,8 @@ public:
 		in = new_in; 
 		tensor_t<double> new_out(new_out_size);
 		out = new_out;
+		tensor_t<double> new_grads_out(new_in_size);
+		grads_out = new_grads_out;
 	}
 
 	void copy_input(const tensor_t<double>& in ) {

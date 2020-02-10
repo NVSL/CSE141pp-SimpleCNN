@@ -40,7 +40,6 @@ public:
 		act_grad = new_act_grad;
 		tensor_t<double> new_old_act_grad(act_grad.size);
 		old_act_grad = new_old_act_grad;
-
 	}
 
 	double activator_function( double x ) {
