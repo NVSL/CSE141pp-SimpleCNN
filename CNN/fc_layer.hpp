@@ -215,8 +215,8 @@ public:
 		// This loop is a vector-matrix product between the
 		// gradient and the weight matrix.
                 for ( int b = 0; b < out.size.b; b++ ) {
-                        for ( int n = 0; n < out.size.x; n++ ) {
-                                for ( int i = 0; i < grads_out.size.x; i++ ) {
+			for ( int i = 0; i < grads_out.size.x; i++ ) {
+				for ( int n = 0; n < out.size.x; n++ ) {
                                         grads_out(i, 0, 0, b) += act_grad(n, 0, 0, b) * weights( i, n, 0);
                                 }
                         }
