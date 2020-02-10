@@ -11,13 +11,17 @@ public:
 	tensor_t<double> activator_input; // Output the sum-the-weights stage.. 
 	tensor_t<double> weights; // 2d array of weight (tensor with depth == 1)
 	std::vector<gradient_t> gradients; // gradients for back prop.
+	tensor_t<double> act_grad;
+        tensor_t<double> old_act_grad;
 
 	fc_layer_t( tdsize in_size, int out_size)
 		:
 		layer_t(in_size, tdsize(out_size, 1, 1, in_size.b)),
 		activator_input(tdsize(out_size, 1, 1, in_size.b)),
 		weights( in_size.x*in_size.y*in_size.z, out_size, 1 ),
-		gradients(out_size)
+		gradients(out_size),
+        	act_grad(tdsize(in_size.x*in_size.y*in_size.z, 1, 1, in_size.b)),
+        	old_act_grad(act_grad.size)
 		{
 			int maxval = in_size.x * in_size.y * in_size.z;
 
@@ -32,6 +36,11 @@ public:
 		layer_t::change_batch_size(new_batch_size);
                 tensor_t<double> new_act(tdsize(activator_input.size.x, 1, 1, new_batch_size));
                 activator_input = new_act;
+		tensor_t<double> new_act_grad(tdsize(in.size.x*in.size.y*in.size.z, 1, 1, in.size.b));
+		act_grad = new_act_grad;
+		tensor_t<double> new_old_act_grad(act_grad.size);
+		old_act_grad = new_old_act_grad;
+
 	}
 
 	double activator_function( double x ) {
@@ -135,6 +144,7 @@ public:
 
 	}
 #endif
+
 	void calc_grads( const tensor_t<double>& grad_next_layer ) {
 		
 		memset( grads_out.data, 0, grads_out.size.x * grads_out.size.y * grads_out.size.z * sizeof( double ) );
@@ -181,14 +191,22 @@ public:
 
 		// The errors attributed to each input is the sum of
 		// the error it contributed across all the outputs.
-		for ( int n = 0; n < out.size.x; n++ ){
-			gradient_t& grad = gradients[n];
+		activator_input.size.x = activator_input.size.x * activator_input.size.y * activator_input.size.z;
+                activator_input.size.y = 1;
+                activator_input.size.z = 1;
 
-			// In `activator()` we saved the value of
-			// f(x,w) as `activator_input`, so we are
-			// reusing it here to compute L'(f(x,w))
-			grad.grad = grad_next_layer( n, 0, 0 ) * activator_derivative( activator_input.as_vector(n) );
-		}
+                grads_out.size.x = grads_out.size.x * grads_out.size.y * grads_out.size.z;
+                grads_out.size.y = 1;
+                grads_out.size.z = 1;
+
+                for ( int b = 0; b < out.size.b; b++ ) {
+                        for ( int n = 0; n < out.size.x; n++ ){
+				// In `activate()` we saved the value of
+				// f(x,w) as `activator_input`, so we are
+				// reusing it here to compute L'(f(x,w))
+				act_grad(n, 0, 0, b) = grad_next_layer(n, 0, 0, b) * activator_derivative( activator_input(n, 0, 0, b) );
+                        }
+                }
 		
 		// We are calculating how much each input
 		// contributed to the error.  That
@@ -197,12 +215,13 @@ public:
 		
 		// This loop is a vector-matrix product between the
 		// gradient and the weight matrix.
-		for ( int n = 0; n < out.size.x; n++ ) {
-			gradient_t& grad = gradients[n];
-			for ( uint i = 0; i < in.element_count(); i++ ) {
-				grads_out.as_vector(i) += grad.grad * weights( i, n, 0 );
-			}
-		}
+                for ( int b = 0; b < out.size.b; b++ ) {
+                        for ( int n = 0; n < out.size.x; n++ ) {
+                                for ( int i = 0; i < grads_out.size.x; i++ ) {
+                                        grads_out(i, 0, 0, b) += act_grad(n, 0, 0, b) * weights( i, n, 0);
+                                }
+                        }
+                }
 	}
 	
 	void fix_weights() {
@@ -252,15 +271,19 @@ public:
 		// tensor has the old and new gradient values in it.
 		// update_gradient() updates the old gradient with the
 		// new value.
-		for ( int n = 0; n < out.size.x; n++ )
-		{
-			gradient_t& grad = gradients[n];
-			for ( uint i = 0; i < in.element_count(); i++ ) {
-				double& w = weights( i, n, 0 );
-				w = update_weight( w, grad, in.as_vector(i));
-			}
-			update_gradient( grad );
-		}
+
+                for ( int b = 0; b < out.size.b; b++ ) {
+                        for ( int n = 0; n < out.size.x; n++ )
+                        {
+                                for ( int i = 0; i < weights.size.x; i++ ) {
+                                        double& w = weights( i, n, 0 );
+                                        double m = (act_grad(n, 0, 0, b) + old_act_grad(n, 0, 0, b) * MOMENTUM);
+                                        double g_weight = w - (LEARNING_RATE * m * in.as_vector(i) + LEARNING_RATE * WEIGHT_DECAY * w) / out.size.b;
+                                        w = g_weight;
+                                }
+                                old_act_grad(n, 0, 0, b) = act_grad(n, 0, 0, b) + old_act_grad(n, 0, 0, b) * MOMENTUM;
+                        }
+                }
 	}
 
 	// The rest is just utility functions
