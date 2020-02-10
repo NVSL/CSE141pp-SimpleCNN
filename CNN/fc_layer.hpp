@@ -7,11 +7,9 @@
 class fc_layer_t: public layer_t
 {
 public:
-	//std::vector<double> activator_input; // Output the sum-the-weights stage.. 
 	tensor_t<double> activator_input; // Output the sum-the-weights stage.. 
 	tensor_t<double> weights; // 2d array of weight (tensor with depth == 1)
-	std::vector<gradient_t> gradients; // gradients for back prop.
-	tensor_t<double> act_grad;
+	tensor_t<double> act_grad; // gradients for back prop.
         tensor_t<double> old_act_grad;
 
 	fc_layer_t( tdsize in_size, int out_size)
@@ -19,8 +17,7 @@ public:
 		layer_t(in_size, tdsize(out_size, 1, 1, in_size.b)),
 		activator_input(tdsize(out_size, 1, 1, in_size.b)),
 		weights( in_size.x*in_size.y*in_size.z, out_size, 1 ),
-		gradients(out_size),
-        	act_grad(tdsize(in_size.x*in_size.y*in_size.z, 1, 1, in_size.b)),
+        	act_grad(tdsize(out_size, 1, 1, in_size.b)),
         	old_act_grad(act_grad.size)
 		{
 			int maxval = in_size.x * in_size.y * in_size.z;
@@ -36,7 +33,7 @@ public:
 		layer_t::change_batch_size(new_batch_size);
                 tensor_t<double> new_act(tdsize(activator_input.size.x, 1, 1, new_batch_size));
                 activator_input = new_act;
-		tensor_t<double> new_act_grad(tdsize(in.size.x*in.size.y*in.size.z, 1, 1, in.size.b));
+		tensor_t<double> new_act_grad(tdsize(out.size.x, 1, 1, in.size.b));
 		act_grad = new_act_grad;
 		tensor_t<double> new_old_act_grad(act_grad.size);
 		old_act_grad = new_old_act_grad;
@@ -52,59 +49,10 @@ public:
 		double sig = 1.0f / (1.0f + exp( -x ));
 		return sig * (1 - sig);
 	}
-
-	void activate( tensor_t<double>& in ) {
-		copy_input(in);
-
-		tdsize old_size = in.size;
-		tdsize old_out_size = out.size;
-
-		// cast to correct shape
-		in.size.x = old_size.x * old_size.y * old_size.z;
-		in.size.y = old_size.b;
-		in.size.z = 1;
-		in.size.b = 1;
-
-		out.size.x = old_out_size.x * old_out_size.y * old_out_size.z;
-		out.size.y = old_out_size.b;
-		out.size.z = 1;
-		out.size.b = 1;
-
-		for ( int b = 0; b < activator_input.size.b; b += 1)
-		for ( int n = 0; n < activator_input.size.x; n++ ) {
-			activator_input(n, 0, 0, b) = 0;
-		}
-
-
-		for ( int b = 0; b < in.size.y; b++ ) {
-			for ( int i = 0; i < in.size.x; i++ ) {
-				for ( int n = 0; n < out.size.x; n++ ) {
-					double in_val = in(i, b, 0);
-					double weight_val = weights( i, n, 0 );
-					double mul_val = in_val * weight_val;
-					double acc_val = activator_input(n, 0, 0, b) + mul_val;
-					activator_input(n, 0, 0, b) = acc_val;
-				}
-			}
-		}
-
-		// finally, apply the activator function.
-		for ( unsigned int n = 0; n < activator_input.element_count(); n++ ) {
-			out.data[n] = activator_function( activator_input.data[n] );
-		}
-
-
-		in.size = old_size;
-		out.size = old_out_size;
-	}
-
 #if(0)
 	void activate( tensor_t<double>& in ) {
 		copy_input(in);
 
-		//for ( int n = 0; n < out.size.x; n++ ) {
-		//	activator_input.as_vector(n) = 0;
-		//}
 		for ( uint n = 0; n < activator_input.element_count(); n++ ) {
 			activator_input.data[n] = 0;
 		}
@@ -143,6 +91,51 @@ public:
 
 	}
 #endif
+
+	void activate( tensor_t<double>& in ) {
+		copy_input(in);
+
+		tdsize old_size = in.size;
+		tdsize old_out_size = out.size;
+
+		// cast to correct shape
+		in.size.x = old_size.x * old_size.y * old_size.z;
+		in.size.y = old_size.b;
+		in.size.z = 1;
+		in.size.b = 1;
+
+		out.size.x = old_out_size.x * old_out_size.y * old_out_size.z;
+		out.size.y = old_out_size.b;
+		out.size.z = 1;
+		out.size.b = 1;
+
+		for ( int b = 0; b < activator_input.size.b; b++) {
+			for ( int n = 0; n < activator_input.size.x; n++ ) {
+				activator_input(n, 0, 0, b) = 0;
+			}
+		}
+
+		for ( int b = 0; b < in.size.y; b++ ) {
+			for ( int i = 0; i < in.size.x; i++ ) {
+				for ( int n = 0; n < out.size.x; n++ ) {
+					double in_val = in(i, b, 0);
+					double weight_val = weights( i, n, 0 );
+					double mul_val = in_val * weight_val;
+					double acc_val = activator_input(n, 0, 0, b) + mul_val;
+					activator_input(n, 0, 0, b) = acc_val;
+				}
+			}
+		}
+
+		// finally, apply the activator function.
+		for ( unsigned int n = 0; n < activator_input.element_count(); n++ ) {
+			out.data[n] = activator_function( activator_input.data[n] );
+		}
+
+		// don't forget to reset the shapes
+		in.size = old_size;
+		out.size = old_out_size;
+	}
 
 	void calc_grads( const tensor_t<double>& grad_next_layer ) {
 		
@@ -190,20 +183,21 @@ public:
 
 		// The errors attributed to each input is the sum of
 		// the error it contributed across all the outputs.
-		activator_input.size.x = activator_input.size.x * activator_input.size.y * activator_input.size.z;
-                activator_input.size.y = 1;
-                activator_input.size.z = 1;
 
                 grads_out.size.x = grads_out.size.x * grads_out.size.y * grads_out.size.z;
                 grads_out.size.y = 1;
                 grads_out.size.z = 1;
 
                 for ( int b = 0; b < out.size.b; b++ ) {
-                        for ( int n = 0; n < out.size.x; n++ ){
+                        for ( int n = 0; n < activator_input.size.x; n++ ){
 				// In `activate()` we saved the value of
 				// f(x,w) as `activator_input`, so we are
 				// reusing it here to compute L'(f(x,w))
-				act_grad(n, 0, 0, b) = grad_next_layer(n, 0, 0, b) * activator_derivative( activator_input(n, 0, 0, b) );
+				double ad = activator_derivative( activator_input(n, 0, 0, b) );
+				//std::cout << ad;
+				double ng = grad_next_layer(n, 0, 0, b);
+				//std::cout << ng;
+				act_grad(n, 0, 0, b) = ad * ng;
                         }
                 }
 		
@@ -212,8 +206,6 @@ public:
 		// contribution is proportional to the
 		// weights.
 		
-		// This loop is a vector-matrix product between the
-		// gradient and the weight matrix.
                 for ( int b = 0; b < out.size.b; b++ ) {
 			for ( int i = 0; i < grads_out.size.x; i++ ) {
 				for ( int n = 0; n < out.size.x; n++ ) {
@@ -221,6 +213,8 @@ public:
                                 }
                         }
                 }
+
+		grads_out.size = in.size;
 	}
 	
 	void fix_weights() {
@@ -271,24 +265,31 @@ public:
 		// update_gradient() updates the old gradient with the
 		// new value.
 
+		tdsize old_in_size = in.size;
+		in.size.x = in.size.x * in.size.y * in.size.z;
+		in.size.y = 1;
+		in.size.z = 1;
+
                 for ( int b = 0; b < out.size.b; b++ ) {
-                        for ( int n = 0; n < out.size.x; n++ )
-                        {
+                //{ int b = 1;
+                        for ( int n = 0; n < weights.size.y; n++ ) {
                                 for ( int i = 0; i < weights.size.x; i++ ) {
                                         double& w = weights( i, n, 0 );
                                         double m = (act_grad(n, 0, 0, b) + old_act_grad(n, 0, 0, b) * MOMENTUM);
-                                        double g_weight = w - (LEARNING_RATE * m * in.as_vector(i) + LEARNING_RATE * WEIGHT_DECAY * w) / out.size.b;
+                                        double g_weight = w - (LEARNING_RATE * m * in(i, 0, 0, b) + LEARNING_RATE * WEIGHT_DECAY * w);
                                         w = g_weight;
                                 }
                                 old_act_grad(n, 0, 0, b) = act_grad(n, 0, 0, b) + old_act_grad(n, 0, 0, b) * MOMENTUM;
                         }
                 }
+		in.size = old_in_size;
 	}
 
 	// The rest is just utility functions
 	size_t get_total_memory_size() const {
 		return weights.get_total_memory_size() +
-			gradients.size() * sizeof(gradient_t) +
+			act_grad.element_count() * sizeof(double) +
+			old_act_grad.element_count() * sizeof(double) +
 			activator_input.element_count() * sizeof(double) +
 			layer_t::get_total_memory_size();
 	}
@@ -325,15 +326,23 @@ public:
 		if (this->weights.size != _other->weights.size) {
 			out << "Weights sizes don't match: " << DUMP(this->weights.size) << " != " << DUMP(_other->weights.size) << "\n";
 		}
-		if (this->gradients.size() != _other->gradients.size()) {
-			out << "Gradients sizes don't match: " << DUMP(this->gradients.size()) << " != " << DUMP(_other->gradients.size()) << "\n";
+		if (this->act_grad.size != _other->act_grad.size) {
+			out << "Act_grad sizes don't match: " << DUMP(this->act_grad.size) << " != " << DUMP(_other->act_grad.size) << "\n";
 		}
+		if (this->old_act_grad.size != _other->old_act_grad.size) {
+			out << "Old_act_grad sizes don't match: " << DUMP(this->old_act_grad.size) << " != " << DUMP(_other->old_act_grad.size) << "\n";
+		}
+		//if (this->gradients.size() != _other->gradients.size()) {
+		//	out << "Gradients sizes don't match: " << DUMP(this->gradients.size()) << " != " << DUMP(_other->gradients.size()) << "\n";
+		//}
 		
 		out << this->layer_t::analyze_inequality_with(_other);
 	
 		out << "Diff of ->activator_input: " << diff(this->activator_input, _other->activator_input) << "\n";
 		out << "Diff of ->weights: " << diff(this->weights, _other->weights) << "\n";
-		out << "Diff of ->gradients: " << diff(this->gradients, _other->gradients) << "\n";
+		out << "Diff of ->act_grad: " << diff(this->act_grad, _other->act_grad) << "\n";
+		out << "Diff of ->old_act_grad: " << diff(this->old_act_grad, _other->old_act_grad) << "\n";
+		//out << "Diff of ->gradients: " << diff(this->gradients, _other->gradients) << "\n";
 		return out.str();
 	}
 	
