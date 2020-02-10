@@ -45,7 +45,7 @@ namespace CNNTest {
 		model_t model;
 		srand(42);
 		
-			conv_layer_t layer1( 1, 2, 2, 0, rand_ds.data_size);
+		conv_layer_t layer1( 1, 2, 2, 0, rand_ds.data_size);
 		relu_layer_t layer2(layer1.out.size );
 		pool_layer_t layer3( 1, 2, 0, layer2.out.size );
 		fc_layer_t layer4(layer3.out.size, 10);
@@ -73,15 +73,15 @@ namespace CNNTest {
 	};
 	
 	TEST_F(FunctionTests, fc_activate) {
-		fc_test_activate<fc_layer_t>(1,1,1,1,1);
+		fc_test_activate<fc_layer_t>(1,1,1,1,1,1);
 	}
 			  
 	TEST_F(FunctionTests, fc_calc_grads) {
-		fc_test_calc_grads<fc_layer_t>(1,1,1,1,1);
+		fc_test_calc_grads<fc_layer_t>(1,1,1,1,1,1);
 	}
 
 	TEST_F(FunctionTests, fc_fix_weights) {
-		fc_test_fix_weights<fc_layer_t>(1,1,1,1,1);
+		fc_test_fix_weights<fc_layer_t>(1,1,1,1,1,1);
 	}
 
 #if (0)
