@@ -47,7 +47,7 @@ Here's where you'll find the parts of Cenala:
 
 Canela relies heavily on several basic data types:
 
-* `tensor_t` : 3D array for storing inputs and outputs (defined in
+* `tensor_t` : 4D array for storing inputs and outputs (defined in
   `CNN/tensor_t.hpp`).
 
 * `model_t` : A container for `layer_t` objects in a CNN model and
