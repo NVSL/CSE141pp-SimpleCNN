@@ -7,9 +7,10 @@ class conv_layer_t: public layer_t
 {
 public:
 	std::vector<tensor_t<double>> filters;  // convolution filter kernels
-	std::vector<tensor_t<gradient_t> > filter_grads;
+	std::vector<tensor_t<gradient_t>> filter_grads;
 	uint16_t stride;
 	uint16_t kernel_size;
+	uint16_t kernel_count;
 	double pad;
 	
 	conv_layer_t( uint16_t stride,
@@ -21,12 +22,13 @@ public:
 		:
 		layer_t(in_size, tdsize(ROUND_UP_IDIV(in_size.x, stride),
 					ROUND_UP_IDIV(in_size.y, stride),
-					kernel_count)),
+					kernel_count, in_size.b)),
 		pad(pad)
 		
 	{
 		this->stride = stride;
 		this->kernel_size = kernel_size;
+		this->kernel_count = kernel_count;
 		throw_assert(kernel_size >= stride, "Convolution kernel size (" << kernel_size << ") must be >= than stride (" << stride << ").");
 		for ( int a = 0; a < kernel_count; a++ ) {	
 			tensor_t<double> t( kernel_size, kernel_size, in_size.z );
@@ -41,11 +43,22 @@ public:
 		}
 		for ( int i = 0; i < kernel_count; i++ )
 		{
-			tensor_t<gradient_t> t( kernel_size, kernel_size, in_size.z );
+			tensor_t<gradient_t> t( kernel_size, kernel_size, in_size.z, in_size.b );
 			filter_grads.push_back( t );
 		}
 
 	}
+
+	void change_batch_size(int new_batch_size) {
+                std::cout << "Changing conv_layer batch_size" << std::endl;
+                layer_t::change_batch_size(new_batch_size);
+		filter_grads.clear();
+		for ( int i = 0; i < this->kernel_count; i++ )
+		{
+			tensor_t<gradient_t> t( this->kernel_size, this->kernel_size, in.size.z, in.size.b );
+			filter_grads.push_back( t );
+		}
+        }
 
 	size_t get_total_memory_size() const {
 		size_t sum = 0;
@@ -100,70 +113,75 @@ public:
 
 	void activate( tensor_t<double>& in ) {
 		copy_input(in);
-		for ( uint filter = 0; filter < filters.size(); filter++ ) {
-			tensor_t<double>& filter_data = filters[filter];
-			for ( int x = 0; x < out.size.x; x++ ) {
-				for ( int y = 0; y < out.size.y; y++ ) {
-					point_t mapped(x*stride, y*stride, 0);
-					double sum = 0;
-					for ( int i = 0; i < kernel_size; i++ )
-						for ( int j = 0; j < kernel_size; j++ )
-							for ( int z = 0; z < in.size.z; z++ ) {
-								double f = filter_data( i, j, z );
+		for ( int b = 0; b < out.size.b; b++ ) {
+			for ( uint filter = 0; filter < filters.size(); filter++ ) {
+				tensor_t<double>& filter_data = filters[filter];
+				for ( int x = 0; x < out.size.x; x++ ) {
+					for ( int y = 0; y < out.size.y; y++ ) {
+						point_t mapped(x*stride, y*stride, 0);
+						double sum = 0;
+						for ( int i = 0; i < kernel_size; i++ )
+							for ( int j = 0; j < kernel_size; j++ )
+								for ( int z = 0; z < in.size.z; z++ ) {
+									double f = filter_data( i, j, z );
 								
-								double v;
-								if (mapped.x + i >= in.size.x ||
-								    mapped.y + j >= in.size.y) {
-									v = pad;
-								} else {
-									v = in( mapped.x + i, mapped.y + j, z );
+									double v;
+									if (mapped.x + i >= in.size.x ||
+								    	mapped.y + j >= in.size.y) {
+										v = pad;
+									} else {
+										v = in( mapped.x + i, mapped.y + j, z, b );
+									}
+									sum += f*v;
 								}
-								sum += f*v;
-							}
-					out( x, y, filter ) = sum;
+						out( x, y, filter, b ) = sum;
+					}
 				}
 			}
 		}
 	}
 
 	void fix_weights() {
-		for ( uint a = 0; a < filters.size(); a++ )
-			for ( int i = 0; i < kernel_size; i++ )
-				for ( int j = 0; j < kernel_size; j++ )
-					for ( int z = 0; z < in.size.z; z++ ) {
-						double& w = filters[a].get( i, j, z );
-						gradient_t& grad = filter_grads[a].get( i, j, z );
-						w = update_weight( w, grad );
-						update_gradient( grad );
-					}
+		for ( int b = 0; b < in.size.b; b++ )
+			for ( uint a = 0; a < filters.size(); a++ )
+				for ( int i = 0; i < kernel_size; i++ )
+					for ( int j = 0; j < kernel_size; j++ )
+						for ( int z = 0; z < in.size.z; z++ ) {
+							double& w = filters[a].get( i, j, z );
+							gradient_t& grad = filter_grads[a].get( i, j, z, b );
+							w = update_weight( w, grad );
+							update_gradient( grad );
+						}
 	}
 
 	void calc_grads(const tensor_t<double>& grad_next_layer ) {
 		throw_assert(grad_next_layer.size == out.size, "mismatch input size for calc_grads");
-
-		for ( uint k = 0; k < filter_grads.size(); k++ ) 
-			for ( int i = 0; i < kernel_size; i++ )
-				for ( int j = 0; j < kernel_size; j++ )
-					for ( int z = 0; z < in.size.z; z++ )
-						filter_grads[k].get( i, j, z ).grad = 0;
+		for ( int b = 0; b < in.size.b; b++ )
+			for ( uint k = 0; k < filter_grads.size(); k++ ) 
+				for ( int i = 0; i < kernel_size; i++ )
+					for ( int j = 0; j < kernel_size; j++ )
+						for ( int z = 0; z < in.size.z; z++ )
+							filter_grads[k].get( i, j, z, b ).grad = 0;
 		
-		for ( int x = 0; x < in.size.x; x++ ) {
-			for ( int y = 0; y < in.size.y; y++ ) {
-				range_t rn = map_to_output( x, y );
-				for ( int z = 0; z < in.size.z; z++ ) {
-					double sum_error = 0;
-					for ( int i = rn.min_x; i <= rn.max_x; i++ ) {
-						int minx = i * stride;
-						for ( int j = rn.min_y; j <= rn.max_y; j++ ) {
-							int miny = j * stride;
-							for ( int k = rn.min_z; k <= rn.max_z; k++ ) {
-								int w_applied = filters[k].get( x - minx, y - miny, z );
-								sum_error += w_applied * grad_next_layer( i, j, k );
-								filter_grads[k].get( x - minx, y - miny, z ).grad += in( x, y, z ) * grad_next_layer( i, j, k );
+		for ( int b = 0; b < in.size.b; b++ ) {
+			for ( int x = 0; x < in.size.x; x++ ) {
+				for ( int y = 0; y < in.size.y; y++ ) {
+					range_t rn = map_to_output( x, y );
+					for ( int z = 0; z < in.size.z; z++ ) {
+						double sum_error = 0;
+						for ( int i = rn.min_x; i <= rn.max_x; i++ ) {
+							int minx = i * stride;
+							for ( int j = rn.min_y; j <= rn.max_y; j++ ) {
+								int miny = j * stride;
+								for ( int k = rn.min_z; k <= rn.max_z; k++ ) {
+									int w_applied = filters[k].get( x - minx, y - miny, z );
+									sum_error += w_applied * grad_next_layer( i, j, k, b );
+									filter_grads[k].get( x - minx, y - miny, z, b ).grad += in( x, y, z, b ) * grad_next_layer( i, j, k, b );
+								}
 							}
 						}
+						grads_out( x, y, z, b ) = sum_error;
 					}
-					grads_out( x, y, z ) = sum_error;
 				}
 			}
 		}

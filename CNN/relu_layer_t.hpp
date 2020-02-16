@@ -28,16 +28,17 @@ public:
 	
 	void activate(tensor_t<double>& in ) {
 		copy_input(in);
-		for ( int x = 0; x < in.size.x; x++ )
-			for ( int y = 0; y < in.size.y; y++ )
-				for ( int z = 0; z < in.size.z; z++ )
-				{
-					double v = in( x, y, z );
-					if ( v < 0 ) {
-						v = 0;
+		for (int b = 0; b < in.size.b; b++ )
+			for ( int x = 0; x < in.size.x; x++ )
+				for ( int y = 0; y < in.size.y; y++ )
+					for ( int z = 0; z < in.size.z; z++ )
+					{
+						double v = in( x, y, z, b );
+						if ( v < 0 ) {
+							v = 0;
+						}
+						out( x, y, z, b ) = v;
 					}
-					out( x, y, z ) = v;
-				}
 	}
 
 	void fix_weights()
@@ -48,14 +49,15 @@ public:
 	void calc_grads(const tensor_t<double>& grad_next_layer )
 	{
 		throw_assert(grad_next_layer.size == in.size, "mismatched input");
-		for ( int i = 0; i < in.size.x; i++ )
-			for ( int j = 0; j < in.size.y; j++ )
-				for ( int z = 0; z < in.size.z; z++ )
-				{
-					grads_out( i, j, z ) = (in( i, j, z ) < 0) ?
-						(0) :
-						(grad_next_layer( i, j, z ));
-				}
+		for ( int b = 0; b < in.size.b; b++ )
+			for ( int i = 0; i < in.size.x; i++ )
+				for ( int j = 0; j < in.size.y; j++ )
+					for ( int z = 0; z < in.size.z; z++ )
+					{
+						grads_out( i, j, z ) = (in( i, j, z ) < 0) ?
+							(0) :
+							(grad_next_layer( i, j, z ));
+					}
 
 	}
 };
