@@ -62,6 +62,106 @@ public:
 	}
 };
 
+template<class T> T* run_relu(int x, int y, int z, int b,
+			      int seed) {
+	srand(seed);
+	tdsize size(x,y,z,b);
+	T * l = new T(size);
+	l->test_me();
+	return l;
+}
+
+template<class T> T* run_relu_activate(int x, int y, int z, int b,
+				       int seed) {
+	srand(seed);
+	tdsize size(x,y,z,b);
+	T * l = new T(size);
+	l->test_activate();
+	return l;
+}
+
+template<class T> T* run_relu_calc_grads(int x, int y, int z, int b,
+					 int seed) {
+	srand(seed);
+	tdsize size(x,y,z,b);
+	T * l = new T(size);
+	l->test_calc_grads();
+	return l;
+}
+
+template<class T> T* run_relu_fix_weights(int x, int y, int z, int b,
+					  int seed) {
+	srand(seed);
+	tdsize size(x,y,z,b);
+	T * l = new T(size);
+	l->test_fix_weights();
+	return l;
+}
+
+template<class T>
+void relu_test(int x, int y, int z, int b, 
+	       int seed) {					
+	relu_layer_t * reference = run_relu<relu_layer_t>(x,y,z,b,
+							  seed);
+	relu_layer_t * optimized = run_relu<T>(x,y,z,b, 
+					       seed);
+	EXPECT_LAYERS_EQ(relu_layer_t, reference, optimized) << "Failure: relu_test("
+							     << x << ", "
+							     << y << ", "
+							     << z << ", "
+							     << b << ", "
+							     << seed << ");\n";
+	delete reference;					
+	delete optimized;
+}
+
+
+template<class T>
+void relu_test_activate(int x, int y, int z, int b, 
+			int seed) {
+	relu_layer_t * reference = run_relu_activate<relu_layer_t>(x,y,z,b,
+								   seed);
+	relu_layer_t * optimized = run_relu_activate<T>(x,y,z,b,
+							seed);
+	EXPECT_TENSORS_EQ(double, reference->out, optimized->out) << "Failure: relu_test_activate("
+								  << x << ", "
+								  << y<< ", "
+								  << z<< ", "
+								  << b << ", "
+								  << seed << ");\n";
+	delete reference;					
+	delete optimized;
+}
+
+template<class T>
+
+void relu_test_calc_grads(int x, int y, int z, int b, 
+			  int seed) {
+	relu_layer_t * reference = run_relu_calc_grads<relu_layer_t>(x,y,z,b,
+								     seed);
+	relu_layer_t * optimized = run_relu_calc_grads<T>(x,y,z,b, 
+							  seed);
+	EXPECT_TENSORS_EQ(double, reference->grads_out, optimized->grads_out) << "Failure: grads_out in relu_test_calc_grads("
+									      << x << ", "
+									      << y<< ", "
+									      << z<< ", "
+									      << b << ", "
+									      << seed << ");\n";
+	delete reference;					
+	delete optimized;
+}
+
+template<class T>
+void relu_test_fix_weights(int x, int y, int z, int b, 
+			   int seed) {
+	relu_layer_t * reference = run_relu_fix_weights<relu_layer_t>(x,y,y,b,
+								      seed);
+	relu_layer_t * optimized = run_relu_fix_weights<T>(x,y,z,b, 
+							   seed);
+	delete reference;					
+	delete optimized;
+}
+
 
 #ifdef INCLUDE_TESTS
 namespace CNNTest{

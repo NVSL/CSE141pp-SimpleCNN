@@ -207,6 +207,131 @@ inline static std::ostream& operator<<(std::ostream& os, const conv_layer_t & l)
 	return os;
 }
 
+
+template<class T> T* run_conv(int x, int y, int z, int b, uint16_t stride, uint16_t kernel_size, uint16_t kernel_count, double pad,
+			      int seed) {
+	srand(seed);
+	tdsize size(x,y,z,b);
+	T * l = new T(stride, kernel_size, kernel_count, pad, size);
+	l->test_me();
+	return l;
+}
+
+template<class T> T* run_conv_activate(int x, int y, int z, int b, uint16_t stride, uint16_t kernel_size, uint16_t kernel_count, double pad,
+				       int seed) {
+	srand(seed);
+	tdsize size(x,y,z,b);
+	T * l = new T(stride, kernel_size, kernel_count, pad, size);
+	l->test_activate();
+	return l;
+}
+
+template<class T> T* run_conv_calc_grads(int x, int y, int z, int b, uint16_t stride, uint16_t kernel_size, uint16_t kernel_count, double pad,
+					 int seed) {
+	srand(seed);
+	tdsize size(x,y,z,b);
+	T * l = new T(stride, kernel_size, kernel_count, pad, size);
+	l->test_calc_grads();
+	return l;
+}
+
+template<class T> T* run_conv_fix_weights(int x, int y, int z, int b, uint16_t stride, uint16_t kernel_size, uint16_t kernel_count, double pad,
+					  int seed) {
+	srand(seed);
+	tdsize size(x,y,z,b);
+	T * l = new T(stride, kernel_size, kernel_count, pad, size);
+	l->test_fix_weights();
+	return l;
+}
+
+template<class T>
+void conv_test(int x, int y, int z, int b, uint16_t stride, uint16_t kernel_size, uint16_t kernel_count, double pad, int seed) {					
+	conv_layer_t * reference = run_conv<conv_layer_t>(x,y,z,b, stride, kernel_size, kernel_count, pad,seed);
+	conv_layer_t * optimized = run_conv<T>(x,y,z,b, stride, kernel_size, kernel_count, pad, seed);
+	EXPECT_LAYERS_EQ(conv_layer_t, reference, optimized) << "Failure: conv_test("
+							     << x << ", "
+							     << y << ", "
+							     << z << ", "
+							     << b << ", "
+							     << stride << ", "
+							     << kernel_size << ", "
+							     << kernel_count << ", "
+							     << pad << ", "
+							     << seed << ");\n";
+	delete reference;					
+	delete optimized;
+}
+
+
+template<class T>
+void conv_test_activate(int x, int y, int z, int b, uint16_t stride, uint16_t kernel_size, uint16_t kernel_count, double pad, int seed) {
+	conv_layer_t * reference = run_conv_activate<conv_layer_t>(x,y,z,b, stride, kernel_size, kernel_count, pad, seed);
+	conv_layer_t * optimized = run_conv_activate<T>(x,y,z,b, stride, kernel_size, kernel_count, pad, seed);
+	EXPECT_TENSORS_EQ(double, reference->out, optimized->out) << "Failure: conv_test_activate("
+								  << x << ", "
+								  << y<< ", "
+								  << z<< ", "
+								  << b << ", "
+								  << stride << ", "
+								  << kernel_size << ", "
+								  << kernel_count << ", "
+								  << pad << ", "
+								  << seed << ");\n";
+	delete reference;					
+	delete optimized;
+}
+
+template<class T>
+
+void conv_test_calc_grads(int x, int y, int z, int b, uint16_t stride, uint16_t kernel_size, uint16_t kernel_count, double pad, int seed) {
+	conv_layer_t * reference = run_conv_calc_grads<conv_layer_t>(x,y,z,b, stride, kernel_size, kernel_count, pad, seed);
+	conv_layer_t * optimized = run_conv_calc_grads<T>(x,y,z,b, stride, kernel_size, kernel_count, pad, seed);
+	EXPECT_TENSORS_EQ(double, reference->grads_out, optimized->grads_out) << "Failure: grads_out in conv_test_calc_grads("
+									      << x << ", "
+									      << y<< ", "
+									      << z<< ", "
+									      << b << ", "
+									      << stride << ", "
+									      << kernel_size << ", "
+									      << kernel_count << ", "
+									      << pad << ", "
+									      << seed << ");\n";
+	for(uint i = 0; i < reference->filter_grads.size(); i++) {
+		EXPECT_TENSORS_EQ(gradient_t, reference->filter_grads[i], optimized->filter_grads[i]) << "Failure: filter_grads[" << i << "] in conv_test_calc_grads("
+												  << x << ", "
+												  << y<< ", "
+												  << z<< ", "
+												  << b << ", "
+												  << stride << ", "
+												  << kernel_size << ", "
+												  << kernel_count << ", "
+												  << pad << ", "
+												  << seed << ");\n";
+	}
+	delete reference;					
+	delete optimized;
+}
+
+template<class T>
+void conv_test_fix_weights(int x, int y, int z, int b, uint16_t stride, uint16_t kernel_size, uint16_t kernel_count, double pad, int seed) {
+	conv_layer_t * reference = run_conv_fix_weights<conv_layer_t>(x,y,y,b, stride, kernel_size, kernel_count, pad, seed);
+	conv_layer_t * optimized = run_conv_fix_weights<T>(x,y,z,b, stride, kernel_size, kernel_count, pad, seed);
+	for(uint i = 0; i < reference->filters.size(); i++) {
+		EXPECT_TENSORS_EQ(double, reference->filters[i], optimized->filters[i]) << "Failure: filters[" << i << "] in conv_test_fix_weights("
+											<< x << ", "
+											<< y<< ", "
+											<< z<< ", "
+											<< b << ", "
+											<< stride << ", "
+											<< kernel_size << ", "
+											<< kernel_count << ", "
+											<< pad << ", "
+											<< seed << ");\n";
+	}
+	delete reference;					
+	delete optimized;
+}
+
        
 #ifdef INCLUDE_TESTS
 namespace CNNTest{

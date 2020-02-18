@@ -102,6 +102,102 @@ public:
 	}
 };
 
+template<class T> T* run_pool(int x, int y, int z, int b, uint16_t stride, uint16_t kernel_size, double pad,
+			      int seed) {
+	srand(seed);
+	tdsize size(x,y,z,b);
+	T * l = new T(stride, kernel_size, pad, size);
+	l->test_me();
+	return l;
+}
+
+template<class T> T* run_pool_activate(int x, int y, int z, int b, uint16_t stride, uint16_t kernel_size, double pad,
+				       int seed) {
+	srand(seed);
+	tdsize size(x,y,z,b);
+	T * l = new T(stride, kernel_size, pad, size);
+	l->test_activate();
+	return l;
+}
+
+template<class T> T* run_pool_calc_grads(int x, int y, int z, int b, uint16_t stride, uint16_t kernel_size, double pad,
+					 int seed) {
+	srand(seed);
+	tdsize size(x,y,z,b);
+	T * l = new T(stride, kernel_size, pad, size);
+	l->test_calc_grads();
+	return l;
+}
+
+template<class T> T* run_pool_fix_weights(int x, int y, int z, int b, uint16_t stride, uint16_t kernel_size, double pad,
+					  int seed) {
+	srand(seed);
+	tdsize size(x,y,z,b);
+	T * l = new T(stride, kernel_size, pad, size);
+	l->test_fix_weights();
+	return l;
+}
+
+template<class T>
+void pool_test(int x, int y, int z, int b, uint16_t stride, uint16_t kernel_size, double pad, int seed) {					
+	pool_layer_t * reference = run_pool<pool_layer_t>(x,y,z,b, stride, kernel_size, pad,seed);
+	pool_layer_t * optimized = run_pool<T>(x,y,z,b, stride, kernel_size, pad, seed);
+	EXPECT_LAYERS_EQ(pool_layer_t, reference, optimized) << "Failure: pool_test("
+							     << x << ", "
+							     << y << ", "
+							     << z << ", "
+							     << b << ", "
+							     << stride << ", "
+							     << kernel_size << ", "
+							     << pad << ", "
+							     << seed << ");\n";
+	delete reference;					
+	delete optimized;
+}
+
+
+template<class T>
+void pool_test_activate(int x, int y, int z, int b, uint16_t stride, uint16_t kernel_size, double pad, int seed) {
+	pool_layer_t * reference = run_pool_activate<pool_layer_t>(x,y,z,b, stride, kernel_size, pad, seed);
+	pool_layer_t * optimized = run_pool_activate<T>(x,y,z,b, stride, kernel_size, pad, seed);
+	EXPECT_TENSORS_EQ(double, reference->out, optimized->out) << "Failure: pool_test_activate("
+								  << x << ", "
+								  << y<< ", "
+								  << z<< ", "
+								  << b << ", "
+								  << stride << ", "
+								  << kernel_size << ", "
+								  << pad << ", "
+								  << seed << ");\n";
+	delete reference;					
+	delete optimized;
+}
+
+template<class T>
+
+void pool_test_calc_grads(int x, int y, int z, int b, uint16_t stride, uint16_t kernel_size, double pad, int seed) {
+	pool_layer_t * reference = run_pool_calc_grads<pool_layer_t>(x,y,z,b, stride, kernel_size, pad, seed);
+	pool_layer_t * optimized = run_pool_calc_grads<T>(x,y,z,b, stride, kernel_size, pad, seed);
+	EXPECT_TENSORS_EQ(double, reference->grads_out, optimized->grads_out) << "Failure: grads_out in pool_test_calc_grads("
+									      << x << ", "
+									      << y<< ", "
+									      << z<< ", "
+									      << b << ", "
+									      << stride << ", "
+									      << kernel_size << ", "
+									      << pad << ", "
+									      << seed << ");\n";
+	delete reference;					
+	delete optimized;
+}
+
+template<class T>
+void pool_test_fix_weights(int x, int y, int z, int b, uint16_t stride, uint16_t kernel_size, double pad, int seed) {
+	pool_layer_t * reference = run_pool_fix_weights<pool_layer_t>(x,y,y,b, stride, kernel_size, pad, seed);
+	pool_layer_t * optimized = run_pool_fix_weights<T>(x,y,z,b, stride, kernel_size, pad, seed);
+	delete reference;					
+	delete optimized;
+}
 
 #ifdef INCLUDE_TESTS
 namespace CNNTest{

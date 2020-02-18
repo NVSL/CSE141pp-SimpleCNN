@@ -498,6 +498,42 @@ static std::string diff(const tensor_t<T> & first, const tensor_t<T> & second)
 	
 }
 
+template<>
+[[maybe_unused]] std::string diff(const tensor_t<gradient_t> & first, const tensor_t<gradient_t> & second) 
+{
+	std::stringstream out;
+	tensor_t<bool> diff(first.size);
+	bool found = false;
+	bool deltas = tensor_t<double>::diff_prints_deltas;
+	
+	for ( int b = 0; b < diff.size.b; b ++ ) {
+		out << "b = " << b << ": \n";
+		for ( int z = 0; z < diff.size.z; z++ ) {
+			out << "z = " << z << ": \n";
+			for ( int y = 0; y < diff.size.y; y++ ) {
+				for ( int x = 0; x < diff.size.x; x++ ) {
+				        if (!almost_equal(first(x,y,z,b), second(x,y,z,b)))
+						found = true;
+					if (deltas) {
+						out  << std::setprecision(2) << "<" << (first(x,y,z,b).grad - second(x,y,z,b).grad) << ", " << (first(x,y,z,b).oldgrad - second(x,y,z,b).oldgrad) << "> ";
+					} else {
+						out << (!almost_equal(first(x,y,z,b), second(x,y,z,b)) ? "#" : ".");
+					}
+				}
+				out << "\n";
+			}
+		}
+	}
+
+
+	if (found) {
+		return "\n" + out.str();
+	} else {
+		return "<identical>";
+	}
+	
+}
+
 template<class T>
 static std::string diff(const std::vector<T> & a, const std::vector<T> & b)
 {
