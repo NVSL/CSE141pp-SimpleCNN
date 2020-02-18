@@ -140,6 +140,14 @@ public:
 			}
 		}
 	}
+	
+	void test_fix_weights() {
+		for(uint i = 0; i < filter_grads.size(); i++) {
+			randomize(filter_grads[i]);
+		}
+		fix_weights();
+	}
+
 
 	void fix_weights() {
 		for ( int b = 0; b < in.size.b; b++ )
@@ -282,7 +290,6 @@ void conv_test_activate(int x, int y, int z, int b, uint16_t stride, uint16_t ke
 }
 
 template<class T>
-
 void conv_test_calc_grads(int x, int y, int z, int b, uint16_t stride, uint16_t kernel_size, uint16_t kernel_count, double pad, int seed) {
 	conv_layer_t * reference = run_conv_calc_grads<conv_layer_t>(x,y,z,b, stride, kernel_size, kernel_count, pad, seed);
 	conv_layer_t * optimized = run_conv_calc_grads<T>(x,y,z,b, stride, kernel_size, kernel_count, pad, seed);
@@ -314,8 +321,9 @@ void conv_test_calc_grads(int x, int y, int z, int b, uint16_t stride, uint16_t 
 
 template<class T>
 void conv_test_fix_weights(int x, int y, int z, int b, uint16_t stride, uint16_t kernel_size, uint16_t kernel_count, double pad, int seed) {
-	conv_layer_t * reference = run_conv_fix_weights<conv_layer_t>(x,y,y,b, stride, kernel_size, kernel_count, pad, seed);
+	conv_layer_t * reference = run_conv_fix_weights<conv_layer_t>(x,y,z,b, stride, kernel_size, kernel_count, pad, seed);
 	conv_layer_t * optimized = run_conv_fix_weights<T>(x,y,z,b, stride, kernel_size, kernel_count, pad, seed);
+
 	for(uint i = 0; i < reference->filters.size(); i++) {
 		EXPECT_TENSORS_EQ(double, reference->filters[i], optimized->filters[i]) << "Failure: filters[" << i << "] in conv_test_fix_weights("
 											<< x << ", "

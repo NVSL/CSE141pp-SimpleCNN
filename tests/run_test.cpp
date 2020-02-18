@@ -89,6 +89,7 @@ namespace CNNTest {
 	
 	TEST_F(FunctionTests, conv_activate) {
 	conv_test_activate<conv_layer_t>(1,1,1,1,1,1,1,1,1);
+	
 }
 			  
 	TEST_F(FunctionTests, conv_calc_grads) {

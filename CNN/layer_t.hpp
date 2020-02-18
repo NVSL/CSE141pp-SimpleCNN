@@ -90,7 +90,7 @@ public:
 	}
 
 
-	void test_me() {
+	virtual void test_me() {
 		tensor_t<double> in(this->in.size);
 		randomize(in);
 		tensor_t<double> next_grads(this->out.size);
@@ -100,19 +100,19 @@ public:
 		fix_weights();
 	}
 
-	void test_activate() {
+	virtual void test_activate() {
 		tensor_t<double> _in(this->in.size);
 		randomize(_in);
 		activate(_in);
 	}
 
-	void test_calc_grads() {
+	virtual void test_calc_grads() {
 		tensor_t<double> _out(this->out.size);
 		randomize(_out);
 		calc_grads(_out);
 	}
 
-	void test_fix_weights() {
+	virtual void test_fix_weights() {
 		randomize(this->grads_out);
 		fix_weights();
 	}
