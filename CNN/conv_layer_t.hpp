@@ -359,7 +359,7 @@ namespace CNNTest{
 
 	TEST_F(CNNTest, conv_simple) {
 		
-		tdsize size(10,10,10);
+		tdsize size(10,10,10,1);
 		conv_layer_t t1(2, 4, 5, 0, size);
 		conv_layer_t t2(2, 4, 5, 0, size);
 		tensor_t<double> in(size);
@@ -370,7 +370,7 @@ namespace CNNTest{
 	}
 
 	TEST_F(CNNTest, conv_slight_overlap) {
- 		conv_layer_t t3(4, 5, 1, 0, tdsize(17,17,1));
+ 		conv_layer_t t3(4, 5, 1, 0, tdsize(17,17,1,1));
 		EXPECT_EQ(t3.out.size.x, 5);
 			
 		auto r1 =  t3.map_to_output(0,0);
@@ -401,7 +401,7 @@ namespace CNNTest{
 	}
 
 	TEST_F(CNNTest, conv_big_overlap) {
-		conv_layer_t t3(1, 5, 1, 0, tdsize(17,17,1));
+		conv_layer_t t3(1, 5, 1, 0, tdsize(17,17,1,1));
 		EXPECT_EQ(t3.out.size.x, 17);
 			
 		auto r1 =  t3.map_to_output(0,0);
@@ -431,7 +431,7 @@ namespace CNNTest{
 	}
 
 	TEST_F(CNNTest, conv_mid_overlap) {
-		conv_layer_t t3(2, 4, 1, 0, tdsize(17,17,1));
+		conv_layer_t t3(2, 4, 1, 0, tdsize(17,17,1,1));
 		EXPECT_EQ(t3.out.size.x, 9);
 			
 		EXPECT_EQ(t3.map_to_output(0, 0).min_x, 0);
@@ -459,23 +459,23 @@ namespace CNNTest{
 	}
 
 	TEST_F(CNNTest, conv_gap) {
-		EXPECT_THROW(conv_layer_t(4, 2, 1, 0, tdsize(17,17,1)), AssertionFailureException); 
+		EXPECT_THROW(conv_layer_t(4, 2, 1, 0, tdsize(17,17,1,1)), AssertionFailureException); 
 	}
 	
 	TEST_F(CNNTest, conv_util) {
 		srand(42);
-		conv_layer_t t1(1, 4, 5, 0,tdsize(10,10,10));
-		conv_layer_t t2(1, 4, 5, 0,tdsize(11,10,10));
-		conv_layer_t t3(2, 4, 5, 0,tdsize(10,10,10));
+		conv_layer_t t1(1, 4, 5, 0,tdsize(10,10,10,1));
+		conv_layer_t t2(1, 4, 5, 0,tdsize(11,10,10,1));
+		conv_layer_t t3(2, 4, 5, 0,tdsize(10,10,10,1));
 
-		conv_layer_t t4(1, 4, 5, 0,tdsize(10,10,10));
+		conv_layer_t t4(1, 4, 5, 0,tdsize(10,10,10,1));
 		srand(42);
-		conv_layer_t t5(1, 4, 5, 0,tdsize(10,10,10));
+		conv_layer_t t5(1, 4, 5, 0,tdsize(10,10,10,1));
 
 		srand(42);
-		conv_layer_t t6(1, 1, 1, 0,tdsize(1,1,1));
+		conv_layer_t t6(1, 1, 1, 0,tdsize(1,1,1,1));
 		srand(42);
-		conv_layer_t t7(1, 1, 1, 0,tdsize(1,1,1));
+		conv_layer_t t7(1, 1, 1, 0,tdsize(1,1,1,1));
 
 		EXPECT_EQ(t6,t7);
 		EXPECT_EQ(t1,t1);
