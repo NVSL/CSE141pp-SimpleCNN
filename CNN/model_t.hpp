@@ -160,7 +160,14 @@ public:
 		backward(error, debug);
 		return i;
 	}
-	
+
+	std::string regression_code() const {
+		std::stringstream ss;
+		for(auto &r: layers) {
+			ss << r->regression_code();
+		}
+		return ss.str();
+	}
 
 	std::string geometry() const {
 		std::stringstream ss;

@@ -100,6 +100,19 @@ public:
 			}
 		}
 	}
+	std::string regression_code() const {
+		std::stringstream ss;
+		ss << "pool_test<opt_pool_layer_t>("
+		   << in.size.x << ", "
+		   << in.size.y << ", "
+		   << in.size.z << ", "
+		   << in.size.b << ", "
+		   << stride << ", "
+		   << filter_size << ", "
+		   << pad << ", i"
+		   << ");";
+		return ss.str();
+	}
 };
 
 template<class T> T* run_pool(int x, int y, int z, int b, uint16_t stride, uint16_t kernel_size, double pad,

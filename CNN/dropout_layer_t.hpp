@@ -62,6 +62,19 @@ public:
 			for ( int i = 0; i < in.size.x*in.size.y*in.size.z; i++ )
 				grads_out.data[i] = hitmap.data[i] ? grad_next_layer.data[i] : 0.0f;
 		}
+	
+	std::string regression_code() const {
+		std::stringstream ss;
+		ss << "dropout_test<opt_dropout_layer_t>("
+		   << in.size.x << ", "
+		   << in.size.y << ", "
+		   << in.size.z << ", "
+		   << in.size.b << ", "
+		   << p_activation 
+		   << ", i)"
+		   << ");";
+		return ss.str();
+	}
 };
 
 

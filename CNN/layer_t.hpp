@@ -53,6 +53,7 @@ public:
 	}
 	virtual std::string param_str() const {return "<missing>";}
 	virtual std::string kind_str() const {return "<missing>";}
+	virtual std::string regression_code() const {return "<missing>";}
 	std::string spec_str() const {
 		std::stringstream ss;
 		ss << kind_str() << "(" << param_str() << ")";

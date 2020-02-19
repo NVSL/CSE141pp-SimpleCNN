@@ -345,6 +345,18 @@ public:
 		//out << "Diff of ->gradients: " << diff(this->gradients, _other->gradients) << "\n";
 		return out.str();
 	}
+
+	std::string regression_code() const {
+		std::stringstream ss;
+		ss << "fc_test<opt_fc_layer_t>("
+		   << in.size.x << ", "
+		   << in.size.y << ", "
+		   << in.size.z << ", "
+		   << in.size.b << ", "
+		   << out.size.x << ", i"
+		   << ");";
+		return ss.str();
+	}
 	
 };
 

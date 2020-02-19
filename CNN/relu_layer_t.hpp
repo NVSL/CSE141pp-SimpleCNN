@@ -60,6 +60,17 @@ public:
 					}
 
 	}
+	std::string regression_code() const {
+		std::stringstream ss;
+		ss << "relu_test<opt_relu_layer_t>("
+		   << in.size.x << ", "
+		   << in.size.y << ", "
+		   << in.size.z << ", "
+		   << in.size.b
+		   << ", i"
+		   << ");";
+		return ss.str();
+	}
 };
 
 template<class T> T* run_relu(int x, int y, int z, int b,

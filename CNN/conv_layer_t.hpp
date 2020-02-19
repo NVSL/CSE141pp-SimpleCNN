@@ -194,6 +194,22 @@ public:
 			}
 		}
 	}
+
+	std::string regression_code() const {
+		std::stringstream ss;
+		ss << "conv_test<opt_conv_layer_t>("
+		   << in.size.x << ", "
+		   << in.size.y << ", "
+		   << in.size.z << ", "
+		   << in.size.b << ", "
+
+		   << stride << ", "
+		   << kernel_size << ", "
+		   << kernel_count << ", "
+		   << pad << ", i"
+		   << ");";
+		return ss.str();
+	}
 };
 
 	
