@@ -72,7 +72,7 @@ public:
 	}
 
 	std::string kind_str() const {
-		return "convolution";
+		return "conv_layer_t";
 	}
 	std::string param_str() const {
 		std::stringstream ss;

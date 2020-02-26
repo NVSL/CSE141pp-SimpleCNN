@@ -175,7 +175,7 @@ public:
 		ss << "IN    " << layers[0]->in.size << "\n";
 		for(auto &r: layers) {
 			auto s = r->get_total_memory_size();
-			ss << "L" << i << "  ->" << r->out.size << " " << (s+0.0)/(1024.0) << " kB (" << (s+0.0)/get_total_memory_size()*100.0 << "%) : " << r->spec_str() << "\n"; 
+			ss << "layer[" << i << "]  ->" << r->out.size << " " << (s+0.0)/(1024.0) << " kB (" << (s+0.0)/get_total_memory_size()*100.0 << "%) : " << r->spec_str() << "\n"; 
 			i++;
 		}
 	        ss << "Total " << i << ": " << get_total_memory_size()/1024.0 << " kB\n";

@@ -21,7 +21,7 @@ public:
 	}
 
 	std::string kind_str() const {
-		return "pool";
+		return "pool_layer_t";
 	}
 	std::string param_str() const {
 		std::stringstream ss;
