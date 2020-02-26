@@ -295,7 +295,7 @@ public:
 	}
 
 	std::string kind_str() const {
-		return "fc";
+		return "fc_layer_t";
 	}
 	std::string param_str() const {
 		std::stringstream ss;
