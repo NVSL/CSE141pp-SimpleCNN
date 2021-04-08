@@ -16,7 +16,7 @@ mnist-train.dataset: train-images-idx3-ubyte train-labels-idx1-ubyte
 	../../tools/build_mnist.exe $^ $@ digits
 
 %-ubyte:
-	curl -L http://yann.lecun.com/exdb/mnist/$*-ubyte.gz -o $*-ubyte.gz
+	curl -L https://storage.googleapis.com/nvsl_misc/$*-ubyte.gz -o $*-ubyte.gz
 	gunzip $*-ubyte.gz
 
 ## EMNIST
