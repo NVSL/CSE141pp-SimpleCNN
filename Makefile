@@ -51,6 +51,11 @@ clean:
 	rm -rf .test_build
 	for i in $(SUBDIRS); do $(MAKE) -C $$i clean;done
 
+.PHONY: tidy
+tidy:
+	rm -rf .test_build
+	for i in $(SUBDIRS); do $(MAKE) -C $$i tidy;done
+
 .PHONY: distclean
 distclean:
 	rm -rf googletest cse141pp-archlab

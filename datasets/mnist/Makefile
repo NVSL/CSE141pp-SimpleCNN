@@ -1,5 +1,5 @@
 
-default: all
+default: all 
 
 all: emnist mnist
 
@@ -31,6 +31,10 @@ $(EMNIST_INPUTS): gzip.zip
 	unzip -o $<
 	gunzip -f gzip/*.gz
 	touch gzip/*
+
+.PHONY: tidy
+tidy:
+	rm -rf gzip.zip gzip *-ubyte *.gz gzip
 
 emnist-byclass-test.dataset:  gzip/emnist-byclass-test-images-idx3-ubyte gzip/emnist-byclass-test-labels-idx1-ubyte
 	../../tools/build_mnist.exe $^ $@ extended

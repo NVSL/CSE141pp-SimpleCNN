@@ -10,7 +10,7 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 	
-	dataset_t mnist = load_mnist(argv[1], argv[2], !strcmp(argv[4], "extended"));
+	dataset_t mnist = load_mnist(argv[1], argv[2], !strcmp(argv[4], "extended"), 10000);
 
 	std::ofstream out (argv[3],std::ofstream::binary);
 	mnist.write(out);

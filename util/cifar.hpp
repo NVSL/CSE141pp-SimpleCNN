@@ -23,7 +23,7 @@ uint8_t* read_file( const std::string & f, size_t & length )
 	return buffer;
 }
 
-dataset_t load_cifar(const std::string & file, bool cifar100=false)
+dataset_t load_cifar(const std::string & file, bool cifar100=false, unsigned int max_frames = std::numeric_limits<unsigned int>::max())
 {
 	dataset_t cases;
 	size_t len;
@@ -38,6 +38,9 @@ dataset_t load_cifar(const std::string & file, bool cifar100=false)
 	}
 				
 	uint case_count = cifar100 ? len/CIFAR100_FRAME_SIZE: len/CIFAR10_FRAME_SIZE; // bytes per label + image
+
+	case_count = std::min(case_count, max_frames);
+
 	
 	for ( uint i = 0; i < case_count; i++ )
 	{

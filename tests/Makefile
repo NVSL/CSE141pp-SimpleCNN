@@ -26,6 +26,8 @@ clean: tests-clean
 tests-clean:
 	rm -rf run_test.exe
 
+tidy:
+
 .PHONY: tests-help
 help: tests-help
 tests-help:

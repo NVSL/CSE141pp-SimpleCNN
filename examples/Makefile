@@ -7,6 +7,8 @@ default: $(EXAMPLES)
 %.exe : %.o 
 	$(CXX) $(GENERIC_LDFLAGS) $^ -o $@
 
+tidy:
+
 clean: examples-clean
 examples-clean:
 	rm -rf $(EXAMPLES)

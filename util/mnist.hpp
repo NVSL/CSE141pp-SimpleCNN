@@ -22,14 +22,14 @@ uint8_t* read_file( const std::string & f )
 	return buffer;
 }
 
-dataset_t load_mnist(const std::string & images, const std::string & labels, bool extended)
+dataset_t load_mnist(const std::string & images, const std::string & labels, bool extended, unsigned int max_frames = std::numeric_limits<unsigned int>::max())
 {
 	dataset_t cases;
 
 	uint8_t* train_image = read_file( images );
 	uint8_t* train_labels = read_file( labels);
 
-	uint32_t case_count = byteswap_uint32( *(uint32_t*)(train_image + 4) );
+	uint32_t case_count = std::min(byteswap_uint32( *(uint32_t*)(train_image + 4) ), max_frames);
 
 	int classes = extended ? 36 :10;
 	

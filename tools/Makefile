@@ -7,6 +7,8 @@ default: $(TOOLS)
 %.exe : %.o 
 	$(CXX) $(USER_LDFLAGS) $(LD_OPTS) $^ -ljpeg -o $@
 
+tidy:
+
 .PHONY:tools-clean
 tools-clean:
 	rm -rf $(TOOLS)
