@@ -1,8 +1,8 @@
 SUBDIRS=datasets/mnist datasets/cifar datasets/imagenet tests examples tools 
 
 
-all: examples tools datasets test
-install:
+all: googletest cse141pp-archlab examples tools datasets test
+setup: all tidy
 
 .PHONY: test
 test: check_env
@@ -27,7 +27,7 @@ datasets: check_env tools
 	for i in $(SUBDIRS); do $(MAKE) -C $$i; done
 
 .PHONY: setup
-setup: googletest cse141pp-archlab
+setup: 
 
 .PHONY: check_env
 check_env:
