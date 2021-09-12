@@ -64,6 +64,7 @@ struct tensor_t
 
 	tdsize size;
 	T * data;
+	bool delete_memory;
 	
 	T & as_vector(size_t i) {
 		return data[i];
@@ -157,12 +158,17 @@ struct tensor_t
 		return size.x * size.y * size.z * size.b * sizeof( T );
 	}
 
-	tensor_t( int _x, int _y, int _z, int _b=1 ) :  size(_x, _y, _z, _b) {
+	tensor_t( int _x, int _y, int _z, int _b=1, T* memory=NULL ) :  size(_x, _y, _z, _b), delete_memory(true) {
 		throw_assert(size.x > 0 && size.y > 0 && size.z > 0 && size.b > 0,  "Tensor initialized with non-positive dimensions");
-		data = new T[size.x * size.y * size.z * size.b]();
+		if (memory) {
+			data = memory;
+			delete_memory=false;
+		} else {
+			data = new T[size.x * size.y * size.z * size.b]();
+		}
 	}
 
-	tensor_t(const tdsize & _size) : size(_size)
+	tensor_t(const tdsize & _size) : size(_size), delete_memory(true)
 	{
 		throw_assert(size.x > 0 && size.y > 0 && size.z > 0,  "Tensor initialized with non-positive dimensions");
 		if (size.b == 0) {
@@ -172,7 +178,7 @@ struct tensor_t
 		// std::cout << "Made new tensor with size: " << size << std::endl;
 	}
 
-	tensor_t( const tensor_t& other ) : size(other.size)
+	tensor_t( const tensor_t& other ) : size(other.size), delete_memory(true)
 	{
 		data = new T[size.x * size.y * size.z * size.b];
 		memcpy(
@@ -189,7 +195,9 @@ struct tensor_t
 
 	~tensor_t()
 	{
-		delete[] data;
+		if (delete_memory) {
+			delete[] data;
+		}
 	}
 
 	
