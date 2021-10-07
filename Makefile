@@ -2,7 +2,7 @@ SUBDIRS=datasets/mnist datasets/cifar datasets/imagenet tests examples tools
 
 
 all: googletest cse141pp-archlab examples tools datasets test
-setup: all tidy
+setup: #all tidy
 
 .PHONY: test
 test: check_env
