@@ -1,7 +1,7 @@
 SUBDIRS=datasets/mnist datasets/cifar datasets/imagenet tests examples tools 
 
 
-all: googletest cse141pp-archlab examples tools datasets test
+all: cse141pp-archlab examples tools datasets test
 setup: #all tidy
 
 .PHONY: test
@@ -33,10 +33,6 @@ setup:
 check_env:
 	@if [ "$(ARCHLAB_ROOT)." = "." ]; then echo You need to do 'source ./env.sh' to setup your environment.; false; else true; fi
 
-googletest:
-	rm -rf googletest
-	git clone https://github.com/google/googletest.git
-	cd googletest;	cmake CMakeLists.txt; make
 
 cse141pp-archlab:
 	rm -rf cse141pp-archlab
