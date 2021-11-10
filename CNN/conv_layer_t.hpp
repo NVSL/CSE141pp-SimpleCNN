@@ -112,6 +112,7 @@ public:
 	}
 
 	void activate( tensor_t<double>& in ) {
+		
 		copy_input(in);
 		for ( int b = 0; b < out.size.b; b++ ) {
 			for ( uint filter = 0; filter < filters.size(); filter++ ) {
@@ -120,14 +121,17 @@ public:
 					for ( int y = 0; y < out.size.y; y++ ) {
 						point_t mapped(x*stride, y*stride, 0);
 						double sum = 0;
+
 						for ( int i = 0; i < kernel_size; i++ )
 							for ( int j = 0; j < kernel_size; j++ )
+
 								for ( int z = 0; z < in.size.z; z++ ) {
+
 									double f = filter_data( i, j, z );
-								
+									
 									double v;
 									if (mapped.x + i >= in.size.x ||
-								    	mapped.y + j >= in.size.y) {
+									    mapped.y + j >= in.size.y) {
 										v = pad;
 									} else {
 										v = in( mapped.x + i, mapped.y + j, z, b );

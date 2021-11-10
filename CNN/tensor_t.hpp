@@ -104,7 +104,7 @@ struct tensor_t
 		throw_assert(
 			     size.b == 1, "This matrix is not 3-dimensional")
 	}
-	inline T& operator()( int _x, int _y, int _z, int _b=0 )
+	inline T& operator()( int _x, int _y = 0, int _z =0, int _b=0 )
 	{
 		return this->get( _x, _y, _z, _b );
 	}
@@ -114,7 +114,7 @@ struct tensor_t
 		return this->get( _x, _y, _z, _b );
 	}
 
-	uint linearize(int x, int y, int z, int b = 0) const {
+	uint linearize(int x, int y=0, int z=0, int b = 0) const {
 		return 	b * (size.x * size.y * size.z) +
 			z * (size.x * size.y) +
 			y * (size.x) +
@@ -126,7 +126,7 @@ struct tensor_t
 			s.y * (size.x) +
 			s.x;
 	}
-	T& get( int _x, int _y, int _z, int _b=0 ) {
+	T& get( int _x, int _y=0, int _z=0, int _b=0 ) {
 		throw_assert_debug( _x >= 0 && _y >= 0 && _z >= 0 && _b >= 0, "Tried to read tensor at negative coordinates" );
 		throw_assert_debug( _x < size.x && _y < size.y && _z < size.z && _b < size.b, "Tried to read tensor out of bounds " << tdsize(_x, _y, _z, _b) << ". But tensor is " << size );
 		
@@ -138,7 +138,7 @@ struct tensor_t
 			];
 	}
 
-	const T & get( int _x, int _y, int _z, int _b=0 ) const {
+	const T & get( int _x, int _y=0, int _z=0, int _b=0 ) const {
 		throw_assert_debug( _x >= 0 && _y >= 0 && _z >= 0 && _b >= 0, "Tried to read tensor at negative coordinates" );
 		throw_assert_debug( _x < size.x && _y < size.y && _z < size.z && _b < size.b, "Tried to read tensor out of bounds " << tdsize(_x, _y, _z, _b) << ". But tensor is " << size );
 		
@@ -508,7 +508,8 @@ static std::string diff(const tensor_t<T> & first, const tensor_t<T> & second)
 }
 
 template<>
-[[maybe_unused]] std::string diff(const tensor_t<gradient_t> & first, const tensor_t<gradient_t> & second) 
+[[maybe_unused]]
+std::string diff(const tensor_t<gradient_t> & first, const tensor_t<gradient_t> & second) 
 {
 	std::stringstream out;
 	tensor_t<bool> diff(first.size);
