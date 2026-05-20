@@ -38,7 +38,7 @@ struct point_t
 	*/
 	
 	int x, y, z, b;
-	point_t(int x, int y, int z, int b=0) : x(x), y(y), z(z), b(b){}
+	point_t(int x, int y, int z, int b=1) : x(x), y(y), z(z), b(b){}
 	point_t(): x(0), y(0), z(0), b(0){}
 	bool operator==(const point_t &o) const {
 		return (x == o.x && y == o.y && z == o.z && b == o.b);

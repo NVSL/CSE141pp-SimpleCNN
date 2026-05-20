@@ -15,7 +15,7 @@ int main()
 	
 //	dataset_t mnist = load_mnist("../datasets/mnist/train-images.idx3-ubyte",
 //				     "../datasets/mnist/train-labels.idx1-ubyte");
-	std::ifstream in("../tools/mnist.dataset",std::ofstream::binary);
+	std::ifstream in("../datasets/mnist.dataset",std::ofstream::binary);
 	throw_assert(in.good(), "Couldn't open mnist.dataset");
 	dataset_t toy;
 	model_t model;

@@ -3,10 +3,10 @@
 
 using namespace std;
 
-int main()
+int main(int argc, char *argv[])
 {
 
-	dataset_t imagenet = dataset_t::read("../datasets/imagenet/imagenet.dataset");
+	dataset_t imagenet = dataset_t::read(argc == 1 ? "../datasets/imagenet/imagenet.dataset": argv[1]);
 
 	model_t model;
 
